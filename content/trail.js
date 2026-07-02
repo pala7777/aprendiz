@@ -46,6 +46,7 @@ window.COURSE_TRAIL = {
     {
       id: 0, title: "Linguagem comum", img: "assets/img/m0.jpg",
       summary: "Os três modelos mentais que fazem todo o resto fazer sentido.",
+      learn: ["Carga interna × externa","Limiares VT1/VT2","Os 3 domínios","Zona cinzenta","Contínuo × fracionado"],
       sections: [
         {
           n: 1, title: "Carga interna × carga externa",

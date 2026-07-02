@@ -12,6 +12,7 @@
     home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h14V9"/></svg>',
     tools:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6a4 4 0 0 0 5 5l-8 8a2.8 2.8 0 0 1-4-4l8-8a4 4 0 0 0-1-1z"/></svg>',
     panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+    cards:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M7 3h11a2 2 0 0 1 2 2v11"/></svg>',
     gloss:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9a3 3 0 0 1 3 3v15H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6M9 12h6"/></svg>',
     run:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="5" r="2"/><path d="M11 8l-3 3 3 2 1 5M12 13l4 2 2-2M8 11l-3 1"/></svg>',
     book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></svg>',
@@ -33,7 +34,7 @@
   window.__attachGlossary=root=>attachGlossary(root);
 
   function buildNav(){
-    const items=[["#/","home","Início"],["#/ferramentas","tools","Ferramentas"],["#/painel","panel","Meu painel"],["#/glossario","gloss","Glossário"]];
+    const items=[["#/","home","Início"],["#/ferramentas","tools","Ferramentas"],["#/revisar","cards","Revisar"],["#/painel","panel","Meu painel"],["#/glossario","gloss","Glossário"]];
     nav.innerHTML=items.map(([h,ic,l])=>`<div class="navbtn" data-h="${h}" title="${l}">${ICON[ic]}</div>`).join("");
     nav.querySelectorAll(".navbtn").forEach(b=>b.onclick=()=>go(b.dataset.h));
   }
@@ -62,10 +63,12 @@
 
   function render(){
     syncPill(); setBar(); markNav(); window.scrollTo(0,0); killFoot();
+    app.classList.remove("wide");
     const p=(location.hash||"#/").replace(/^#\//,"").split("/").filter(Boolean);
     if(!p.length) return catalog();
     if(p[0]==="ferramentas") return ferramentas();
     if(p[0]==="glossario") return glossario();
+    if(p[0]==="revisar") return revisar();
     if(p[0]==="painel") return painel();
     if(p[0]==="curso"){ const c=courseOf(p[1]);
       if(!c) return catalog();
@@ -182,18 +185,59 @@
   /* ---------- MÓDULO (rolagem única) ---------- */
   function modulo(c,mod){
     if(mod.locked) return curso(c);
+    app.classList.add("wide");
     app.innerHTML=`<div class="img-duo art" style="height:180px"><img src="${mod.img}" alt="">
-      <div class="on"><span class="kicker">Módulo ${mod.id}</span><h1 style="color:#fff;font-size:26px;margin:0">${mod.title}</h1></div></div>
-      <p class="lead" style="margin-top:14px">${mod.summary}</p>`;
-    mod.sections.forEach(sec=>{ const w=document.createElement("section"); w.className="lesson-sec";
+        <div class="on"><span class="kicker">Módulo ${mod.id}</span><h1 style="color:#fff;font-size:26px;margin:0">${mod.title}</h1></div></div>
+      <p class="lead" style="margin-top:14px">${mod.summary}</p>
+      <div class="lesson-grid">
+        <div class="lesson-main" id="lmain"></div>
+        <aside class="lesson-aside"><div class="aside-inner" id="aside"></div></aside>
+      </div>`;
+    const main=app.querySelector("#lmain");
+    const outline=[];
+    mod.sections.forEach((sec,i)=>{ const w=document.createElement("section"); w.className="lesson-sec"; w.id="sec-"+i;
       w.innerHTML=`<h3><span class="n">${sec.n}</span>${sec.title}</h3>`;
-      sec.blocks.forEach(b=>w.appendChild(renderBlock(b))); app.appendChild(w); });
-    if(mod.quiz){ const qs=document.createElement("section"); qs.className="lesson-sec"; app.appendChild(qs); renderQuiz(mod,qs); }
-    attachGlossary(app);
+      sec.blocks.forEach(b=>w.appendChild(renderBlock(b))); main.appendChild(w);
+      outline.push({id:"sec-"+i, n:sec.n, title:sec.title}); });
+    if(mod.quiz){ const qs=document.createElement("section"); qs.className="lesson-sec"; qs.id="sec-quiz"; main.appendChild(qs); renderQuiz(mod,qs);
+      outline.push({id:"sec-quiz", n:"✓", title:mod.quiz.title}); }
+    attachGlossary(main);
+
+    /* painel lateral "Neste módulo" */
+    const aside=app.querySelector("#aside");
+    aside.innerHTML=`<div class="aside-title">Neste módulo</div>
+      <div class="learn-tags">${ltags(mod.learn||[])}</div>
+      <div class="outline">${outline.map(o=>`<a data-t="${o.id}"><span class="oi">${o.n}</span><span>${o.title}</span></a>`).join("")}</div>
+      <div class="aside-actions">
+        <button class="btn small" id="a-flash">🧠 Revisar flashcards</button>
+        <button class="btn ghost small" id="a-gloss">📖 Glossário</button>
+      </div>`;
+    aside.querySelectorAll(".outline a").forEach(a=>a.onclick=()=>{
+      const t=document.getElementById(a.dataset.t); if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); });
+    aside.querySelector("#a-flash").onclick=()=>go("#/revisar");
+    aside.querySelector("#a-gloss").onclick=()=>go("#/glossario");
+    // scroll-spy: destaca a seção visível no índice
+    const links=aside.querySelectorAll(".outline a");
+    const setActive=id=>links.forEach(l=>l.classList.toggle("active",l.dataset.t===id));
+    if("IntersectionObserver" in window){
+      const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)setActive(e.target.id);}),
+        {rootMargin:"-35% 0px -60% 0px"});
+      main.querySelectorAll("section[id]").forEach(s=>io.observe(s));
+    }
+    setActive(outline[0]&&outline[0].id);
+
     S.mod[mod.id]=true; save(); setBar();
     footCustom([{label:"← Módulos",ghost:true,on:()=>go("#/curso/"+c.id)},
       {label:"Próximo módulo →",on:()=>{const nx=contentOf(c).modules.find(m=>m.id===mod.id+1);
         (nx&&!nx.locked)?go("#/curso/"+c.id+"/modulo/"+nx.id):go("#/curso/"+c.id);}}]);
+  }
+
+  /* ---------- revisar flashcards (rota direta) ---------- */
+  function revisar(){
+    app.innerHTML=`<div class="eyebrow">Memorização</div><h2 class="section">🧠 Revisar flashcards</h2>
+      <p class="lead">Repetição espaçada do glossário — o jeito comprovado de fixar os termos.</p><div id="fh"></div>`;
+    app.querySelector("#fh").appendChild(FLASH.review(C.glossary,()=>go("#/painel")));
+    footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")}]);
   }
 
   function renderBlock(b){
