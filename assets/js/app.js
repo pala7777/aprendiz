@@ -1,316 +1,324 @@
 /* ============================================================
-   APRENDIZ — núcleo v2 (sidebar + roteador + glossário + estado)
-   Sem dependências. Estado no localStorage.
+   APRENDIZ — núcleo v3 (multi-curso + painel + PWA)
    ============================================================ */
 (function(){
-  const BRAND="Aprendiz";
-  const C=window.COURSE_TRAIL;
-  const app=document.getElementById("app");
-  const bar=document.getElementById("progressbar");
-  const nav=document.getElementById("nav");
-  const trackPill=document.getElementById("trackpill");
+  const P=window.PLATFORM, C=window.COURSE_TRAIL;
+  const app=document.getElementById("app"), bar=document.getElementById("progressbar");
+  const nav=document.getElementById("nav"), trackPill=document.getElementById("trackpill");
+  const courseOf=id=>P.courses.find(c=>c.id===id);
+  const contentOf=c=>c&&c.ref?window[c.ref]:null;
 
-  /* ---- ícones SVG (stroke currentColor) ---- */
   const ICON={
     home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h14V9"/></svg>',
-    book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></svg>',
-    gloss:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9a3 3 0 0 1 3 3v15H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6M9 12h6"/></svg>',
     tools:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6a4 4 0 0 0 5 5l-8 8a2.8 2.8 0 0 1-4-4l8-8a4 4 0 0 0-1-1z"/></svg>',
+    panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+    gloss:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9a3 3 0 0 1 3 3v15H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6M9 12h6"/></svg>',
     run:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="5" r="2"/><path d="M11 8l-3 3 3 2 1 5M12 13l4 2 2-2M8 11l-3 1"/></svg>',
-    search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>',
+    book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/></svg>',
     clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
-    layers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>'
+    layers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></svg>',
+    upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M8 8l4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>'
   };
 
-  /* ---- estado ---- */
   const KEY="aprendiz.state.v2";
   const S=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}})();
-  S.track=S.track||null; S.mod=S.mod||{}; S.quiz=S.quiz||{};
+  S.track=S.track||null; S.mod=S.mod||{}; S.quiz=S.quiz||{}; S.name=S.name||"";
   const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
   const trackName=id=>({atleta:"🏃 Atleta",treinador:"🎓 Treinador"}[id]||"escolher");
-
   const go=h=>location.hash=h;
   window.addEventListener("hashchange",render);
 
-  /* ---- sidebar ---- */
+  /* glossário → tooltip */
+  const G={}; C.glossary.forEach(([t,d])=>G[t.toLowerCase()]=d);
+  window.__attachGlossary=root=>attachGlossary(root);
+
   function buildNav(){
-    const items=[["#/","home","Início"],["#/curso/trail","book","Curso"],
-      ["#/glossario","gloss","Glossário"],["#/ferramentas","tools","Ferramentas"]];
-    nav.innerHTML=items.map(([h,ic,l])=>
-      `<div class="navbtn" data-h="${h}" title="${l}">${ICON[ic]}</div>`).join("");
+    const items=[["#/","home","Início"],["#/ferramentas","tools","Ferramentas"],["#/painel","panel","Meu painel"],["#/glossario","gloss","Glossário"]];
+    nav.innerHTML=items.map(([h,ic,l])=>`<div class="navbtn" data-h="${h}" title="${l}">${ICON[ic]}</div>`).join("");
     nav.querySelectorAll(".navbtn").forEach(b=>b.onclick=()=>go(b.dataset.h));
   }
   function markNav(){ const h=location.hash||"#/";
-    nav.querySelectorAll(".navbtn").forEach(b=>{
-      const on=b.dataset.h===h||(b.dataset.h!=="#/"&&h.startsWith(b.dataset.h));
-      b.classList.toggle("active",on);
-    });
-  }
+    nav.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active", b.dataset.h===h || (b.dataset.h!=="#/"&&h.startsWith(b.dataset.h)))); }
   document.getElementById("logo").onclick=()=>go("#/");
   trackPill.onclick=()=>openTriage(true);
   function syncPill(){ trackPill.innerHTML="Trilha: <b>"+trackName(S.track)+"</b>"; }
 
-  /* ---- triagem (2 trilhas) ---- */
   function openTriage(reopen){
     const m=document.createElement("div"); m.className="modal";
     m.innerHTML=`<div class="box"><h3>Como você quer aprender?</h3>
-      <p class="sub">Isso adapta a profundidade e os exemplos do curso. Dá pra trocar quando quiser.</p>
-      ${C.tracks.map(t=>`<div class="choice" data-t="${t.id}">
-        <div class="ci">${ICON[t.icon]}</div><div><b>${t.label}</b><span>${t.desc}</span></div></div>`).join("")}
+      <p class="sub">Adapta a profundidade e os exemplos. Dá pra trocar quando quiser.</p>
+      ${C.tracks.map(t=>`<div class="choice" data-t="${t.id}"><div class="ci">${ICON[t.icon]}</div><div><b>${t.label}</b><span>${t.desc}</span></div></div>`).join("")}
       ${reopen?`<div class="btnrow"><button class="btn ghost close">Cancelar</button></div>`:""}</div>`;
     document.body.appendChild(m);
     m.querySelectorAll(".choice").forEach(c=>c.onclick=()=>{S.track=c.dataset.t;save();m.remove();syncPill();render();});
     const cl=m.querySelector(".close"); if(cl)cl.onclick=()=>m.remove();
   }
 
-  /* ---- progresso ---- */
-  const contentMods=()=>C.modules.filter(m=>!m.locked);
-  function setBar(){ const t=contentMods().length||1;
-    const d=contentMods().filter(m=>S.mod[m.id]).length; bar.style.width=Math.round(d/t*100)+"%"; }
+  const publishedCourses=()=>P.courses.filter(c=>c.published);
+  function courseDone(c){ const co=contentOf(c); if(!co)return false;
+    return co.modules.filter(m=>!m.locked).every(m=>S.mod[m.id]); }
+  function setBar(){ const co=C; const tot=co.modules.filter(m=>!m.locked).length||1;
+    const d=co.modules.filter(m=>!m.locked&&S.mod[m.id]).length; bar.style.width=Math.round(d/tot*100)+"%"; }
 
-  /* ---- glossário: mapa termo->def ---- */
-  const G={}; C.glossary.forEach(([t,d])=>G[t.toLowerCase()]=d);
-
-  /* ---- render principal ---- */
   function render(){
-    syncPill(); setBar(); markNav(); window.scrollTo(0,0);
-    const h=location.hash||"#/";
-    const p=h.replace(/^#\//,"").split("/").filter(Boolean);
-    killFoot();
-    if(!p.length) return home();
-    if(p[0]==="glossario") return glossario();
+    syncPill(); setBar(); markNav(); window.scrollTo(0,0); killFoot();
+    const p=(location.hash||"#/").replace(/^#\//,"").split("/").filter(Boolean);
+    if(!p.length) return catalog();
     if(p[0]==="ferramentas") return ferramentas();
-    if(p[0]==="curso"){
-      if(p[2]==="modulo"){ const mod=C.modules.find(m=>String(m.id)===p[3]);
-        return mod?modulo(mod):home(); }
-      return curso();
+    if(p[0]==="glossario") return glossario();
+    if(p[0]==="painel") return painel();
+    if(p[0]==="curso"){ const c=courseOf(p[1]);
+      if(!c) return catalog();
+      if(!c.published) return teaser(c);
+      if(p[2]==="modulo"){ const mod=contentOf(c).modules.find(m=>String(m.id)===p[3]); return mod?modulo(c,mod):curso(c); }
+      return curso(c);
     }
-    home();
+    catalog();
   }
+  const div=(cls,html)=>{const d=document.createElement("div");d.className=cls;d.innerHTML=html;return d;};
 
-  /* ---- HOME ---- */
-  function home(){
+  /* ---------- CATÁLOGO (home multi-curso) ---------- */
+  function catalog(){
     app.innerHTML=`
-      <div class="img-duo art hero-home" style="height:200px">
-        <img src="${C.heroImg}" alt="">
+      <div class="img-duo art" style="height:190px">
+        <img src="assets/img/hero.jpg" alt="">
         <div class="on"><span class="kicker">Plataforma de aprendizagem</span>
           <h1 style="color:#fff;font-size:26px;margin:0">Aprenda fazendo</h1>
-          <p style="color:#e9e6ff;margin:6px 0 0">Calcule, monte e teste — não só leia.</p></div>
+          <p style="color:#e9e6ff;margin:6px 0 0">Cursos práticos onde você calcula, monta e testa — não só lê.</p></div>
       </div>
-      <div class="grid two" style="margin-top:18px">
-        <div class="ccard" id="c-trail">
-          <div class="thumb img-duo"><img src="${C.modules[0].img}" alt=""></div>
-          <div class="body"><h3>${C.title}</h3><p>${C.subtitle}</p>
-            <div class="foot"><span class="chip">Curso #1</span><span class="go">Começar →</span></div></div>
-        </div>
-        <div class="ccard locked">
-          <div class="thumb" style="background:linear-gradient(135deg,var(--bg-3),var(--bg-4));display:flex;align-items:center;justify-content:center;color:var(--tx-dim);font-size:30px">＋</div>
-          <div class="body"><h3>Mais cursos</h3><p>A plataforma recebe qualquer tema.</p>
-            <div class="foot"><span class="chip">em breve</span></div></div>
-        </div>
-      </div>`;
-    document.getElementById("c-trail").onclick=()=>go("#/curso/trail");
+      <div class="cat-head"><h2 class="section" style="margin:18px 0 2px">Catálogo de cursos</h2>
+        <p class="lead" id="ccount"></p></div>
+      <input class="gsearch" id="csearch" placeholder="Buscar curso…">
+      <div class="chips" id="chips"></div>
+      <div class="grid three" id="cat" style="margin-top:16px"></div>`;
+    let cat="todos", q="";
+    const chips=app.querySelector("#chips");
+    chips.innerHTML=P.categories.map(c=>`<button class="fchip${c.id==='todos'?' on':''}" data-c="${c.id}">${c.name}</button>`).join("");
+    chips.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{cat=b.dataset.c;
+      chips.querySelectorAll(".fchip").forEach(x=>x.classList.toggle("on",x===b)); paint();});
+    app.querySelector("#csearch").oninput=e=>{q=e.target.value.toLowerCase().trim();paint();};
+    const grid=app.querySelector("#cat");
+    function paint(){
+      const list=P.courses.filter(c=>(cat==="todos"||c.cat===cat)&&(!q||(c.title+c.sub).toLowerCase().includes(q)));
+      app.querySelector("#ccount").textContent=list.length+" curso"+(list.length!=1?"s":"")+" · 1 disponível agora";
+      grid.innerHTML="";
+      list.forEach(c=>{
+        const done=c.published&&courseDone(c);
+        const card=div("ccard"+(c.published?"":" soon"),`
+          <div class="thumb img-duo"><img src="${c.img}" alt="">${c.published?'<span class="ribbon">Disponível</span>':'<span class="ribbon soon">Em breve</span>'}</div>
+          <div class="body"><h3>${c.title}</h3><p>${c.sub}</p>
+            <div class="foot">
+              <span class="chip ${done?'done':''}">${c.published?(done?'concluído':c.dur):c.dur}</span>
+              <span class="go">${c.published?(done?'revisar':'começar'):'saber mais'} →</span>
+            </div></div>`);
+        card.onclick=()=>go("#/curso/"+c.id);
+        grid.appendChild(card);
+      });
+    }
+    paint();
   }
 
-  /* ---- visão do curso ---- */
-  function curso(){
+  /* ---------- teaser de curso "em breve" ---------- */
+  function teaser(c){
+    app.innerHTML=`
+      <div class="img-duo art" style="height:220px"><img src="${c.img}" alt="">
+        <div class="on"><span class="kicker">Em breve</span><h1>${c.title}</h1><p>${c.sub}</p></div></div>
+      <div class="block" style="margin-top:18px"><h3>Este curso ainda está em produção.</h3>
+      <p class="lead">A plataforma cresce com o tempo. Enquanto isso, comece pelo curso já disponível.</p>
+      <div class="btnrow"><button class="btn" id="gotrail">Ver o curso disponível →</button>
+      <button class="btn ghost" id="back">Voltar ao catálogo</button></div></div>`;
+    app.querySelector("#gotrail").onclick=()=>go("#/curso/trail");
+    app.querySelector("#back").onclick=()=>go("#/");
+  }
+
+  /* ---------- visão do curso ---------- */
+  function curso(c){
+    const co=contentOf(c);
     if(!S.track) openTriage(false);
     app.innerHTML=`
-      <div class="img-duo art hero" style="height:230px">
-        <img src="${C.heroImg}" alt="">
-        <div class="on"><span class="kicker">Curso #1</span>
-          <h1>${C.title}</h1><p>${C.subtitle}</p></div>
-      </div>
-      <div class="metaline">
-        <span>${ICON.layers} <b>${C.duration}</b></span>
-        <span>${ICON.clock} <b>${C.level}</b></span>
-        <span class="stars">★★★★★ <b style="color:var(--tx)">${C.rating}</b></span>
-      </div>
-      <div class="eyebrow">Conteúdo do curso</div>
-      <h2 class="section">Sua trilha de aprendizagem</h2>
+      <div class="img-duo art hero" style="height:230px"><img src="${c.img}" alt="">
+        <div class="on"><span class="kicker">${cname(c.cat)}</span><h1>${co.title}</h1><p>${co.subtitle}</p></div></div>
+      <div class="metaline"><span>${ICON.layers} <b>${c.dur}</b></span><span>${ICON.clock} <b>${c.level}</b></span>
+        <span class="stars">★★★★★ <b style="color:var(--tx)">${c.rating}</b></span></div>
+      <div class="eyebrow">Conteúdo do curso</div><h2 class="section">Sua trilha de aprendizagem</h2>
       <div class="grid two" id="mods" style="margin-top:14px"></div>`;
     const grid=app.querySelector("#mods");
-    C.modules.forEach(m=>{
-      const c=document.createElement("div"); c.className="ccard"+(m.locked?" locked":"");
+    co.modules.forEach(m=>{
       const started=S.mod[m.id];
-      c.innerHTML=`<div class="thumb img-duo"><img src="${m.img}" alt=""></div>
-        <div class="body">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-            <span class="modnum">${m.id}</span><h3 style="margin:0">${m.title}</h3></div>
+      const card=div("ccard"+(m.locked?" locked":""),`
+        <div class="thumb img-duo"><img src="${m.img}" alt=""></div>
+        <div class="body"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span class="modnum">${m.id}</span><h3 style="margin:0">${m.title}</h3></div>
           <p>${m.summary}</p>
           <div class="foot">${m.locked?'<span class="chip">em breve</span>':
-            `<span class="chip ${started?'done':''}">${started?'concluído':(m.sections.length+' seções')}</span>
-             <span class="go">${started?'revisar':'começar'} →</span>`}</div>
-        </div>`;
-      if(!m.locked) c.onclick=()=>go("#/curso/trail/modulo/"+m.id);
-      grid.appendChild(c);
+            `<span class="chip ${started?'done':''}">${started?'concluído':m.sections.length+' seções'}</span><span class="go">${started?'revisar':'começar'} →</span>`}</div></div>`);
+      if(!m.locked) card.onclick=()=>go("#/curso/"+c.id+"/modulo/"+m.id);
+      grid.appendChild(card);
     });
+    footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")},{label:"Glossário do curso",ghost:true,on:()=>go("#/glossario")}]);
   }
+  const cname=id=>{const c=P.categories.find(x=>x.id===id);return c?c.name:"Curso";};
+  function name(id){return cname(id);}
 
-  /* ---- MÓDULO em rolagem única ---- */
-  function modulo(mod){
-    if(mod.locked) return curso();
-    let html=`<div class="img-duo art" style="height:180px">
-        <img src="${mod.img}" alt=""><div class="on">
-        <span class="kicker">Módulo ${mod.id}</span>
-        <h1 style="color:#fff;font-size:26px;margin:0">${mod.title}</h1></div></div>
+  /* ---------- MÓDULO (rolagem única) ---------- */
+  function modulo(c,mod){
+    if(mod.locked) return curso(c);
+    app.innerHTML=`<div class="img-duo art" style="height:180px"><img src="${mod.img}" alt="">
+      <div class="on"><span class="kicker">Módulo ${mod.id}</span><h1 style="color:#fff;font-size:26px;margin:0">${mod.title}</h1></div></div>
       <p class="lead" style="margin-top:14px">${mod.summary}</p>`;
-    app.innerHTML=html;
-    mod.sections.forEach(sec=>{
-      const wrap=document.createElement("section"); wrap.className="lesson-sec";
-      wrap.innerHTML=`<h3><span class="n">${sec.n}</span>${sec.title}</h3>`;
-      sec.blocks.forEach(b=>wrap.appendChild(renderBlock(b)));
-      app.appendChild(wrap);
-    });
-    // quiz inline
-    if(mod.quiz){ const qs=document.createElement("section"); qs.className="lesson-sec";
-      qs.id="quiz"; app.appendChild(qs); renderQuiz(mod,qs); }
-    // tooltips do glossário
+    mod.sections.forEach(sec=>{ const w=document.createElement("section"); w.className="lesson-sec";
+      w.innerHTML=`<h3><span class="n">${sec.n}</span>${sec.title}</h3>`;
+      sec.blocks.forEach(b=>w.appendChild(renderBlock(b))); app.appendChild(w); });
+    if(mod.quiz){ const qs=document.createElement("section"); qs.className="lesson-sec"; app.appendChild(qs); renderQuiz(mod,qs); }
     attachGlossary(app);
     S.mod[mod.id]=true; save(); setBar();
-    footCustom([
-      {label:"← Módulos",ghost:true,on:()=>go("#/curso/trail")},
-      {label:"Próximo módulo →",on:()=>{ const nx=C.modules.find(m=>m.id===mod.id+1);
-        if(nx&&!nx.locked) go("#/curso/trail/modulo/"+nx.id); else go("#/curso/trail"); }}
-    ]);
+    footCustom([{label:"← Módulos",ghost:true,on:()=>go("#/curso/"+c.id)},
+      {label:"Próximo módulo →",on:()=>{const nx=contentOf(c).modules.find(m=>m.id===mod.id+1);
+        (nx&&!nx.locked)?go("#/curso/"+c.id+"/modulo/"+nx.id):go("#/curso/"+c.id);}}]);
   }
 
-  /* ---- blocos ---- */
   function renderBlock(b){
     switch(b.type){
       case "prose": return div("prose", b.html);
       case "callout":
-        if(b.track && S.track && b.track!==S.track) return document.createComment("hid");
-        return div("callout "+(b.track==="atleta"?"athlete":"coach"),
-          (b.tag?`<span class="tag">${b.tag}</span>`:"")+b.html);
+        if(b.track && S.track && b.track!==S.track) return document.createComment("h");
+        return div("callout "+(b.track==="atleta"?"athlete":"coach"),(b.tag?`<span class="tag">${b.tag}</span>`:"")+b.html);
       case "faca": return div("faca","<span class='tag'>Faça você</span> "+b.html);
-      case "visual": case "tool":
-        return TOOLS[b.component]?TOOLS[b.component](b.caption):div("prose","");
+      case "visual": case "tool": return TOOLS[b.component]?TOOLS[b.component](b.caption):div("prose","");
       case "classify": return classifyBlock(b);
       case "check": return checkBlock(b);
       default: return div("prose", b.html||"");
     }
   }
-  const div=(cls,html)=>{const d=document.createElement("div");d.className=cls;d.innerHTML=html;return d;};
+  function checkBlock(b){ const d=div("tool","<b>✔️ Checagem rápida</b><p style='margin:8px 0'>"+b.q+"</p>");
+    b.options.forEach((opt,i)=>{const btn=document.createElement("button");btn.className="opt";btn.textContent=opt;
+      btn.onclick=()=>{d.querySelectorAll(".opt").forEach(o=>o.disabled=true);const good=i===b.answer;
+        btn.classList.add(good?"correct":"wrong"); if(!good)d.querySelectorAll(".opt")[b.answer].classList.add("correct");
+        d.appendChild(div("explain "+(good?"good":"bad"),(good?"Correto! ":"Quase. ")+b.explain));}; d.appendChild(btn);});
+    return d; }
+  function classifyBlock(b){ const d=div("tool","");
+    b.items.forEach(it=>{const row=div("classify-item","<div class='q'>"+it.text+"</div>");const ch=document.createElement("div");ch.className="choices";
+      [["continuo","Contínuo"],["fracionado","Fracionado"]].forEach(([val,lbl])=>{const btn=document.createElement("button");btn.textContent=lbl;
+        btn.onclick=()=>{if(row.dataset.done)return;row.dataset.done=1;const good=val===it.answer;
+          btn.innerHTML=lbl+(good?" <span class='tag-ok'>✓</span>":" <span class='tag-bad'>✗</span>");
+          if(!good)ch.querySelectorAll("button").forEach(x=>{if(x.textContent.replace(/[^A-Za-zçã]/g,"").startsWith(it.answer==="continuo"?"Cont":"Frac"))x.innerHTML+=" <span class='tag-ok'>✓</span>";});};
+        ch.appendChild(btn);}); row.appendChild(ch); d.appendChild(row);}); return d; }
 
-  function checkBlock(b){
-    const d=div("tool","<b>✔️ Checagem rápida</b><p style='margin:8px 0'>"+b.q+"</p>");
-    b.options.forEach((opt,i)=>{ const btn=document.createElement("button");btn.className="opt";btn.textContent=opt;
-      btn.onclick=()=>{ d.querySelectorAll(".opt").forEach(o=>o.disabled=true);
-        const good=i===b.answer; btn.classList.add(good?"correct":"wrong");
-        if(!good)d.querySelectorAll(".opt")[b.answer].classList.add("correct");
-        const ex=div("explain "+(good?"good":"bad"),(good?"Correto! ":"Quase. ")+b.explain); d.appendChild(ex);
-      }; d.appendChild(btn);
-    });
-    return d;
-  }
-  function classifyBlock(b){
-    const d=div("tool","");
-    b.items.forEach(it=>{ const row=div("classify-item","<div class='q'>"+it.text+"</div>");
-      const ch=document.createElement("div"); ch.className="choices";
-      [["continuo","Contínuo"],["fracionado","Fracionado"]].forEach(([val,lbl])=>{
-        const btn=document.createElement("button"); btn.textContent=lbl;
-        btn.onclick=()=>{ if(row.dataset.done)return; row.dataset.done=1;
-          const good=val===it.answer; btn.innerHTML=lbl+(good?" <span class='tag-ok'>✓</span>":" <span class='tag-bad'>✗</span>");
-          if(!good) ch.querySelectorAll("button").forEach(x=>{ if(x.textContent.replace(/[^A-Za-zçã]/g,"").startsWith(it.answer==="continuo"?"Cont":"Frac")) x.innerHTML+=" <span class='tag-ok'>✓</span>";});
-        }; ch.appendChild(btn);
-      }); row.appendChild(ch); d.appendChild(row);
-    });
-    return d;
-  }
-
-  /* ---- quiz ---- */
-  function renderQuiz(mod,host){
-    const q=mod.quiz; let answered=0,correct=0;
-    host.innerHTML=`<h3><span class="n">✓</span>${q.title}</h3>
-      <p class="lead">${q.questions.length} questões · feedback na hora.</p>`;
-    q.questions.forEach((item,qi)=>{ const d=div("tool","<b>"+(qi+1)+". "+item.q+"</b>");
-      item.options.forEach((opt,i)=>{ const btn=document.createElement("button");btn.className="opt";btn.textContent=opt;
-        btn.onclick=()=>{ d.querySelectorAll(".opt").forEach(o=>o.disabled=true);
-          const good=i===item.answer; if(good)correct++; answered++;
-          btn.classList.add(good?"correct":"wrong"); if(!good)d.querySelectorAll(".opt")[item.answer].classList.add("correct");
+  function renderQuiz(mod,host){ const q=mod.quiz; let answered=0,correct=0;
+    host.innerHTML=`<h3><span class="n">✓</span>${q.title}</h3><p class="lead">${q.questions.length} questões · feedback na hora.</p>`;
+    q.questions.forEach((item,qi)=>{const d=div("tool","<b>"+(qi+1)+". "+item.q+"</b>");
+      item.options.forEach((opt,i)=>{const btn=document.createElement("button");btn.className="opt";btn.textContent=opt;
+        btn.onclick=()=>{d.querySelectorAll(".opt").forEach(o=>o.disabled=true);const good=i===item.answer;if(good)correct++;answered++;
+          btn.classList.add(good?"correct":"wrong");if(!good)d.querySelectorAll(".opt")[item.answer].classList.add("correct");
           d.appendChild(div("explain "+(good?"good":"bad"),item.explain));
-          if(answered===q.questions.length){ const pct=Math.round(correct/q.questions.length*100);
-            S.quiz[mod.id]=pct; save();
+          if(answered===q.questions.length){const pct=Math.round(correct/q.questions.length*100);S.quiz[mod.id]=pct;save();
             const bn=div("done-banner","<div class='big'>"+(pct>=80?"🎉":"💪")+"</div><h3>Você acertou "+correct+"/"+q.questions.length+" ("+pct+"%)</h3><p class='lead'>"+(pct>=80?"Módulo dominado!":"Bom começo — revise os pontos em vermelho.")+"</p>");
-            host.appendChild(bn); bn.scrollIntoView({behavior:"smooth"});
-          }
-        }; d.appendChild(btn);
-      }); host.appendChild(d);
-    });
+            host.appendChild(bn);bn.scrollIntoView({behavior:"smooth"});}}; d.appendChild(btn);}); host.appendChild(d);});
   }
 
-  /* ---- glossário: página ---- */
+  /* ---------- GLOSSÁRIO ---------- */
   function glossario(){
-    app.innerHTML=`<div class="eyebrow">Referência</div><h2 class="section">📖 Glossário</h2>
-      <p class="lead">Os termos do curso, em linguagem simples. No conteúdo, eles aparecem <span class="term">sublinhados</span> — passe o mouse para ver.</p>
-      <input class="gsearch" placeholder="Buscar termo…" id="gs">
-      <div class="gloss" id="gl"></div>`;
+    app.innerHTML=`<div class="eyebrow">Referência</div><h2 class="section">Glossário</h2>
+      <p class="lead">Os termos do curso em linguagem simples. No conteúdo eles aparecem <span class="term">sublinhados</span>.</p>
+      <input class="gsearch" id="gs" placeholder="Buscar termo…"><div class="gloss" id="gl"></div>`;
     const gl=app.querySelector("#gl");
-    function paint(f){ gl.innerHTML=""; C.glossary
-      .filter(([t,d])=>!f||t.toLowerCase().includes(f)||d.toLowerCase().includes(f))
-      .forEach(([t,d])=>gl.appendChild(div("gitem","<b>"+t+"</b><p>"+d+"</p>"))); }
+    const paint=f=>{gl.innerHTML="";C.glossary.filter(([t,d])=>!f||t.toLowerCase().includes(f)||d.toLowerCase().includes(f))
+      .forEach(([t,d])=>gl.appendChild(div("gitem","<b>"+t+"</b><p>"+d+"</p>")));};
     paint(""); app.querySelector("#gs").oninput=e=>paint(e.target.value.toLowerCase().trim());
   }
 
-  /* ---- tooltip nos termos ---- */
-  let tipEl=null;
-  function showTip(target,text){ hideTip(); tipEl=document.createElement("div"); tipEl.className="tip";
-    tipEl.innerHTML="<b>"+target.dataset.term+"</b><br>"+text; document.body.appendChild(tipEl);
-    const r=target.getBoundingClientRect(); const tw=Math.min(280,innerWidth-24);
-    tipEl.style.width=tw+"px";
-    let left=Math.min(Math.max(8,r.left),innerWidth-tw-8);
-    let top=r.top-tipEl.offsetHeight-8; if(top<8)top=r.bottom+8;
-    tipEl.style.left=left+"px"; tipEl.style.top=top+"px";
-  }
-  function hideTip(){ if(tipEl){tipEl.remove();tipEl=null;} }
-  function attachGlossary(root){
-    // 1) spans explícitos data-term
-    root.querySelectorAll("[data-term]").forEach(s=>{ const key=s.dataset.term.toLowerCase();
-      if(G[key]){ s.classList.add("term"); bindTip(s,G[key]); } });
-    // 2) auto-wrap: primeira ocorrência de cada termo no texto das .prose
-    root.querySelectorAll(".prose").forEach(scope=>{
-      C.glossary.forEach(([term])=>{
-        wrapFirst(scope,term,G[term.toLowerCase()]);
-      });
-    });
-  }
-  function bindTip(el,def){
-    el.dataset.term=el.dataset.term||el.textContent;
-    el.addEventListener("mouseenter",()=>showTip(el,def));
-    el.addEventListener("mouseleave",hideTip);
-    el.addEventListener("click",e=>{e.stopPropagation();tipEl?hideTip():showTip(el,def);});
-  }
-  function wrapFirst(scope,term,def){
-    if(!def)return;
-    const rx=new RegExp("\\b("+term.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")\\b","i");
-    const walker=document.createTreeWalker(scope,NodeFilter.SHOW_TEXT,{
-      acceptNode:n=> n.parentElement.closest(".term,[data-term],b,a")?NodeFilter.FILTER_REJECT
-        :(rx.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP) });
-    const node=walker.nextNode(); if(!node)return;
-    const m=rx.exec(node.nodeValue); if(!m)return;
-    const span=document.createElement("span"); span.className="term"; span.dataset.term=m[1];
-    span.textContent=m[1]; bindTip(span,def);
-    const after=node.splitText(m.index); after.nodeValue=after.nodeValue.slice(m[1].length);
-    node.parentNode.insertBefore(span,after);
-  }
-
-  /* ---- ferramentas ---- */
+  /* ---------- FERRAMENTAS (analisador + calculadoras) ---------- */
   function ferramentas(){
-    app.innerHTML=`<div class="eyebrow">Plataforma</div><h2 class="section">🧰 Ferramentas</h2>
-      <p class="lead">Use quando quiser — no plano, na trilha, montando o treino.</p>`;
-    [["Minhas zonas de intensidade","zonas"],["Correr ou caminhar na subida?","correrCaminhar"],
-     ["Velocidade ascensional","ascensional"]].forEach(([t,fn])=>{
-      const d=div("tool","<b style='font-size:16px'>"+t+"</b>"); d.appendChild(TOOLS[fn]()); app.appendChild(d);
-    });
+    app.innerHTML=`<div class="eyebrow">Plataforma</div><h2 class="section">Ferramentas</h2>
+      <p class="lead">Use quando quiser — inclusive com os seus próprios treinos.</p>`;
+    const feat=div("block feature","<div style='display:flex;align-items:center;gap:10px;margin-bottom:4px'>"+ICON.upload+"<b style='font-size:17px'>Analisar meu treino</b><span class='chip' style='margin-left:auto'>novo</span></div>");
+    feat.appendChild(window.ANALYZER.ui()); app.appendChild(feat);
+    [["Minhas zonas de intensidade","zonas"],["Correr ou caminhar na subida?","correrCaminhar"],["Velocidade ascensional","ascensional"]]
+      .forEach(([t,fn])=>{const d=div("tool","<b style='font-size:16px'>"+t+"</b>");d.appendChild(TOOLS[fn]());app.appendChild(d);});
   }
 
-  /* ---- rodapé ---- */
-  function killFoot(){ const f=document.getElementById("footnav"); if(f)f.remove(); }
-  function footCustom(btns){ killFoot(); const f=document.createElement("div");f.id="footnav";f.className="footnav";
-    btns.forEach(b=>{const el=document.createElement("button");el.className="btn"+(b.ghost?" ghost":"");
-      el.textContent=b.label;el.onclick=b.on;f.appendChild(el);}); document.body.appendChild(f); }
+  /* ---------- PAINEL (progresso + flashcards + certificado) ---------- */
+  function painel(){
+    const fs=FLASH.stats(C.glossary);
+    const modsTot=C.modules.filter(m=>!m.locked).length, modsDone=C.modules.filter(m=>!m.locked&&S.mod[m.id]).length;
+    const bestQuiz=Object.values(S.quiz).length?Math.max(...Object.values(S.quiz)):null;
+    const complete=courseDone(courseOf("trail"));
+    app.innerHTML=`<div class="eyebrow">Meu painel</div><h2 class="section">Seu progresso</h2>
+      <div class="astats" style="margin-top:12px">
+        <div class="astat"><div class="v">${modsDone}/${modsTot}</div><div class="l">módulos concluídos</div></div>
+        <div class="astat"><div class="v">${bestQuiz!=null?bestQuiz+"%":"—"}</div><div class="l">melhor teste</div></div>
+        <div class="astat"><div class="v">${fs.mastered}/${fs.total}</div><div class="l">termos dominados</div></div>
+        <div class="astat"><div class="v">${fs.due}</div><div class="l">cartões p/ revisar</div></div>
+      </div>
 
+      <div class="block" style="margin-top:18px"><div style="display:flex;align-items:center;gap:10px">
+        <b style="font-size:16px">🧠 Revisar flashcards</b><span class="chip" style="margin-left:auto">${fs.due} para hoje</span></div>
+        <p class="lead">Repetição espaçada do glossário — o jeito comprovado de fixar os termos.</p>
+        <div class="btnrow"><button class="btn" id="startflash">Revisar agora</button></div>
+        <div id="flashhost"></div></div>
+
+      <div class="block" style="margin-top:16px"><b style="font-size:16px">🎓 Certificado</b>
+        <p class="lead">${complete?"Você concluiu o conteúdo disponível! Gere seu certificado.":"Conclua os módulos disponíveis para liberar seu certificado."}</p>
+        <div class="btnrow ${complete?"":"hide"}" id="certrow">
+          <input class="gsearch" style="max-width:280px;margin:0" id="cname" placeholder="Seu nome completo" value="${S.name||""}">
+          <button class="btn" id="gencert">Gerar certificado</button></div></div>`;
+    app.querySelector("#startflash").onclick=()=>{const host=app.querySelector("#flashhost");
+      host.innerHTML=""; host.appendChild(FLASH.review(C.glossary,()=>painel()));
+      host.scrollIntoView({behavior:"smooth"});};
+    const gc=app.querySelector("#gencert"); if(gc) gc.onclick=()=>{const nm=app.querySelector("#cname").value.trim()||"Aluno(a)";
+      S.name=nm;save();makeCertificate(nm);};
+  }
+
+  /* ---------- certificado (canvas → PNG) ---------- */
+  function makeCertificate(name){
+    const c=document.createElement("canvas"); c.width=1400; c.height=990; const x=c.getContext("2d");
+    const g=x.createLinearGradient(0,0,1400,990); g.addColorStop(0,"#12131d"); g.addColorStop(1,"#1b1330");
+    x.fillStyle=g; x.fillRect(0,0,1400,990);
+    x.strokeStyle="#7c5cff"; x.lineWidth=10; x.strokeRect(40,40,1320,910);
+    x.strokeStyle="#a78bfa"; x.lineWidth=2; x.strokeRect(60,60,1280,870);
+    x.textAlign="center"; x.fillStyle="#a78bfa"; x.font="bold 34px Georgia";
+    x.fillText("APRENDIZ", 700, 170);
+    x.fillStyle="#eef0f6"; x.font="26px Georgia"; x.fillText("Certificado de Conclusão", 700, 250);
+    x.fillStyle="#9aa3bd"; x.font="22px Georgia"; x.fillText("Certificamos que", 700, 380);
+    x.fillStyle="#fff"; x.font="bold 60px Georgia"; x.fillText(name, 700, 460);
+    x.fillStyle="#9aa3bd"; x.font="22px Georgia"; x.fillText("concluiu o conteúdo do curso", 700, 540);
+    x.fillStyle="#eef0f6"; x.font="bold 34px Georgia"; x.fillText("Metodologia do Treino de Trail", 700, 600);
+    const dt=new Date(); const d=dt.toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
+    x.fillStyle="#9aa3bd"; x.font="20px Georgia"; x.fillText(d, 700, 720);
+    // pico (logo)
+    x.fillStyle="#7c5cff"; x.beginPath(); x.moveTo(700,780); x.lineTo(650,860); x.lineTo(750,860); x.closePath(); x.fill();
+    x.fillStyle="#fff"; x.font="16px Georgia"; x.fillText("aprendiz — aprender fazendo", 700, 910);
+    const a=document.createElement("a"); a.href=c.toDataURL("image/png");
+    a.download="certificado-aprendiz.png"; a.click();
+  }
+
+  /* ---------- tooltips do glossário ---------- */
+  let tipEl=null;
+  function showTip(t,text){hideTip();tipEl=document.createElement("div");tipEl.className="tip";
+    tipEl.innerHTML="<b>"+t.dataset.term+"</b><br>"+text;document.body.appendChild(tipEl);
+    const r=t.getBoundingClientRect();const tw=Math.min(280,innerWidth-24);tipEl.style.width=tw+"px";
+    tipEl.style.left=Math.min(Math.max(8,r.left),innerWidth-tw-8)+"px";
+    let top=r.top-tipEl.offsetHeight-8; if(top<8)top=r.bottom+8; tipEl.style.top=top+"px";}
+  function hideTip(){if(tipEl){tipEl.remove();tipEl=null;}}
+  function bindTip(elm,def){elm.dataset.term=elm.dataset.term||elm.textContent;
+    elm.addEventListener("mouseenter",()=>showTip(elm,def));elm.addEventListener("mouseleave",hideTip);
+    elm.addEventListener("click",e=>{e.stopPropagation();tipEl?hideTip():showTip(elm,def);});}
+  function attachGlossary(root){
+    root.querySelectorAll("[data-term]").forEach(s=>{const k=s.dataset.term.toLowerCase();if(G[k]){s.classList.add("term");bindTip(s,G[k]);}});
+    root.querySelectorAll(".prose").forEach(scope=>C.glossary.forEach(([term])=>wrapFirst(scope,term,G[term.toLowerCase()])));
+  }
+  function wrapFirst(scope,term,def){ if(!def)return;
+    const rx=new RegExp("\\b("+term.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")\\b","i");
+    const walker=document.createTreeWalker(scope,NodeFilter.SHOW_TEXT,{acceptNode:n=>
+      n.parentElement.closest(".term,[data-term],b,a")?NodeFilter.FILTER_REJECT:(rx.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP)});
+    const node=walker.nextNode(); if(!node)return; const m=rx.exec(node.nodeValue); if(!m)return;
+    const span=document.createElement("span");span.className="term";span.dataset.term=m[1];span.textContent=m[1];bindTip(span,def);
+    const after=node.splitText(m.index);after.nodeValue=after.nodeValue.slice(m[1].length);node.parentNode.insertBefore(span,after);}
+
+  function killFoot(){const f=document.getElementById("footnav");if(f)f.remove();}
+  function footCustom(btns){killFoot();const f=document.createElement("div");f.id="footnav";f.className="footnav";
+    btns.forEach(b=>{const e=document.createElement("button");e.className="btn"+(b.ghost?" ghost":"");e.textContent=b.label;e.onclick=b.on;f.appendChild(e);});document.body.appendChild(f);}
   document.addEventListener("scroll",hideTip,{passive:true});
+
   buildNav(); render();
 })();

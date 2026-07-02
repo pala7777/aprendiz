@@ -1,0 +1,62 @@
+/* ============================================================
+   PLATAFORMA — catálogo de cursos (multi-curso, estilo catálogo)
+   Só "trail" tem conteúdo (published). Os demais são vitrine.
+   ============================================================ */
+window.PLATFORM = {
+  brand: "Aprendiz",
+  tagline: "Aprender fazendo.",
+  categories: [
+    { id: "todos",       name: "Todos" },
+    { id: "corrida",     name: "Corrida & Trail" },
+    { id: "forca",       name: "Força & Longevidade" },
+    { id: "metodologia", name: "Fisiologia & Metodologia" },
+    { id: "nutricao",    name: "Nutrição" },
+    { id: "ciclismo",    name: "Ciclismo & Triatlo" }
+  ],
+  courses: [
+    { id:"trail", ref:"COURSE_TRAIL", cat:"corrida", published:true,
+      title:"Metodologia do Treino de Trail",
+      sub:"Corrida de montanha de verdade — do plano ao cume.",
+      img:"assets/img/hero.jpg", level:"Do zero ao avançado", dur:"6 módulos · ~3 h", rating:"5.0" },
+
+    { id:"rua", cat:"corrida", published:false,
+      title:"Corrida de Rua: do 5 km à Maratona",
+      sub:"Planejamento, ritmo e progressão para provas de asfalto.",
+      img:"assets/img/m3.jpg", level:"Iniciante+", dur:"em breve", rating:"—" },
+
+    { id:"forca-endurance", cat:"forca", published:false,
+      title:"Força para Esportes de Resistência",
+      sub:"Como a força certa te deixa mais rápido e sem lesão.",
+      img:"assets/img/m2.jpg", level:"Todos os níveis", dur:"em breve", rating:"—" },
+
+    { id:"longevidade", cat:"forca", published:false,
+      title:"Treinar para Envelhecer Forte",
+      sub:"Longevidade, mobilidade e potência depois dos 40.",
+      img:"assets/img/m1.jpg", level:"40+", dur:"em breve", rating:"—" },
+
+    { id:"fisiologia", cat:"metodologia", published:false,
+      title:"Fisiologia do Exercício na Prática",
+      sub:"Limiares, VO₂máx e zonas — sem enrolação acadêmica.",
+      img:"assets/img/m0.jpg", level:"Intermediário", dur:"em breve", rating:"—" },
+
+    { id:"periodizacao", cat:"metodologia", published:false,
+      title:"Periodização do Treino",
+      sub:"Montar temporadas que levam ao pico na hora certa.",
+      img:"assets/img/m5.jpg", level:"Treinadores", dur:"em breve", rating:"—" },
+
+    { id:"nutricao", cat:"nutricao", published:false,
+      title:"Nutrição para Resistência",
+      sub:"Combustível, hidratação e estratégia de prova.",
+      img:"assets/img/m4.jpg", level:"Todos os níveis", dur:"em breve", rating:"—" },
+
+    { id:"ciclismo", cat:"ciclismo", published:false,
+      title:"Ciclismo: Potência e Periodização",
+      sub:"Treinar por watts, do endurance ao limiar.",
+      img:"assets/img/m2.jpg", level:"Intermediário", dur:"em breve", rating:"—" },
+
+    { id:"triatlo", cat:"ciclismo", published:false,
+      title:"Triatlo: do Sprint ao Ironman",
+      sub:"Integrar três esportes num plano que funciona.",
+      img:"assets/img/hero.jpg", level:"Intermediário+", dur:"em breve", rating:"—" }
+  ]
+};

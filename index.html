@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Aprendiz — aprender fazendo</title>
-  <meta name="description" content="Plataforma de aprendizagem interativa. Curso #1: Metodologia do Treino de Trail.">
+  <meta name="description" content="Plataforma de aprendizagem interativa. Cursos práticos onde você aprende fazendo.">
   <meta name="theme-color" content="#0b0c12">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icons/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-  <!-- barra lateral de navegação -->
   <aside class="sidebar">
     <div class="mark" id="logo" title="Aprendiz">A</div>
     <div id="nav"></div>
@@ -26,12 +28,19 @@
       </div>
       <div class="progress"><i id="progressbar"></i></div>
     </header>
-
     <main class="wrap" id="app"></main>
   </div>
 
+  <script src="content/platform.js"></script>
   <script src="content/trail.js"></script>
   <script src="assets/js/tools.js"></script>
+  <script src="assets/js/analyzer.js"></script>
+  <script src="assets/js/flashcards.js"></script>
   <script src="assets/js/app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(()=>{}));
+    }
+  </script>
 </body>
 </html>
