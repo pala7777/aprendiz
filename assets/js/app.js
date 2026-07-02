@@ -260,8 +260,9 @@
     app.querySelectorAll(".crumb a[data-h]").forEach(a=>a.onclick=()=>go(a.dataset.h));
     const outline=[];
     mod.sections.forEach((sec,i)=>{ const w=document.createElement("section"); w.className="lesson-sec"; w.id="sec-"+i;
-      w.innerHTML=`<h3><span class="n">${sec.n}</span>${sec.title}</h3>`;
-      sec.blocks.forEach(b=>w.appendChild(renderBlock(b))); main.appendChild(w);
+      w.innerHTML=`<h3><span class="n">${sec.n}</span>${sec.title}</h3><div class="sec-body"></div>`;
+      const body=w.querySelector(".sec-body");
+      sec.blocks.forEach(b=>body.appendChild(renderBlock(b))); main.appendChild(w);
       outline.push({id:"sec-"+i, n:sec.n, title:sec.title}); });
     if(mod.quiz){ const qs=document.createElement("section"); qs.className="lesson-sec"; qs.id="sec-quiz"; main.appendChild(qs); renderQuiz(mod,qs);
       outline.push({id:"sec-quiz", n:"✓", title:mod.quiz.title}); }
@@ -334,7 +335,7 @@
       default: return div("prose", b.html||"");
     }
   }
-  function checkBlock(b){ const d=div("tool","<b>✔️ Checagem rápida</b><p style='margin:8px 0'>"+b.q+"</p>");
+  function checkBlock(b){ const d=div("check-block","<div class='qhead'><span class='qi'>?</span>Checagem rápida</div><p class='qtext'>"+b.q+"</p>");
     b.options.forEach((opt,i)=>{const btn=document.createElement("button");btn.className="opt";btn.textContent=opt;
       btn.onclick=()=>{d.querySelectorAll(".opt").forEach(o=>o.disabled=true);const good=i===b.answer;
         btn.classList.add(good?"correct":"wrong"); if(!good)d.querySelectorAll(".opt")[b.answer].classList.add("correct");
@@ -349,15 +350,17 @@
         ch.appendChild(btn);}); row.appendChild(ch); d.appendChild(row);}); return d; }
 
   function renderQuiz(mod,host){ const q=mod.quiz; let answered=0,correct=0;
-    host.innerHTML=`<h3><span class="n">✓</span>${q.title}</h3><p class="lead">${q.questions.length} questões · feedback na hora.</p>`;
-    q.questions.forEach((item,qi)=>{const d=div("tool","<b>"+(qi+1)+". "+item.q+"</b>");
+    host.classList.add("quiz-sec");
+    host.innerHTML=`<h3><span class="n">✓</span>${q.title}</h3><div class="sec-body"><p class="lead" style="margin-top:0">${q.questions.length} questões · feedback na hora.</p></div>`;
+    const qhost=host.querySelector(".sec-body");
+    q.questions.forEach((item,qi)=>{const d=div("quiz-q","<b>"+(qi+1)+". "+item.q+"</b>");
       item.options.forEach((opt,i)=>{const btn=document.createElement("button");btn.className="opt";btn.textContent=opt;
         btn.onclick=()=>{d.querySelectorAll(".opt").forEach(o=>o.disabled=true);const good=i===item.answer;if(good)correct++;answered++;
           btn.classList.add(good?"correct":"wrong");if(!good)d.querySelectorAll(".opt")[item.answer].classList.add("correct");
           d.appendChild(div("explain "+(good?"good":"bad"),item.explain));
           if(answered===q.questions.length){const pct=Math.round(correct/q.questions.length*100); const firstQ=S.quiz[mod.id]==null; S.quiz[mod.id]=pct; if(firstQ)award(15,"Teste do Módulo "+mod.id+": "+pct+"%"); save();
             const bn=div("done-banner","<div class='big'>"+(pct>=80?"🎉":"💪")+"</div><h3>Você acertou "+correct+"/"+q.questions.length+" ("+pct+"%)</h3><p class='lead'>"+(pct>=80?"Módulo dominado!":"Bom começo — revise os pontos em vermelho.")+"</p>");
-            host.appendChild(bn);bn.scrollIntoView({behavior:"smooth"});}}; d.appendChild(btn);}); host.appendChild(d);});
+            qhost.appendChild(bn);bn.scrollIntoView({behavior:"smooth"});}}; d.appendChild(btn);}); qhost.appendChild(d);});
   }
 
   /* ---------- GLOSSÁRIO ---------- */

@@ -111,12 +111,23 @@ h1,h2,h3,h4{line-height:1.2;letter-spacing:-.01em}
 h2.section{font-size:23px;margin:6px 0 4px}
 .lead{color:var(--tx-dim);margin:2px 0 8px}
 
-/* ============ blocos de conteúdo (aula scroll) ============ */
-.lesson-sec{padding:22px 0;border-bottom:1px solid var(--line)}
-.lesson-sec:last-child{border-bottom:0}
-.lesson-sec h3{font-size:19px;margin:0 0 10px;display:flex;align-items:center;gap:10px}
-.lesson-sec h3 .n{width:26px;height:26px;border-radius:8px;background:var(--brand);color:#fff;
-  display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex:none}
+/* ============ seções da aula = cards com cabeçalho ============ */
+.lesson-sec{background:var(--bg-2);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin:20px 0;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.lesson-sec > h3{font-size:17px;margin:0;padding:15px 20px;background:var(--bg-3);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+.lesson-sec > h3 .n{width:28px;height:28px;border-radius:9px;background:var(--brand);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex:none}
+.quiz-sec > h3{background:linear-gradient(90deg,rgba(124,92,255,.25),var(--bg-3))}
+.sec-body{padding:18px 20px}
+.sec-body > *:first-child{margin-top:0}
+.sec-body > *:last-child{margin-bottom:0}
+/* checagem rápida — estilo distinto (verde = teste-se) */
+.check-block{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.28);border-left:3px solid var(--z-mod);
+  border-radius:12px;padding:14px 16px;margin:16px 0}
+.check-block .qhead{display:flex;align-items:center;gap:9px;font-weight:800;font-size:12px;color:var(--z-mod);text-transform:uppercase;letter-spacing:.6px}
+.check-block .qi{width:22px;height:22px;border-radius:50%;background:var(--z-mod);color:#04211c;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none}
+.check-block .qtext{margin:9px 0 4px;font-size:15px;color:#fff}
+.quiz-q{background:var(--bg-3);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+.quiz-q > b{display:block;margin-bottom:8px;font-size:15px}
 .prose p{margin:10px 0}
 .prose ul{margin:10px 0;padding-left:20px}.prose li{margin:6px 0}
 .prose b{color:#fff}

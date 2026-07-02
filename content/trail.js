@@ -85,6 +85,7 @@ window.COURSE_TRAIL = {
               "<li>🟡 <b>Pesado</b> — entre VT1 e VT2. Respiração forte, frases curtas. Sustentável por dezenas de minutos.</li>"+
               "<li>🔴 <b>Severo</b> — acima do VT2. Falar é quase impossível; o lactato acumula sem parar e você aguenta só poucos minutos.</li></ul>"+
               "<p>Saber em que domínio você está é o que separa treinar <i>com intenção</i> de apenas correr. O erro número 1 é viver no 🟡 pesado — a famosa <b>zona cinzenta</b>: cansa como o forte, mas não rende como o fácil nem como o severo.</p>" },
+            { type:"img", src:"assets/img/diagrams/dominios.jpg", alt:"Os três domínios de intensidade", caption:"Os três domínios, separados pelos limiares VT1 e VT2." },
             { type:"visual", component:"domains", caption:"Toque em cada domínio para ver o que acontece no corpo." },
             { type:"tool", component:"zonas", caption:"Sua ferramenta: descubra os SEUS domínios a partir do seu ritmo de limiar." },
             { type:"callout", track:"treinador", tag:"Modelo fisiológico", html:
@@ -149,6 +150,7 @@ window.COURSE_TRAIL = {
             "<p>A ideia-chave (e contraintuitiva): no <b>fartlek</b>, as <b>recuperações são em ritmo de corrida contínua</b> — não caminhando nem parado. Isso o separa do fracionado e é o que simula as <b>descidas</b> do trail (velocidade que se mantém enquanto o esforço cai).</p>"+
             "<p>Você progride o fartlek com <b>três alavancas</b>: <b>intensidade</b> (diferença de ritmo entre a parte rápida e a recuperação), <b>volume</b> (tempo total das partes rápidas) e <b>densidade</b> (a razão esforço:recuperação, de 1:4 para iniciantes até 6:1 para avançados).</p>"+
             "<p>Regra de ouro: quanto <b>menor o tempo de esforço, maior a velocidade</b>. E o bom corredor <span data-term='polarizar'>polariza</span> bem — roda suave de verdade e acelera de verdade, sem cair na zona cinzenta.</p>" },
+          { type:"img", src:"assets/img/diagrams/fartlek.jpg", alt:"Fartlek: recuperação em ritmo de corrida", caption:"No fartlek, a recuperação continua em ritmo de corrida — nunca cai a zero." },
           { type:"visual", component:"spectrum", caption:"O fartlek é o extremo de recuperação intensa deste espectro." },
           { type:"callout", track:"atleta", tag:"Na prática", html:
             "Um fartlek para começar: 10 × 1min30 forte / 1min em <b>ritmo de corrida</b> (não trote lento!). Evolua primeiro a densidade, depois a intensidade." },
@@ -238,6 +240,7 @@ window.COURSE_TRAIL = {
             "<li><b>Interval training</b> — recuperação curta e <b>incompleta</b> (30 s a 1min30): você <i>acumula fadiga</i> de propósito.</li>"+
             "<li><b>Método de repetições</b> — recuperação <b>ampla</b>: cada repetição sai perto da velocidade máxima.</li></ul>"+
             "<p>Escolher o método é escolher <i>o que</i> você quer: treinar sob fadiga (interval) ou fazer cada tiro na melhor qualidade (repetições).</p>" },
+          { type:"img", src:"assets/img/diagrams/espectro.jpg", alt:"Espectro fartlek, interval e repetições", caption:"O espectro do fracionado, definido pela intensidade da recuperação." },
           { type:"visual", component:"spectrum", caption:"Deslize e veja como a recuperação define o método." },
           { type:"check", q:"No interval training, a recuperação é...", options:["Ampla, para descansar total","Curta e incompleta, acumulando fadiga","Inexistente"], answer:1,
             explain:"O objetivo é treinar sob fadiga crescente — recuperação incompleta." }
