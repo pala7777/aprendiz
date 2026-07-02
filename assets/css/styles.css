@@ -275,3 +275,7 @@ h2.section{font-size:23px;margin:6px 0 4px}
 .btn.err{background:#3a2230;color:#fda4b4;border:1px solid rgba(251,113,133,.4)}
 .btn.ok{background:#173a2c;color:#86efac;border:1px solid rgba(52,211,153,.4)}
 .btn.err:hover,.btn.ok:hover{filter:brightness(1.2);box-shadow:none}
+
+/* fix: ícones inline em cabeçalhos (não afetar gráficos SVG) */
+.metaline svg{width:18px;height:18px;vertical-align:-3px;flex:none}
+.block.feature > div:first-child svg{width:22px;height:22px;flex:none;color:var(--brand-2)}
