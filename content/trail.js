@@ -8,7 +8,7 @@ window.COURSE_TRAIL = {
   subtitle: "Como treinar corrida de montanha de verdade — do plano ao cume, com base na ciência.",
   heroImg: "assets/img/hero.jpg",
   level: "Do zero ao avançado",
-  duration: "6 módulos · ~3 h",
+  duration: "7 módulos · ~3,5 h",
   rating: "5.0",
   tracks: [
     { id: "atleta",    icon: "run",   label: "Sou atleta / praticante", desc: "Foco no 'como treinar': sessões prontas, decisões práticas, menos teoria." },
@@ -53,7 +53,7 @@ window.COURSE_TRAIL = {
 
   modules: [
     {
-      id: 0, title: "Linguagem comum", img: "assets/img/m0.jpg",
+      id: 1, title: "Linguagem comum", img: "assets/img/m0.jpg",
       summary: "Os três modelos mentais que fazem todo o resto fazer sentido.",
       learn: ["Carga interna × externa","Limiares VT1/VT2","Os 3 domínios","Zona cinzenta","Contínuo × fracionado"],
       sections: [
@@ -119,7 +119,7 @@ window.COURSE_TRAIL = {
         }
       ],
       quiz: {
-        title: "Teste do Módulo 0",
+        title: "Teste do Módulo 1",
         questions: [
           { q:"Carga externa é...", options:["O custo fisiológico (FC, esforço)","O que você faz: pace, watts, desnível","Só a frequência cardíaca"], answer:1, explain:"Carga externa = grandeza física do treino. O custo interno é a carga interna." },
           { q:"Na montanha, carga interna e externa...", options:["Andam sempre juntas","Se descolam (ex.: descida = externa alta, interna baixa)","São a mesma coisa"], answer:1, explain:"O descolamento é a assinatura do trail." },
@@ -131,7 +131,7 @@ window.COURSE_TRAIL = {
     },
     /* ===================== MÓDULO 1 ===================== */
     {
-      id:1, title:"Correr no plano", img:"assets/img/m1.jpg",
+      id:2, title:"Correr no plano", img:"assets/img/m1.jpg",
       summary:"Contínuo uniforme, rodagem progressiva, fartlek e cross-training.",
       learn:["Contínuo uniforme","Rodagem progressiva","Fartlek","As 3 alavancas","Reserva articular","Cross-training"],
       sections:[
@@ -169,7 +169,7 @@ window.COURSE_TRAIL = {
             explain:"Com menos massa muscular envolvida, dá pra atingir a carga interna baixa sem a técnica pendular ruim da corrida muito lenta." }
         ]}
       ],
-      quiz:{ title:"Teste do Módulo 1", questions:[
+      quiz:{ title:"Teste do Módulo 2", questions:[
         { q:"Rodagem progressiva é...", options:["Um treino fracionado com pausas","Um contínuo variável que sobe a intensidade gradualmente","Correr sempre no mesmo ritmo"], answer:1, explain:"Começa suave e termina forte, sem parar." },
         { q:"No fartlek, a recuperação é feita...", options:["Parado","Caminhando","Em ritmo de corrida contínua"], answer:2, explain:"Recuperação intensa — imita as descidas." },
         { q:"As três alavancas de progressão do fartlek são...", options:["Intensidade, volume e densidade","Força, mobilidade e cadência","Sono, dieta e hidratação"], answer:0, explain:"Intensidade (diferença de ritmo), volume (tempo forte) e densidade (razão esforço:recuperação)." },
@@ -180,7 +180,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 2 ===================== */
     {
-      id:2, title:"A montanha", img:"assets/img/m2.jpg",
+      id:3, title:"A montanha", img:"assets/img/m2.jpg",
       summary:"Rodagem de montanha, correr × caminhar, descidas e o dano excêntrico.",
       learn:["Rodagem de montanha","Correr × caminhar","11–13%","Sóleo","Dano excêntrico","Velocidade ascensional"],
       sections:[
@@ -218,7 +218,7 @@ window.COURSE_TRAIL = {
             explain:"O dano excêntrico das descidas é o fator que mais limita — por isso se treina força e exposição progressiva." }
         ]}
       ],
-      quiz:{ title:"Teste do Módulo 2", questions:[
+      quiz:{ title:"Teste do Módulo 3", questions:[
         { q:"O ponto aproximado em que caminhar vira mais econômico (recreativo) é...", options:["3–5%","11–13%","25%+"], answer:1, explain:"~11–13% para a maioria; sobe com o nível do atleta." },
         { q:"Caminhar em subida sobrecarrega principalmente o...", options:["Sóleo","Bíceps","Trapézio"], answer:0, explain:"O sóleo é mais ativado ao caminhar em subida do que ao correr." },
         { q:"A decisão de caminhar deve ser...", options:["Reativa (só quando estourar)","Proativa (antecipada)","Nunca"], answer:1, explain:"O corredor treinado antecipa; não espera as pulsações dispararem." },
@@ -229,7 +229,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 3 ===================== */
     {
-      id:3, title:"Fracionado geral", img:"assets/img/m3.jpg",
+      id:4, title:"Fracionado geral", img:"assets/img/m3.jpg",
       summary:"Interval × repetições, quando a FC engana e o dosador de tempo-limite.",
       learn:["Espectro do fracionado","Interval × repetições","Quando a FC engana","Tempo-limite (Billat)","Perda de velocidade","Potência × capacidade"],
       sections:[
@@ -269,7 +269,7 @@ window.COURSE_TRAIL = {
             explain:"Na PAM (tempo-limite 6–9 min) usam-se repetições curtas ou de 2–4 min; não se passa de ~50–60% do tempo-limite." }
         ]}
       ],
-      quiz:{ title:"Teste do Módulo 3", questions:[
+      quiz:{ title:"Teste do Módulo 4", questions:[
         { q:"O que define fartlek, interval e repetições no espectro?", options:["A distância total","A intensidade da recuperação","A hora do dia"], answer:1, explain:"Da recuperação intensa (fartlek) à ampla (repetições)." },
         { q:"A frequência cardíaca é POUCO confiável em...", options:["Esforços curtos (menos de 1 min) e sob fadiga","Rodagens longas fáceis","Repouso"], answer:0, explain:"Em tiros curtos e com fadiga, a FC não reflete a intensidade real." },
         { q:"FC subindo no fim de um interval significa...", options:["Mais esforço muscular","O coração compensando a fadiga (não mais esforço)","Erro do relógio"], answer:1, explain:"Fadiga cardíaca — menos sangue por batida, mais batidas para o mesmo débito." },
@@ -280,7 +280,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 4 ===================== */
     {
-      id:4, title:"Séries de subida e descida", img:"assets/img/m2.jpg",
+      id:5, title:"Séries de subida e descida", img:"assets/img/m2.jpg",
       summary:"O fracionado específico da montanha: decisões, modalidades e o que a ciência diz.",
       learn:["Objetivo & métrica","Potência (Stryd)","Modalidades","Colinas finlandesas","Tabela de Minetti","Séries de descida"],
       sections:[
@@ -325,7 +325,7 @@ window.COURSE_TRAIL = {
             explain:"Cada variável (VO₂máx, economia, limiar) responde melhor a um tipo diferente de intervalo." }
         ]}
       ],
-      quiz:{ title:"Teste do Módulo 4", questions:[
+      quiz:{ title:"Teste do Módulo 5", questions:[
         { q:"A métrica que permite comparar ladeiras diferentes é...", options:["A velocidade","A potência (Stryd)","O tempo total"], answer:1, explain:"A velocidade só compara a mesma subida; a potência compara percursos." },
         { q:"Numa subida de ~10%, além da panturrilha, quem entra forte?", options:["Quadril e quadríceps","Bíceps","Abdômen apenas"], answer:0, explain:"Extensores de quadril e quadríceps ganham protagonismo." },
         { q:"A tabela isocalórica (Minetti) serve para...", options:["Calcular calorias da dieta","Converter ritmo do plano em velocidade na esteira inclinada","Medir a FC"], answer:1, explain:"Ex.: 12 km/h no plano ≈ 7,2 km/h a 10% de inclinação." },
@@ -336,7 +336,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 5 ===================== */
     {
-      id:5, title:"Respiração", img:"assets/img/m4.jpg",
+      id:6, title:"Respiração", img:"assets/img/m4.jpg",
       summary:"Os 4 mecanismos e como treinar a musculatura respiratória.",
       learn:["Débito cardíaco","Metaborreflexo","Governador central","Padrão ventilatório","Estabilização","PowerBreathe"],
       sections:[
@@ -373,7 +373,7 @@ window.COURSE_TRAIL = {
             explain:"O dispositivo de limiar exige força para vencer a resistência; a máscara mexe na frequência, não na força." }
         ]}
       ],
-      quiz:{ title:"Teste do Módulo 5", questions:[
+      quiz:{ title:"Teste do Módulo 6", questions:[
         { q:"Na 'competição pelo débito cardíaco', músculos respiratórios eficientes...", options:["Roubam menos O₂ das pernas","Gastam mais O₂","Não influenciam nada"], answer:0, explain:"Sobra mais oxigênio para a locomoção." },
         { q:"O metaborreflexo respiratório faz o cérebro...", options:["Aumentar o fluxo às pernas","Reduzir o fluxo às pernas, limitando o esforço","Elevar a temperatura"], answer:1, explain:"Vasoconstrição protetora que limita as pernas antecipadamente." },
         { q:"O modelo do 'governador central' é de...", options:["Véronique Billat","Tim Noakes","Alberto Minetti"], answer:1, explain:"Tim Noakes propôs o governador central." },
@@ -384,7 +384,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 6 ===================== */
     {
-      id:6, title:"Montando o plano", img:"assets/img/m5.jpg",
+      id:7, title:"Montando o plano", img:"assets/img/m5.jpg",
       summary:"Periodização, sessão híbrida e sua semana de treino.",
       learn:["Periodização tradicional","Periodização invertida","Sessão híbrida","Durabilidade","≤2 montanha/semana","Progressão de desnível"],
       sections:[
@@ -419,7 +419,7 @@ window.COURSE_TRAIL = {
             options:["1","2","5"], answer:1, explain:"Até 2/semana; acima disso a recuperação costuma sofrer." }
         ]}
       ],
-      quiz:{ title:"Teste do Módulo 6", questions:[
+      quiz:{ title:"Teste do Módulo 7", questions:[
         { q:"Toda periodização vai de...", options:["Específico → geral","Geral → específico","Aleatório"], answer:1, explain:"O que muda é a definição de 'específico'." },
         { q:"Na longa distância, o específico é...", options:["A intensidade máxima","Sustentar volume por muito tempo","O sprint final"], answer:1, explain:"Por isso a intensidade alta é feita cedo (periodização invertida)." },
         { q:"Uma 'sessão híbrida' serve para...", options:["Aproveitar o tempo combinando conteúdos","Treinar só um estímulo","Descansar"], answer:0, explain:"Combina dois conteúdos numa sessão — útil quando o tempo é limitante." },
