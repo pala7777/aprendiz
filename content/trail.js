@@ -53,7 +53,7 @@ window.COURSE_TRAIL = {
 
   modules: [
     {
-      id: 1, title: "Linguagem comum", img: "assets/img/m0.jpg",
+      id: 1, title: "Linguagem comum", img: "assets/img/covers/mcover-1.jpg",
       summary: "Os três modelos mentais que fazem todo o resto fazer sentido.",
       learn: ["Carga interna × externa","Limiares VT1/VT2","Os 3 domínios","Zona cinzenta","Contínuo × fracionado"],
       sections: [
@@ -131,7 +131,7 @@ window.COURSE_TRAIL = {
     },
     /* ===================== MÓDULO 1 ===================== */
     {
-      id:2, title:"Correr no plano", img:"assets/img/m1.jpg",
+      id:2, title:"Correr no plano", img:"assets/img/covers/mcover-2.jpg",
       summary:"Contínuo uniforme, rodagem progressiva, fartlek e cross-training.",
       learn:["Contínuo uniforme","Rodagem progressiva","Fartlek","As 3 alavancas","Reserva articular","Cross-training"],
       sections:[
@@ -180,7 +180,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 2 ===================== */
     {
-      id:3, title:"A montanha", img:"assets/img/m2.jpg",
+      id:3, title:"A montanha", img:"assets/img/covers/mcover-3.jpg",
       summary:"Rodagem de montanha, correr × caminhar, descidas e o dano excêntrico.",
       learn:["Rodagem de montanha","Correr × caminhar","11–13%","Sóleo","Dano excêntrico","Velocidade ascensional"],
       sections:[
@@ -229,7 +229,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 3 ===================== */
     {
-      id:4, title:"Fracionado geral", img:"assets/img/m3.jpg",
+      id:4, title:"Fracionado geral", img:"assets/img/covers/mcover-4.jpg",
       summary:"Interval × repetições, quando a FC engana e o dosador de tempo-limite.",
       learn:["Espectro do fracionado","Interval × repetições","Quando a FC engana","Tempo-limite (Billat)","Perda de velocidade","Potência × capacidade"],
       sections:[
@@ -280,7 +280,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 4 ===================== */
     {
-      id:5, title:"Séries de subida e descida", img:"assets/img/m2.jpg",
+      id:5, title:"Séries de subida e descida", img:"assets/img/covers/mcover-5.jpg",
       summary:"O fracionado específico da montanha: decisões, modalidades e o que a ciência diz.",
       learn:["Objetivo & métrica","Potência (Stryd)","Modalidades","Colinas finlandesas","Tabela de Minetti","Séries de descida"],
       sections:[
@@ -336,7 +336,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 5 ===================== */
     {
-      id:6, title:"Respiração", img:"assets/img/m4.jpg",
+      id:6, title:"Respiração", img:"assets/img/covers/mcover-6.jpg",
       summary:"Os 4 mecanismos e como treinar a musculatura respiratória.",
       learn:["Débito cardíaco","Metaborreflexo","Governador central","Padrão ventilatório","Estabilização","PowerBreathe"],
       sections:[
@@ -384,7 +384,7 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 6 ===================== */
     {
-      id:7, title:"Montando o plano", img:"assets/img/m5.jpg",
+      id:7, title:"Montando o plano", img:"assets/img/covers/mcover-7.jpg",
       summary:"Periodização, sessão híbrida e sua semana de treino.",
       learn:["Periodização tradicional","Periodização invertida","Sessão híbrida","Durabilidade","≤2 montanha/semana","Progressão de desnível"],
       sections:[
