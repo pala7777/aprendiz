@@ -5,6 +5,14 @@
 window.PLATFORM = {
   brand: "Aprendiz",
   tagline: "Aprender fazendo.",
+  paths: [
+    { id:"trail-completo", icon:"⛰️", name:"Trail Running Completo",
+      desc:"Do primeiro trail ao ultra: metodologia, força e nutrição.", courses:["trail","forca-endurance","nutricao"] },
+    { id:"ciencia", icon:"🔬", name:"Fisiologia Aplicada",
+      desc:"Entenda o motor: limiares, zonas e periodização.", courses:["fisiologia","periodizacao","trail"] },
+    { id:"longevo", icon:"💪", name:"Performance & Longevidade",
+      desc:"Treinar forte e envelhecer forte depois dos 40.", courses:["forca-endurance","longevidade","trail"] }
+  ],
   categories: [
     { id: "todos",       name: "Todos" },
     { id: "corrida",     name: "Corrida & Trail" },

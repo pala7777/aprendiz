@@ -1,5 +1,5 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v7";
+const VERSION = "aprendiz-v8";
 const ASSETS = [
   "./",
   "index.html",
@@ -15,7 +15,10 @@ const ASSETS = [
   "assets/icons/icon-512.png",
   "assets/img/hero.jpg",
   "assets/img/m0.jpg","assets/img/m1.jpg","assets/img/m2.jpg",
-  "assets/img/m3.jpg","assets/img/m4.jpg","assets/img/m5.jpg"
+  "assets/img/m3.jpg","assets/img/m4.jpg","assets/img/m5.jpg",
+  "assets/img/diagrams/musculo-inclinacao.jpg","assets/img/diagrams/modalidades.jpg",
+  "assets/img/diagrams/respiracao.jpg","assets/img/diagrams/periodizacao.jpg",
+  "assets/img/diagrams/correr-caminhar.jpg","assets/img/diagrams/excentrico.jpg"
 ];
 
 self.addEventListener("install", (e) => {

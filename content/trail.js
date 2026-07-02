@@ -196,6 +196,7 @@ window.COURSE_TRAIL = {
             "<p>Existe um ponto de inclinação — em torno de <b>11 a 13%</b> para a maioria dos corredores recreativos — a partir do qual <b>caminhar gasta menos energia que correr</b>. É <b>dinâmico</b>: quanto mais rápido/treinado o atleta, mais alto o ponto (elite: 15–17% ou mais).</p>"+
             "<p>O bom corredor de montanha <b>antecipa</b> a caminhada (não espera 'estourar'). E cuidado com o <span data-term='sóleo'>sóleo</span>: caminhar em subida o ativa mais que correr — abusar sobrecarrega.</p>"+
             "<p>Um estudo com 8 corredores de elite mostrou que <b>caminhar em subida é um padrão locomotor distinto</b> de correr no plano/descida — ou seja, precisa ser <b>treinado especificamente</b>. E melhor economia caminhando aparece com <b>menor cadência</b>. Indicadores no relógio: <span data-term='cadência'>cadência</span> abaixo de ~140 passos/min ou tempo de contato acima de ~400–500 ms = você está caminhando.</p>" },
+          { type:"img", src:"assets/img/diagrams/correr-caminhar.jpg", alt:"Correr ou caminhar na subida", caption:"O ponto de transição correr → caminhar (~11–13% recreativo)." },
           { type:"tool", component:"correrCaminhar", caption:"Ajuste inclinação e nível e veja o ponto de troca." },
           { type:"callout", track:"treinador", tag:"Para treinadores", html:
             "Prescreva o padrão de caminhar em subida forte de forma explícita e verifique no arquivo (cadência/tempo de contato) se o atleta o executou — é habilidade específica, não decorre de ser bom no plano." },
@@ -208,6 +209,7 @@ window.COURSE_TRAIL = {
             "<p>O <b>dano muscular das descidas</b> — causado pela <span data-term='contração excêntrica'>contração excêntrica</span> — é o <b>principal limitante do rendimento</b> em montanha. A boa notícia: com exposição progressiva, a musculatura se adapta (efeito de <span data-term='série repetida'>série repetida</span>) e passa a sofrer menos dano. Pré-requisito: uma boa base de <b>força</b> antes.</p>"+
             "<p>Também se treina aqui a <b>motricidade e a percepção na descida</b> (onde pisar, ler o terreno) — que gasta energia física <i>e</i> mental em quem não está acostumado.</p>"+
             "<p>Para modelar a rodagem, vá além de km: use a <span data-term='velocidade ascensional'>velocidade ascensional</span> (~600 m/h já é estar muito bem treinado), o <b>perfil</b> (nº de subidas/descidas) e a <b>tecnicidade</b>.</p>" },
+          { type:"img", src:"assets/img/diagrams/excentrico.jpg", alt:"O dano excêntrico das descidas", caption:"A contração excêntrica das descidas — o principal limitante." },
           { type:"tool", component:"ascensional", caption:"Calcule sua velocidade ascensional." },
           { type:"check", q:"Qual é o principal limitante do rendimento em provas de montanha?",
             options:["A capacidade pulmonar","O dano muscular das descidas (excêntrico)","A cadência baixa"], answer:1,
@@ -298,6 +300,8 @@ window.COURSE_TRAIL = {
             "<li><b>Só descida</b> — muito potente, mas logisticamente difícil (precisa de teleférico ou esteira com declive).</li></ul>"+
             "<p>A <b>inclinação seleciona o músculo</b>: suave → <b>tornozelo</b> (panturrilha); ~10% → <b>quadril + quadríceps</b>; forte → ainda mais quadril + <b>isquiotibiais</b>. Acima de <b>20%</b> a subida vira contração quase só concêntrica. Por isso: variar a inclinação = variar o estímulo, e a força para trail prioriza o <b>quadril</b>.</p>"+
             "<p>Sem montanha por perto? A <span data-term='tabela isocalórica'>tabela isocalórica</span> de <span data-term='Alberto Minetti'>Alberto Minetti</span> converte ritmo do plano em velocidade equivalente na <b>esteira inclinada</b> — ex.: 12 km/h no plano ≈ 7,2 km/h a 10%.</p>" },
+          { type:"img", src:"assets/img/diagrams/musculo-inclinacao.jpg", alt:"A inclinação escolhe o músculo", caption:"A inclinação seleciona o músculo recrutado." },
+          { type:"img", src:"assets/img/diagrams/modalidades.jpg", alt:"Modalidades de série de subida", caption:"As três modalidades de série de subida." },
           { type:"callout", track:"atleta", tag:"Na prática", html:
             "Esteira inclinada é ouro: acumula desnível positivo (trabalho concêntrico) sem o dano das descidas, poupando articulação — ótimo para incluir força no mesmo dia." },
           { type:"check", q:"As 'colinas finlandesas' são...",
@@ -338,6 +342,7 @@ window.COURSE_TRAIL = {
             "<p>A musculatura que move a caixa torácica é um <b>limitante treinável</b> — e muito subestimado. Dois dos mecanismos:</p>"+
             "<ul><li><b>Competição pelo <span data-term='débito cardíaco'>débito cardíaco</span></b> — pulmões e pernas disputam o oxigênio bombeado. Músculos respiratórios eficientes 'roubam' menos O₂ das pernas.</li>"+
             "<li><b>Metaborreflexo respiratório</b> — quando a musculatura respiratória fatiga, ela sinaliza ao cérebro, que reduz o fluxo de sangue para as pernas <i>de forma antecipada</i>, por segurança. É o modelo do <b>'governador central'</b> de <span data-term='Tim Noakes'>Tim Noakes</span>. Treinar a respiração empurra esse gatilho para mais tarde.</li></ul>" },
+          { type:"img", src:"assets/img/diagrams/respiracao.jpg", alt:"Os quatro mecanismos da respiração", caption:"Os 4 mecanismos pelos quais a respiração afeta o rendimento." },
           { type:"callout", track:"treinador", tag:"Conceito-chave", html:
             "Não é só o músculo da perna que 'acaba' — é o cérebro que corta o esforço ao receber sinais de fadiga respiratória. Daí o ganho de treinar a inspiração." },
           { type:"check", q:"O 'governador central' (Tim Noakes) diz que a fadiga é regulada...",
@@ -386,6 +391,7 @@ window.COURSE_TRAIL = {
             "<ul><li><b>Tradicional</b> (provas mais curtas): começa com volume alto e intensidade baixa → progride para menos volume e mais intensidade.</li>"+
             "<li><b>Invertida</b> (longa distância / ultra): começa com <b>intensidade alta</b> (o mais distante do específico) e depois <b>soma volume</b> a intensidades moderadas.</li></ul>"+
             "<p>Por quê? Porque o específico da ultra não é a intensidade — é <b>sustentar muito volume por muito tempo</b>. Então a intensidade alta é a parte 'geral', feita cedo.</p>" },
+          { type:"img", src:"assets/img/diagrams/periodizacao.jpg", alt:"Periodização tradicional versus invertida", caption:"Tradicional × invertida: o que muda é a definição de 'específico'." },
           { type:"check", q:"Na periodização invertida (longa distância), começamos por...",
             options:["Volume alto e intensidade baixa","Intensidade alta, somando volume depois","Só descanso"], answer:1,
             explain:"O 'específico' da ultra é sustentar volume — então a intensidade vem primeiro, como parte geral." }

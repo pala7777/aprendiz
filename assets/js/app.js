@@ -25,7 +25,25 @@
   const S=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}})();
   S.track=S.track||null; S.mod=S.mod||{}; S.quiz=S.quiz||{}; S.name=S.name||"";
   S.seen=S.seen||{}; S.finalPassed=S.finalPassed||false;
+  S.points=S.points||0; S.streak=S.streak||{days:0,best:0,last:""}; S.badges=S.badges||{}; S.activity=S.activity||[]; S.last=S.last||null;
   const unlockedGlossary=()=>C.glossary.filter(([t])=>S.seen[t.toLowerCase()]);
+  const modsDoneCount=()=>C.modules.filter(m=>!m.locked&&S.mod[m.id]).length;
+  const modsTotal=()=>C.modules.filter(m=>!m.locked).length;
+  const today=()=>new Date().toISOString().slice(0,10);
+  function touchStreak(){ const t=today(),s=S.streak; if(s.last===t)return;
+    const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
+    s.days=(s.last===y)?(s.days+1):1; s.best=Math.max(s.best||0,s.days); s.last=t; }
+  const BADGES=[
+    {id:"primeiro",icon:"🎯",name:"Primeiro passo",desc:"Abrir o primeiro módulo",cond:()=>Object.keys(S.mod).length>=1},
+    {id:"metade",icon:"⛰️",name:"Meio caminho",desc:"Concluir 4 módulos",cond:()=>modsDoneCount()>=4},
+    {id:"mestre",icon:"🏔️",name:"Mestre do curso",desc:"Concluir todos os módulos",cond:()=>modsDoneCount()>=modsTotal()},
+    {id:"aprovado",icon:"🏆",name:"Aprovado na prova",desc:"Passar na prova final",cond:()=>S.finalPassed},
+    {id:"memoria",icon:"🧠",name:"Boa memória",desc:"Dominar 10 termos",cond:()=>FLASH.stats(unlockedGlossary()).mastered>=10},
+    {id:"constante",icon:"🔥",name:"Constância",desc:"3 dias seguidos",cond:()=>(S.streak.days||0)>=3}
+  ];
+  function checkBadges(){ BADGES.forEach(b=>{ if(!S.badges[b.id]&&b.cond()) S.badges[b.id]=today(); }); }
+  function award(pts,what){ S.points=(S.points||0)+pts; touchStreak();
+    if(what){ S.activity.unshift({w:what,d:today(),p:pts}); S.activity=S.activity.slice(0,20); } checkBadges(); save(); }
   const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
   const trackName=id=>({atleta:"🏃 Atleta",treinador:"🎓 Treinador"}[id]||"escolher");
   const go=h=>location.hash=h;
@@ -39,9 +57,12 @@
     const items=[["#/","home","Início"],["#/ferramentas","tools","Ferramentas"],["#/revisar","cards","Revisar"],["#/painel","panel","Meu painel"],["#/glossario","gloss","Glossário"]];
     nav.innerHTML=items.map(([h,ic,l])=>`<div class="navbtn" data-h="${h}" title="${l}">${ICON[ic]}</div>`).join("");
     nav.querySelectorAll(".navbtn").forEach(b=>b.onclick=()=>go(b.dataset.h));
+    const np=document.getElementById("navperfil");
+    if(np){ np.textContent=(S.name||"A").trim().charAt(0).toUpperCase()||"A"; np.onclick=()=>go("#/perfil"); }
   }
   function markNav(){ const h=location.hash||"#/";
-    nav.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active", b.dataset.h===h || (b.dataset.h!=="#/"&&h.startsWith(b.dataset.h)))); }
+    nav.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active", b.dataset.h===h || (b.dataset.h!=="#/"&&h.startsWith(b.dataset.h))));
+    const np=document.getElementById("navperfil"); if(np){ np.classList.toggle("active",h.startsWith("#/perfil")); np.textContent=(S.name||"A").trim().charAt(0).toUpperCase()||"A"; } }
   document.getElementById("logo").onclick=()=>go("#/");
   trackPill.onclick=()=>openTriage(true);
   function syncPill(){ trackPill.innerHTML="Trilha: <b>"+trackName(S.track)+"</b>"; }
@@ -78,6 +99,8 @@
     if(p[0]==="glossario") return glossario();
     if(p[0]==="revisar") return revisar();
     if(p[0]==="prova") return prova();
+    if(p[0]==="perfil") return perfil();
+    if(p[0]==="trilha"){ const path=(P.paths||[]).find(x=>x.id===p[1]); return path?trilha(path):catalog(); }
     if(p[0]==="painel") return painel();
     if(p[0]==="curso"){ const c=courseOf(p[1]);
       if(!c) return catalog();
@@ -99,11 +122,39 @@
           <h1 style="color:#fff;font-size:26px;margin:0">Aprenda fazendo</h1>
           <p style="color:#e9e6ff;margin:6px 0 0">Cursos práticos onde você calcula, monta e testa — não só lê.</p></div>
       </div>
+      <div id="continue"></div>
+      <div id="pathsrow"></div>
       <div class="cat-head"><h2 class="section" style="margin:18px 0 2px">Catálogo de cursos</h2>
         <p class="lead" id="ccount"></p></div>
       <input class="gsearch" id="csearch" placeholder="Buscar curso…">
       <div class="chips" id="chips"></div>
       <div class="grid three" id="cat" style="margin-top:16px"></div>`;
+    // Continuar aprendendo
+    if(S.last && courseOf(S.last.c) && contentOf(courseOf(S.last.c))){
+      const c=courseOf(S.last.c), co=contentOf(c), m=co.modules.find(x=>x.id===S.last.m);
+      if(m && !m.locked){ const cont=div("block feature","");
+        cont.innerHTML=`<div class="eyebrow">Continuar aprendendo</div>
+          <div style="display:flex;gap:14px;align-items:center;margin-top:10px;flex-wrap:wrap">
+            <div class="img-duo" style="width:120px;height:70px;border-radius:12px;flex:none"><img src="${m.img}" alt=""></div>
+            <div style="flex:1;min-width:160px"><b style="font-size:16px">${m.title}</b><div class="lead" style="margin:2px 0 0">${co.title} · Módulo ${m.id}</div></div>
+            <button class="btn" id="contbtn">Retomar →</button></div>`;
+        app.querySelector("#continue").appendChild(cont);
+        cont.querySelector("#contbtn").onclick=()=>go("#/curso/"+c.id+"/modulo/"+m.id);
+      }
+    }
+    // Trilhas de aprendizagem
+    if(P.paths&&P.paths.length){ const pr=div("","");
+      pr.innerHTML=`<h2 class="section" style="margin:22px 0 2px">Trilhas de aprendizagem</h2>
+        <p class="lead">Sequências de cursos com um objetivo.</p><div class="grid three" id="pcards" style="margin-top:12px"></div>`;
+      app.querySelector("#pathsrow").appendChild(pr);
+      const pc=pr.querySelector("#pcards");
+      P.paths.forEach(p=>{ const card=div("ccard",
+        `<div class="body"><div style="font-size:26px">${p.icon}</div>
+          <h3 style="margin:6px 0 4px">${p.name}</h3><p>${p.desc}</p>
+          <div class="foot"><span class="chip">${p.courses.length} cursos</span><span class="go">ver trilha →</span></div></div>`);
+        card.onclick=()=>go("#/trilha/"+p.id); pc.appendChild(card);
+      });
+    }
     let cat="todos", q="";
     const chips=app.querySelector("#chips");
     chips.innerHTML=P.categories.map(c=>`<button class="fchip${c.id==='todos'?' on':''}" data-c="${c.id}">${c.name}</button>`).join("");
@@ -244,7 +295,9 @@
     // desbloqueia os termos citados neste módulo → os flashcards acumulam conforme você avança
     const modText=JSON.stringify(mod).toLowerCase();
     C.glossary.forEach(([term])=>{ const k=term.toLowerCase(); if(!S.seen[k] && modText.indexOf(k)>=0) S.seen[k]=1; });
-    S.mod[mod.id]=true; save(); setBar();
+    S.last={c:c.id,m:mod.id};
+    if(!S.mod[mod.id]){ S.mod[mod.id]=true; award(20,"Concluiu o Módulo "+mod.id+": "+mod.title); }
+    save(); setBar();
     footCustom([{label:"← Módulos",ghost:true,on:()=>go("#/curso/"+c.id)},
       {label:"Próximo módulo →",on:()=>{const nx=contentOf(c).modules.find(m=>m.id===mod.id+1);
         (nx&&!nx.locked)?go("#/curso/"+c.id+"/modulo/"+nx.id):go("#/curso/"+c.id);}}]);
@@ -272,6 +325,9 @@
         if(b.track && S.track && b.track!==S.track) return document.createComment("h");
         return div("callout "+(b.track==="atleta"?"athlete":"coach"),(b.tag?`<span class="tag">${b.tag}</span>`:"")+b.html);
       case "faca": return div("faca","<span class='tag'>Faça você</span> "+b.html);
+      case "img": { const f=document.createElement("figure"); f.className="diagram";
+        f.innerHTML=`<img loading="lazy" src="${b.src}" alt="${b.alt||''}">`+(b.caption?`<figcaption>${b.caption}</figcaption>`:"");
+        return f; }
       case "visual": case "tool": return TOOLS[b.component]?TOOLS[b.component](b.caption):div("prose","");
       case "classify": return classifyBlock(b);
       case "check": return checkBlock(b);
@@ -299,7 +355,7 @@
         btn.onclick=()=>{d.querySelectorAll(".opt").forEach(o=>o.disabled=true);const good=i===item.answer;if(good)correct++;answered++;
           btn.classList.add(good?"correct":"wrong");if(!good)d.querySelectorAll(".opt")[item.answer].classList.add("correct");
           d.appendChild(div("explain "+(good?"good":"bad"),item.explain));
-          if(answered===q.questions.length){const pct=Math.round(correct/q.questions.length*100);S.quiz[mod.id]=pct;save();
+          if(answered===q.questions.length){const pct=Math.round(correct/q.questions.length*100); const firstQ=S.quiz[mod.id]==null; S.quiz[mod.id]=pct; if(firstQ)award(15,"Teste do Módulo "+mod.id+": "+pct+"%"); save();
             const bn=div("done-banner","<div class='big'>"+(pct>=80?"🎉":"💪")+"</div><h3>Você acertou "+correct+"/"+q.questions.length+" ("+pct+"%)</h3><p class='lead'>"+(pct>=80?"Módulo dominado!":"Bom começo — revise os pontos em vermelho.")+"</p>");
             host.appendChild(bn);bn.scrollIntoView({behavior:"smooth"});}}; d.appendChild(btn);}); host.appendChild(d);});
   }
@@ -338,9 +394,17 @@
         <div class="astat"><div class="v">${S.finalPassed?"✓":(bestQuiz!=null?bestQuiz+"%":"—")}</div><div class="l">${S.finalPassed?"prova final":"melhor teste"}</div></div>
         <div class="astat"><div class="v">${fs.mastered}/${C.glossary.length}</div><div class="l">termos dominados</div></div>
         <div class="astat"><div class="v">${fs.due}</div><div class="l">cartões p/ revisar</div></div>
+        <div class="astat"><div class="v">${S.points||0}</div><div class="l">pontos</div></div>
+        <div class="astat"><div class="v">${S.streak.days||0} 🔥</div><div class="l">dias seguidos</div></div>
       </div>
 
-      <div class="block" style="margin-top:18px"><div style="display:flex;align-items:center;gap:10px">
+      <div class="block" style="margin-top:16px"><div style="display:flex;align-items:center;gap:10px">
+        <b style="font-size:16px">🏅 Conquistas</b><span class="chip" style="margin-left:auto">${Object.keys(S.badges).length}/${BADGES.length}</span></div>
+        <div class="badges" id="badges" style="margin-top:12px"></div></div>
+
+      <div class="block" style="margin-top:16px"><b style="font-size:16px">🕑 Atividade recente</b><div id="activity" style="margin-top:10px"></div></div>
+
+      <div class="block" style="margin-top:16px"><div style="display:flex;align-items:center;gap:10px">
         <b style="font-size:16px">🧠 Revisar flashcards</b><span class="chip" style="margin-left:auto">${deck.length}/${C.glossary.length} desbloqueados</span></div>
         <p class="lead">${deck.length?"Repetição espaçada — "+fs.due+" cartão(ões) para revisar hoje.":"Abra os módulos do curso para desbloquear cartões."}</p>
         <div class="btnrow"><button class="btn" id="startflash" ${deck.length?"":"disabled"}>Revisar agora</button></div>
@@ -361,6 +425,11 @@
     const se=app.querySelector("#startexam"); if(se&&!se.disabled) se.onclick=()=>go("#/prova");
     const gc=app.querySelector("#gencert"); if(gc) gc.onclick=()=>{const nm=app.querySelector("#cname").value.trim()||"Aluno(a)";
       S.name=nm;save();makeCertificate(nm);};
+    const bh=app.querySelector("#badges"); if(bh) bh.innerHTML=BADGES.map(b=>
+      `<div class="badge ${S.badges[b.id]?'on':''}" title="${b.desc}"><div class="bi">${b.icon}</div><div class="bn">${b.name}</div></div>`).join("");
+    const ah=app.querySelector("#activity"); if(ah) ah.innerHTML=(S.activity&&S.activity.length)
+      ? S.activity.slice(0,8).map(a=>`<div class="actrow"><span>${a.w}</span><span class="chip done">+${a.p}</span></div>`).join("")
+      : "<div class='lead'>Comece um módulo para registrar atividade aqui.</div>";
   }
 
   /* ---------- prova final ---------- */
@@ -377,7 +446,7 @@
           btn.classList.add(good?"correct":"wrong"); if(!good)d.querySelectorAll(".opt")[item.answer].classList.add("correct");
           d.appendChild(div("explain "+(good?"good":"bad"),item.explain));
           if(answered===ex.questions.length){ const pct=Math.round(correct/ex.questions.length*100); const pass=pct>=ex.pass;
-            if(pass) S.finalPassed=true; save();
+            const firstPass=!S.finalPassed; if(pass){ S.finalPassed=true; if(firstPass)award(100,"Passou na prova final ("+pct+"%)"); } save();
             const bn=div("done-banner","<div class='big'>"+(pass?"🏆":"💪")+"</div><h3>"+correct+"/"+ex.questions.length+" ("+pct+"%) — "+(pass?"APROVADO!":"Não passou ainda")+"</h3><p class='lead'>"+(pass?"Parabéns! Seu certificado foi liberado no Meu painel.":"Você precisa de "+ex.pass+"%. Revise os módulos e tente de novo.")+"</p><div class='btnrow' style='justify-content:center'><button class='btn' id='topainel'>Ir ao Meu painel →</button></div>");
             host.appendChild(bn); bn.querySelector("#topainel").onclick=()=>go("#/painel"); bn.scrollIntoView({behavior:"smooth"});
           }
@@ -408,6 +477,47 @@
     x.fillStyle="#fff"; x.font="16px Georgia"; x.fillText("aprendiz — aprender fazendo", 700, 910);
     const a=document.createElement("a"); a.href=c.toDataURL("image/png");
     a.download="certificado-aprendiz.png"; a.click();
+  }
+
+  /* ---------- trilha de aprendizagem ---------- */
+  function trilha(path){
+    app.innerHTML=`<div class="crumb"><a data-h="#/">Catálogo</a><span>›</span><b>${path.name}</b></div>
+      <div class="eyebrow">Trilha de aprendizagem</div><h2 class="section">${path.icon} ${path.name}</h2>
+      <p class="lead">${path.desc}</p><div class="grid two" id="pc" style="margin-top:14px"></div>`;
+    app.querySelectorAll(".crumb a[data-h]").forEach(a=>a.onclick=()=>go(a.dataset.h));
+    const grid=app.querySelector("#pc");
+    path.courses.forEach((cid,i)=>{ const c=courseOf(cid); if(!c)return;
+      const done=c.published&&courseDone(c);
+      const card=div("ccard"+(c.published?"":" soon"),
+        `<div class="thumb img-duo"><img src="${c.img}" alt="">${c.published?'<span class="ribbon">Disponível</span>':'<span class="ribbon soon">Em breve</span>'}</div>
+         <div class="body"><div style="display:flex;align-items:center;gap:10px;margin-bottom:4px"><span class="modnum">${i+1}</span><h3 style="margin:0">${c.title}</h3></div>
+           <p>${c.sub}</p><div class="foot"><span class="chip ${done?'done':''}">${c.published?(done?'concluído':c.dur):c.dur}</span><span class="go">${c.published?'abrir':'saber mais'} →</span></div></div>`);
+      card.onclick=()=>go("#/curso/"+c.id); grid.appendChild(card);
+    });
+    footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")}]);
+  }
+
+  /* ---------- perfil ---------- */
+  function perfil(){
+    const done=modsDoneCount(), tot=modsTotal();
+    app.innerHTML=`<div class="eyebrow">Perfil</div><h2 class="section">Seu perfil</h2>
+      <div class="block" style="margin-top:12px">
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <div class="pavatar">${(S.name||"A").trim().charAt(0).toUpperCase()}</div>
+          <div style="flex:1;min-width:180px">
+            <input class="gsearch" id="pname" style="margin:0" placeholder="Seu nome" value="${S.name||""}">
+            <div class="lead" style="margin-top:6px">${S.points||0} pontos · ${done}/${tot} módulos · streak ${S.streak.days||0} 🔥</div>
+          </div></div>
+        <label style="display:block;margin-top:14px;color:var(--tx-dim);font-size:13px">Trilha de estudo</label>
+        <div class="chips" id="ptrack"></div>
+        <div class="btnrow"><button class="btn" id="psave">Salvar</button></div></div>
+      <div class="block"><b style="font-size:16px">Seus interesses</b>
+        <div class="learn-tags" style="margin-top:8px">${["Trail Running","Fisiologia","Força","Recuperação","Nutrição"].map((t,i)=>`<span class="ltag c${i%6}">${t}</span>`).join("")}</div></div>`;
+    const pt=app.querySelector("#ptrack");
+    pt.innerHTML=C.tracks.map(t=>`<button class="fchip${S.track===t.id?' on':''}" data-t="${t.id}">${t.id==='atleta'?'🏃':'🎓'} ${t.label}</button>`).join("");
+    pt.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{S.track=b.dataset.t; pt.querySelectorAll(".fchip").forEach(x=>x.classList.toggle("on",x===b));});
+    app.querySelector("#psave").onclick=()=>{S.name=app.querySelector("#pname").value.trim(); save(); syncPill(); perfil();};
+    footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")}]);
   }
 
   /* ---------- tooltips do glossário ---------- */
