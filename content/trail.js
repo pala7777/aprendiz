@@ -43,6 +43,9 @@ window.COURSE_TRAIL = {
     ["MLSS","Máximo estado estável de lactato — a maior intensidade em que a produção e a remoção de lactato se equilibram. Fica próxima do 2º limiar (VT2)."],
     ["série repetida","Efeito 'repeated bout': após uma exposição a descidas, a musculatura adapta-se e sofre menos dano na próxima. É por isso que se treina descida de forma progressiva."],
     ["velocidade de limiar","Ritmo/velocidade correspondente ao 2º limiar — referência para muitas prescrições de intensidade."],
+    ["potência","Medida de carga externa em watts (via sensores como o Stryd na corrida). Vantagem no trail: permite comparar percursos diferentes, o que a velocidade não faz."],
+    ["colinas finlandesas","Modalidade de série de subida em que se sobe E desce em intensidade alta (não máxima), recuperando completo embaixo. Nome vindo da escola escandinava."],
+    ["tabela isocalórica","Conversão (a partir da equação de Minetti) que dá a velocidade na esteira inclinada com o mesmo gasto do plano. Ex.: 12 km/h no plano ≈ 7,2 km/h a 10%."],
     ["Tim Noakes","👤 Médico e cientista do esporte sul-africano. Propôs o modelo do 'governador central': a fadiga não é só muscular — o cérebro regula (limita) o esforço de forma antecipada, como mecanismo de segurança. Explica por que a musculatura respiratória fatigada faz você desacelerar antes do 'fim' real."],
     ["Véronique Billat","👤 Fisiologista francesa, referência mundial em corrida. Popularizou o treino na velocidade aeróbica máxima (vVO₂máx) e o conceito de 'tempo-limite' (tempo máximo sustentável numa intensidade) — a base para dosar a duração das repetições."],
     ["Alberto Minetti","👤 Fisiologista italiano da locomoção. Mapeou o custo energético de correr/caminhar em diferentes inclinações — origem da 'tabela isocalórica' que converte ritmo do plano em velocidade equivalente na esteira inclinada."]
@@ -222,9 +225,9 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 3 ===================== */
     {
-      id:3, title:"Fracionado & intensidade", img:"assets/img/m3.jpg",
-      summary:"Interval, repetições, séries de subida e o dosador de tempo-limite.",
-      learn:["Espectro do fracionado","Séries de subida","Inclinação → músculo","Tempo-limite (Billat)","Perda de velocidade","Potência × capacidade"],
+      id:3, title:"Fracionado geral", img:"assets/img/m3.jpg",
+      summary:"Interval × repetições, quando a FC engana e o dosador de tempo-limite.",
+      learn:["Espectro do fracionado","Interval × repetições","Quando a FC engana","Tempo-limite (Billat)","Perda de velocidade","Potência × capacidade"],
       sections:[
         { n:1, title:"O espectro: fartlek → interval → repetições", blocks:[
           { type:"prose", html:
@@ -232,29 +235,28 @@ window.COURSE_TRAIL = {
             "<ul><li><b>Fartlek</b> — recuperação intensa (ritmo de corrida).</li>"+
             "<li><b>Interval training</b> — recuperação curta e <b>incompleta</b> (30 s a 1min30): você <i>acumula fadiga</i> de propósito.</li>"+
             "<li><b>Método de repetições</b> — recuperação <b>ampla</b>: cada repetição sai perto da velocidade máxima.</li></ul>"+
-            "<p>⚠️ A <b>FC engana</b> em esforços curtos (menos de 1 min) e sob fadiga — nesses casos, guie-se por velocidade/potência ou esforço percebido, não pela frequência cardíaca.</p>" },
+            "<p>Escolher o método é escolher <i>o que</i> você quer: treinar sob fadiga (interval) ou fazer cada tiro na melhor qualidade (repetições).</p>" },
           { type:"visual", component:"spectrum", caption:"Deslize e veja como a recuperação define o método." },
           { type:"check", q:"No interval training, a recuperação é...", options:["Ampla, para descansar total","Curta e incompleta, acumulando fadiga","Inexistente"], answer:1,
             explain:"O objetivo é treinar sob fadiga crescente — recuperação incompleta." }
         ]},
-        { n:2, title:"Séries de subida e inclinação → músculo", blocks:[
+        { n:2, title:"Quando a frequência cardíaca engana", blocks:[
           { type:"prose", html:
-            "<p>Nas <b>séries de subida</b>, recuperar <b>descendo em trote</b> transforma a recuperação num estímulo excêntrico controlado — mas com uma pausa curta embaixo, senão a fadiga acumula e o treino vira fartlek.</p>"+
-            "<p>A <b>inclinação seleciona o músculo</b> recrutado:</p>"+
-            "<ul><li>Suave → <b>extensores do tornozelo</b> (panturrilha).</li>"+
-            "<li>~10% → entram forte os <b>extensores de quadril</b> e o <b>quadríceps</b>.</li>"+
-            "<li>Forte → ainda mais quadril + <b>isquiotibiais</b>.</li></ul>"+
-            "<p>Acima de <b>20%</b> a subida vira contração praticamente só concêntrica. Conclusão prática: variar a inclinação = variar o estímulo, e a <b>força para trail deve priorizar o quadril</b>, não só a panturrilha.</p>" },
-          { type:"check", q:"Recuperar 'descendo em trote' nas séries serve para...",
-            options:["Expor a musculatura ao estímulo excêntrico das descidas","Correr mais rápido na subida","Economizar tempo"], answer:0,
-            explain:"A descida em trote adiciona o estímulo excêntrico — mas precisa de uma pausa para não virar fartlek." }
+            "<p>Dois cuidados com a <b>FC</b> no fracionado:</p>"+
+            "<ul><li><b>Esforços curtos (menos de 1 min):</b> a FC <b>não</b> acompanha a intensidade real — ela demora a subir. Use velocidade/<span data-term='potência'>potência</span> ou esforço percebido.</li>"+
+            "<li><b>Fadiga cardíaca:</b> ao longo de um interval, a FC vai <b>subindo</b> mesmo que o esforço muscular não aumente. Isso porque o coração bombeia menos sangue por batida (queda do volume sistólico) e precisa bater mais vezes para manter o <span data-term='débito cardíaco'>débito cardíaco</span>. Ou seja: FC subindo no fim ≠ você se esforçando mais.</li></ul>" },
+          { type:"callout", track:"treinador", tag:"Para treinadores", html:
+            "Interpretar a subida de FC no fim de um interval como 'mais intensidade' é um erro clássico. É o coração compensando a fadiga — a carga externa (ritmo) é o indicador mais fiel ali." },
+          { type:"check", q:"No fim de um interval, a FC sobe mesmo sem aumentar o esforço muscular porque...",
+            options:["O músculo está mais forte","O coração compensa a queda do volume sistólico batendo mais","A temperatura caiu"], answer:1,
+            explain:"Fadiga cardíaca: menos sangue por batida → mais batidas para manter o débito cardíaco." }
         ]},
-        { n:3, title:"Dosar por tempo-limite e saber a hora de parar", blocks:[
+        { n:3, title:"Dosar por tempo-limite e a hora de parar", blocks:[
           { type:"prose", html:
-            "<p>A escola francesa de <span data-term='Véronique Billat'>Véronique Billat</span> nos dá um método transferível: cada intensidade tem um <span data-term='tempo-limite'>tempo-limite</span> (quanto se aguenta nela), e a duração da repetição é uma <b>fração</b> dele.</p>"+
+            "<p>A escola francesa de <span data-term='Véronique Billat'>Véronique Billat</span> dá um método transferível: cada intensidade tem um <span data-term='tempo-limite'>tempo-limite</span> (quanto se aguenta nela), e a duração da repetição é uma <b>fração</b> dele.</p>"+
             "<ul><li><b>Potência aeróbia máxima (PAM)</b> — tempo-limite 6–9 min → repetições curtas (15–30 s) ou longas (2–4 min).</li>"+
             "<li><b>2º limiar</b> — tempo-limite ~60 min → repetições de 15–20 min.</li></ul>"+
-            "<p>E há um critério moderno para <b>parar a sessão</b>: quando a velocidade cai <b>10–15%</b> em relação ao alvo, encerre — dali em diante você só acumula fadiga sem o estímulo que buscava.</p>"+
+            "<p>Critério moderno para <b>parar a sessão</b>: quando a velocidade cai <b>10–15%</b> em relação ao alvo, encerre — dali em diante você só acumula fadiga sem o estímulo buscado.</p>"+
             "<p>Para progredir: por <b>potência</b> (mesma distância, mais rápido) ou por <b>capacidade</b> (mesmo ritmo, distância maior).</p>" },
           { type:"tool", component:"zonas", caption:"Ancore suas intensidades a partir do ritmo de limiar." },
           { type:"check", q:"Segundo o modelo de tempo-limite, repetições na PAM devem durar...",
@@ -265,7 +267,7 @@ window.COURSE_TRAIL = {
       quiz:{ title:"Teste do Módulo 3", questions:[
         { q:"O que define fartlek, interval e repetições no espectro?", options:["A distância total","A intensidade da recuperação","A hora do dia"], answer:1, explain:"Da recuperação intensa (fartlek) à ampla (repetições)." },
         { q:"A frequência cardíaca é POUCO confiável em...", options:["Esforços curtos (menos de 1 min) e sob fadiga","Rodagens longas fáceis","Repouso"], answer:0, explain:"Em tiros curtos e com fadiga, a FC não reflete a intensidade real." },
-        { q:"Numa subida de ~10%, além da panturrilha, quem entra forte?", options:["Quadril e quadríceps","Bíceps","Abdômen apenas"], answer:0, explain:"Extensores de quadril e quadríceps ganham protagonismo." },
+        { q:"FC subindo no fim de um interval significa...", options:["Mais esforço muscular","O coração compensando a fadiga (não mais esforço)","Erro do relógio"], answer:1, explain:"Fadiga cardíaca — menos sangue por batida, mais batidas para o mesmo débito." },
         { q:"O 'tempo-limite' é um conceito associado a...", options:["Alberto Minetti","Véronique Billat","Tim Noakes"], answer:1, explain:"Billat popularizou o tempo-limite para dosar repetições." },
         { q:"Deve-se encerrar a série quando a velocidade cai...", options:["1–2%","10–15%","50%"], answer:1, explain:"Queda de 10–15% indica fadiga excessiva — para o estímulo pretendido, encerre." }
       ]}
@@ -273,7 +275,61 @@ window.COURSE_TRAIL = {
 
     /* ===================== MÓDULO 4 ===================== */
     {
-      id:4, title:"Respiração", img:"assets/img/m4.jpg",
+      id:4, title:"Séries de subida e descida", img:"assets/img/m2.jpg",
+      summary:"O fracionado específico da montanha: decisões, modalidades e o que a ciência diz.",
+      learn:["Objetivo & métrica","Potência (Stryd)","Modalidades","Colinas finlandesas","Tabela de Minetti","Séries de descida"],
+      sections:[
+        { n:1, title:"As decisões de uma série de subida", blocks:[
+          { type:"prose", html:
+            "<p>Montar uma série de subida é escolher com consciência em alguns eixos:</p>"+
+            "<ul><li><b>Objetivo</b> — motricidade (terreno técnico) ou desenvolvimento muscular/cardiovascular (piso firme). O professor prioriza o muscular/cardio em bons caminhos, deixando a motricidade para as rodagens.</li>"+
+            "<li><b>Alvo bioenergético</b> — potência aeróbia máxima (PAM) ou zona do 2º limiar.</li>"+
+            "<li><b>Métrica</b> — a <span data-term='potência'>potência</span> (sensor Stryd) é a estrela aqui: permite <b>comparar ladeiras diferentes</b>, o que a velocidade não faz; a FC serve para séries longas, não curtas.</li></ul>"+
+            "<p>Recuperar <b>descendo em trote</b> adiciona o estímulo excêntrico das descidas — com uma pausa curta embaixo, senão vira fartlek.</p>" },
+          { type:"check", q:"Por que a potência (Stryd) é especialmente útil nas séries de subida?",
+            options:["Porque mede calorias","Porque permite comparar percursos/ladeiras diferentes","Porque substitui o treino"], answer:1,
+            explain:"A velocidade só compara a mesma ladeira; a potência compara percursos diferentes." }
+        ]},
+        { n:2, title:"Modalidades e a inclinação que escolhe o músculo", blocks:[
+          { type:"prose", html:
+            "<p>Três <b>modalidades</b>:</p>"+
+            "<ul><li><b>Só subida</b> — recupera descendo em trote ou parado.</li>"+
+            "<li><b>Subida e descida intensas</b> — as <span data-term='colinas finlandesas'>colinas finlandesas</span>: sobe e desce forte, recupera completo embaixo.</li>"+
+            "<li><b>Só descida</b> — muito potente, mas logisticamente difícil (precisa de teleférico ou esteira com declive).</li></ul>"+
+            "<p>A <b>inclinação seleciona o músculo</b>: suave → <b>tornozelo</b> (panturrilha); ~10% → <b>quadril + quadríceps</b>; forte → ainda mais quadril + <b>isquiotibiais</b>. Acima de <b>20%</b> a subida vira contração quase só concêntrica. Por isso: variar a inclinação = variar o estímulo, e a força para trail prioriza o <b>quadril</b>.</p>"+
+            "<p>Sem montanha por perto? A <span data-term='tabela isocalórica'>tabela isocalórica</span> de <span data-term='Alberto Minetti'>Alberto Minetti</span> converte ritmo do plano em velocidade equivalente na <b>esteira inclinada</b> — ex.: 12 km/h no plano ≈ 7,2 km/h a 10%.</p>" },
+          { type:"callout", track:"atleta", tag:"Na prática", html:
+            "Esteira inclinada é ouro: acumula desnível positivo (trabalho concêntrico) sem o dano das descidas, poupando articulação — ótimo para incluir força no mesmo dia." },
+          { type:"check", q:"As 'colinas finlandesas' são...",
+            options:["Só descida em teleférico","Subir E descer forte, recuperando completo embaixo","Caminhar em subida"], answer:1,
+            explain:"Modalidade em que tanto a subida quanto a descida são intensas." }
+        ]},
+        { n:3, title:"Séries de descida e o que a ciência diz", blocks:[
+          { type:"prose", html:
+            "<p>A <b>série de descida</b> ataca de frente o limitante nº 1 do trail (o dano excêntrico). Mas exige cuidado:</p>"+
+            "<ul><li><b>Força prévia</b> — sem base, o dano é excessivo e atrapalha o resto dos treinos.</li>"+
+            "<li><b>Técnica que 'flui'</b> — quem freia/entra de calcanhar gera muito dano; se não flui, descarte a sessão.</li>"+
+            "<li><b>Inclinação ≤ 20%</b> — acima disso vira frenagem pura, perde-se a mecânica. (Em preparações de elite chega-se a ~1000 m de desnível negativo por sessão.)</li></ul>"+
+            "<p>E sobre a <b>duração ideal</b> das repetições? Dois estudos (Barnes, com 5 grupos; Ferley, com 24 corredores) mostram que <b>não existe uma duração 'melhor' universal</b> — cada qualidade (VO₂máx, economia, velocidade de limiar) melhora mais com um tipo diferente de intervalo. Ou seja: varie conforme o objetivo.</p>" },
+          { type:"callout", track:"treinador", tag:"Evidência", html:
+            "Direção sólida, doses de elite: os ~1000 m D− por sessão vêm de preparação de alto rendimento (ex.: mundial de Peñagolosa). Não transponha isso a um recreativo — comece com pouco e progrida." },
+          { type:"check", q:"Sobre a duração 'ideal' dos intervalos de subida, a ciência mostra que...",
+            options:["Existe uma duração perfeita para tudo","Depende do objetivo — não há uma única melhor","Quanto mais longo, melhor sempre"], answer:1,
+            explain:"Cada variável (VO₂máx, economia, limiar) responde melhor a um tipo diferente de intervalo." }
+        ]}
+      ],
+      quiz:{ title:"Teste do Módulo 4", questions:[
+        { q:"A métrica que permite comparar ladeiras diferentes é...", options:["A velocidade","A potência (Stryd)","O tempo total"], answer:1, explain:"A velocidade só compara a mesma subida; a potência compara percursos." },
+        { q:"Numa subida de ~10%, além da panturrilha, quem entra forte?", options:["Quadril e quadríceps","Bíceps","Abdômen apenas"], answer:0, explain:"Extensores de quadril e quadríceps ganham protagonismo." },
+        { q:"A tabela isocalórica (Minetti) serve para...", options:["Calcular calorias da dieta","Converter ritmo do plano em velocidade na esteira inclinada","Medir a FC"], answer:1, explain:"Ex.: 12 km/h no plano ≈ 7,2 km/h a 10% de inclinação." },
+        { q:"Para séries de descida, um pré-requisito é...", options:["Nenhum","Boa base de força e técnica que flui","Estar exausto antes"], answer:1, explain:"Sem força prévia e boa técnica, o dano é excessivo." },
+        { q:"Acima de que inclinação a descida vira 'frenagem pura'?", options:["10%","20%","50%"], answer:1, explain:"Acima de ~20% perde-se a mecânica e o aproveitamento elástico." }
+      ]}
+    },
+
+    /* ===================== MÓDULO 5 ===================== */
+    {
+      id:5, title:"Respiração", img:"assets/img/m4.jpg",
       summary:"Os 4 mecanismos e como treinar a musculatura respiratória.",
       learn:["Débito cardíaco","Metaborreflexo","Governador central","Padrão ventilatório","Estabilização","PowerBreathe"],
       sections:[
@@ -309,7 +365,7 @@ window.COURSE_TRAIL = {
             explain:"O dispositivo de limiar exige força para vencer a resistência; a máscara mexe na frequência, não na força." }
         ]}
       ],
-      quiz:{ title:"Teste do Módulo 4", questions:[
+      quiz:{ title:"Teste do Módulo 5", questions:[
         { q:"Na 'competição pelo débito cardíaco', músculos respiratórios eficientes...", options:["Roubam menos O₂ das pernas","Gastam mais O₂","Não influenciam nada"], answer:0, explain:"Sobra mais oxigênio para a locomoção." },
         { q:"O metaborreflexo respiratório faz o cérebro...", options:["Aumentar o fluxo às pernas","Reduzir o fluxo às pernas, limitando o esforço","Elevar a temperatura"], answer:1, explain:"Vasoconstrição protetora que limita as pernas antecipadamente." },
         { q:"O modelo do 'governador central' é de...", options:["Véronique Billat","Tim Noakes","Alberto Minetti"], answer:1, explain:"Tim Noakes propôs o governador central." },
@@ -318,9 +374,9 @@ window.COURSE_TRAIL = {
       ]}
     },
 
-    /* ===================== MÓDULO 5 ===================== */
+    /* ===================== MÓDULO 6 ===================== */
     {
-      id:5, title:"Montando o plano", img:"assets/img/m5.jpg",
+      id:6, title:"Montando o plano", img:"assets/img/m5.jpg",
       summary:"Periodização, sessão híbrida e sua semana de treino.",
       learn:["Periodização tradicional","Periodização invertida","Sessão híbrida","Durabilidade","≤2 montanha/semana","Progressão de desnível"],
       sections:[
@@ -354,7 +410,7 @@ window.COURSE_TRAIL = {
             options:["1","2","5"], answer:1, explain:"Até 2/semana; acima disso a recuperação costuma sofrer." }
         ]}
       ],
-      quiz:{ title:"Teste do Módulo 5", questions:[
+      quiz:{ title:"Teste do Módulo 6", questions:[
         { q:"Toda periodização vai de...", options:["Específico → geral","Geral → específico","Aleatório"], answer:1, explain:"O que muda é a definição de 'específico'." },
         { q:"Na longa distância, o específico é...", options:["A intensidade máxima","Sustentar volume por muito tempo","O sprint final"], answer:1, explain:"Por isso a intensidade alta é feita cedo (periodização invertida)." },
         { q:"Uma 'sessão híbrida' serve para...", options:["Aproveitar o tempo combinando conteúdos","Treinar só um estímulo","Descansar"], answer:0, explain:"Combina dois conteúdos numa sessão — útil quando o tempo é limitante." },
@@ -362,5 +418,25 @@ window.COURSE_TRAIL = {
         { q:"O teto de sessões de montanha por semana é...", options:["2","4","7"], answer:0, explain:"Até 2/semana para preservar a recuperação." }
       ]}
     }
-  ]
+  ],
+
+  /* ===================== PROVA FINAL DO CURSO ===================== */
+  finalExam:{
+    title:"Prova final — Metodologia do Treino de Trail",
+    pass:70,
+    questions:[
+      { q:"O que define o treino de montanha em relação ao asfalto?", options:["Buscar ritmo estável","Manter a carga interna estável enquanto a externa varia","Correr sempre no máximo"], answer:1, explain:"Na montanha, carga interna e externa se descolam — o alvo é o esforço estável." },
+      { q:"O domínio 🔴 severo fica...", options:["Abaixo do VT1","Entre VT1 e VT2","Acima do VT2"], answer:2, explain:"Acima do 2º limiar, insustentável por muito tempo." },
+      { q:"No fartlek, a recuperação é...", options:["Parado","Caminhando","Em ritmo de corrida contínua"], answer:2, explain:"Recuperação intensa — imita as descidas." },
+      { q:"A 'reserva articular' justifica...", options:["Correr mais volume sempre","Usar cross-training para poupar impacto","Ignorar a força"], answer:1, explain:"Poupar impacto preserva longevidade esportiva." },
+      { q:"O ponto aproximado em que caminhar vira mais econômico (recreativo) é...", options:["3–5%","11–13%","25%+"], answer:1, explain:"~11–13%, subindo com o nível do atleta." },
+      { q:"O principal limitante do rendimento em montanha é...", options:["A capacidade pulmonar","O dano muscular das descidas (excêntrico)","A cadência"], answer:1, explain:"O dano excêntrico das descidas." },
+      { q:"FC subindo no fim de um interval indica...", options:["Mais esforço muscular","Fadiga cardíaca (compensação), não mais esforço","Erro de medição"], answer:1, explain:"Menos sangue por batida → mais batidas para o mesmo débito." },
+      { q:"O 'tempo-limite' (dosar repetições) é associado a...", options:["Alberto Minetti","Véronique Billat","Tim Noakes"], answer:1, explain:"Billat popularizou o tempo-limite." },
+      { q:"Acima de que inclinação a descida vira 'frenagem pura'?", options:["10%","20%","40%"], answer:1, explain:"Acima de ~20% perde-se a mecânica elástica." },
+      { q:"O 'governador central' (a fadiga regulada pelo cérebro) é de...", options:["Tim Noakes","Alberto Minetti","Véronique Billat"], answer:0, explain:"Tim Noakes." },
+      { q:"Para treinar FORÇA respiratória, usa-se...", options:["Máscara de restrição de fluxo","Dispositivo de limiar (PowerBreathe)","Nada"], answer:1, explain:"Limiar treina força; máscara treina frequência." },
+      { q:"Na periodização invertida (ultra), começa-se por...", options:["Volume alto e intensidade baixa","Intensidade alta, somando volume depois","Só descanso"], answer:1, explain:"O específico da ultra é sustentar volume — a intensidade vem antes." }
+    ]
+  }
 };

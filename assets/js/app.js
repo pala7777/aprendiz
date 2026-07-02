@@ -24,6 +24,8 @@
   const KEY="aprendiz.state.v2";
   const S=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}})();
   S.track=S.track||null; S.mod=S.mod||{}; S.quiz=S.quiz||{}; S.name=S.name||"";
+  S.seen=S.seen||{}; S.finalPassed=S.finalPassed||false;
+  const unlockedGlossary=()=>C.glossary.filter(([t])=>S.seen[t.toLowerCase()]);
   const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
   const trackName=id=>({atleta:"🏃 Atleta",treinador:"🎓 Treinador"}[id]||"escolher");
   const go=h=>location.hash=h;
@@ -59,8 +61,13 @@
   // curso concluído = TODOS os módulos visitados E com teste feito (não só o Módulo 0)
   function courseDone(c){ const co=contentOf(c); if(!co)return false;
     return co.modules.every(m=> !m.locked && S.mod[m.id] && (!m.quiz || S.quiz[m.id]!=null)); }
-  function setBar(){ const co=C; const tot=co.modules.filter(m=>!m.locked).length||1;
-    const d=co.modules.filter(m=>!m.locked&&S.mod[m.id]).length; bar.style.width=Math.round(d/tot*100)+"%"; }
+  function setBar(){ const tot=C.modules.filter(m=>!m.locked).length||1;
+    const d=C.modules.filter(m=>!m.locked&&S.mod[m.id]).length; const pct=Math.round(d/tot*100);
+    bar.style.width=pct+"%";
+    const cp=document.getElementById("cprog");
+    if(cp){ cp.innerHTML=`<span class="cbar"><i style="width:${pct}%"></i></span><b>${d}/${tot}</b> módulos`;
+      cp.title="Progresso do curso — clique para ver os módulos"; cp.onclick=()=>go("#/curso/trail"); }
+  }
 
   function render(){
     syncPill(); setBar(); markNav(); window.scrollTo(0,0); killFoot();
@@ -70,6 +77,7 @@
     if(p[0]==="ferramentas") return ferramentas();
     if(p[0]==="glossario") return glossario();
     if(p[0]==="revisar") return revisar();
+    if(p[0]==="prova") return prova();
     if(p[0]==="painel") return painel();
     if(p[0]==="curso"){ const c=courseOf(p[1]);
       if(!c) return catalog();
@@ -233,6 +241,9 @@
     }
     setActive(outline[0]&&outline[0].id);
 
+    // desbloqueia os termos citados neste módulo → os flashcards acumulam conforme você avança
+    const modText=JSON.stringify(mod).toLowerCase();
+    C.glossary.forEach(([term])=>{ const k=term.toLowerCase(); if(!S.seen[k] && modText.indexOf(k)>=0) S.seen[k]=1; });
     S.mod[mod.id]=true; save(); setBar();
     footCustom([{label:"← Módulos",ghost:true,on:()=>go("#/curso/"+c.id)},
       {label:"Próximo módulo →",on:()=>{const nx=contentOf(c).modules.find(m=>m.id===mod.id+1);
@@ -241,9 +252,16 @@
 
   /* ---------- revisar flashcards (rota direta) ---------- */
   function revisar(){
+    const deck=unlockedGlossary();
     app.innerHTML=`<div class="eyebrow">Memorização</div><h2 class="section">🧠 Revisar flashcards</h2>
-      <p class="lead">Repetição espaçada do glossário — o jeito comprovado de fixar os termos.</p><div id="fh"></div>`;
-    app.querySelector("#fh").appendChild(FLASH.review(C.glossary,()=>go("#/painel")));
+      <p class="lead">Repetição espaçada do glossário — os cartões vão sendo <b>desbloqueados conforme você avança</b> no curso.</p><div id="fh"></div>`;
+    if(!deck.length){
+      app.querySelector("#fh").appendChild(div("block","<h3>Nenhum cartão ainda 🔒</h3><p class='lead'>Abra os módulos do curso para desbloquear os termos. Cada módulo que você estuda adiciona novos cartões aqui.</p><div class='btnrow'><button class='btn' id='goc'>Ir para o curso →</button></div>"));
+      app.querySelector("#goc").onclick=()=>go("#/curso/trail");
+    } else {
+      app.querySelector("#fh").appendChild(div("lead","Você já desbloqueou <b>"+deck.length+"</b> de "+C.glossary.length+" termos."));
+      app.querySelector("#fh").appendChild(FLASH.review(deck,()=>go("#/painel")));
+    }
     footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")}]);
   }
 
@@ -309,34 +327,64 @@
 
   /* ---------- PAINEL (progresso + flashcards + certificado) ---------- */
   function painel(){
-    const fs=FLASH.stats(C.glossary);
+    const deck=unlockedGlossary(); const fs=FLASH.stats(deck);
     const modsTot=C.modules.filter(m=>!m.locked).length, modsDone=C.modules.filter(m=>!m.locked&&S.mod[m.id]).length;
+    const allModsDone=modsDone===modsTot;
     const bestQuiz=Object.values(S.quiz).length?Math.max(...Object.values(S.quiz)):null;
-    const complete=courseDone(courseOf("trail"));
+    const cert=courseDone(courseOf("trail")) && S.finalPassed;
     app.innerHTML=`<div class="eyebrow">Meu painel</div><h2 class="section">Seu progresso</h2>
       <div class="astats" style="margin-top:12px">
         <div class="astat"><div class="v">${modsDone}/${modsTot}</div><div class="l">módulos concluídos</div></div>
-        <div class="astat"><div class="v">${bestQuiz!=null?bestQuiz+"%":"—"}</div><div class="l">melhor teste</div></div>
-        <div class="astat"><div class="v">${fs.mastered}/${fs.total}</div><div class="l">termos dominados</div></div>
+        <div class="astat"><div class="v">${S.finalPassed?"✓":(bestQuiz!=null?bestQuiz+"%":"—")}</div><div class="l">${S.finalPassed?"prova final":"melhor teste"}</div></div>
+        <div class="astat"><div class="v">${fs.mastered}/${C.glossary.length}</div><div class="l">termos dominados</div></div>
         <div class="astat"><div class="v">${fs.due}</div><div class="l">cartões p/ revisar</div></div>
       </div>
 
       <div class="block" style="margin-top:18px"><div style="display:flex;align-items:center;gap:10px">
-        <b style="font-size:16px">🧠 Revisar flashcards</b><span class="chip" style="margin-left:auto">${fs.due} para hoje</span></div>
-        <p class="lead">Repetição espaçada do glossário — o jeito comprovado de fixar os termos.</p>
-        <div class="btnrow"><button class="btn" id="startflash">Revisar agora</button></div>
+        <b style="font-size:16px">🧠 Revisar flashcards</b><span class="chip" style="margin-left:auto">${deck.length}/${C.glossary.length} desbloqueados</span></div>
+        <p class="lead">${deck.length?"Repetição espaçada — "+fs.due+" cartão(ões) para revisar hoje.":"Abra os módulos do curso para desbloquear cartões."}</p>
+        <div class="btnrow"><button class="btn" id="startflash" ${deck.length?"":"disabled"}>Revisar agora</button></div>
         <div id="flashhost"></div></div>
 
+      <div class="block" style="margin-top:16px"><div style="display:flex;align-items:center;gap:10px">
+        <b style="font-size:16px">🏁 Prova final</b><span class="chip ${S.finalPassed?'done':''}" style="margin-left:auto">${S.finalPassed?"aprovado ✓":(allModsDone?"liberada":"conclua os módulos")}</span></div>
+        <p class="lead">${C.finalExam.questions.length} questões cobrindo o curso inteiro. Aprovação: ${C.finalExam.pass}%.</p>
+        <div class="btnrow"><button class="btn" id="startexam" ${allModsDone?"":"disabled"}>${S.finalPassed?"Refazer prova":"Fazer a prova"}</button></div></div>
+
       <div class="block" style="margin-top:16px"><b style="font-size:16px">🎓 Certificado</b>
-        <p class="lead">${complete?"Você concluiu o conteúdo disponível! Gere seu certificado.":"Conclua os módulos disponíveis para liberar seu certificado."}</p>
-        <div class="btnrow ${complete?"":"hide"}" id="certrow">
+        <p class="lead">${cert?"Você concluiu TODOS os módulos e passou na prova final! Gere seu certificado.":"Libere concluindo os 7 módulos e sendo aprovado na prova final."}</p>
+        <div class="btnrow ${cert?"":"hide"}" id="certrow">
           <input class="gsearch" style="max-width:280px;margin:0" id="cname" placeholder="Seu nome completo" value="${S.name||""}">
           <button class="btn" id="gencert">Gerar certificado</button></div></div>`;
-    app.querySelector("#startflash").onclick=()=>{const host=app.querySelector("#flashhost");
-      host.innerHTML=""; host.appendChild(FLASH.review(C.glossary,()=>painel()));
-      host.scrollIntoView({behavior:"smooth"});};
+    const sf=app.querySelector("#startflash"); if(sf&&!sf.disabled) sf.onclick=()=>{const host=app.querySelector("#flashhost");
+      host.innerHTML=""; host.appendChild(FLASH.review(deck,()=>painel())); host.scrollIntoView({behavior:"smooth"});};
+    const se=app.querySelector("#startexam"); if(se&&!se.disabled) se.onclick=()=>go("#/prova");
     const gc=app.querySelector("#gencert"); if(gc) gc.onclick=()=>{const nm=app.querySelector("#cname").value.trim()||"Aluno(a)";
       S.name=nm;save();makeCertificate(nm);};
+  }
+
+  /* ---------- prova final ---------- */
+  function prova(){
+    const ex=C.finalExam; let answered=0,correct=0;
+    app.innerHTML=`<div class="crumb"><a data-h="#/painel">Meu painel</a><span>›</span><b>Prova final</b></div>
+      <div class="eyebrow">Avaliação</div><h2 class="section">🏁 ${ex.title}</h2>
+      <p class="lead">${ex.questions.length} questões · aprovação ${ex.pass}% · feedback na hora.</p><div id="exh"></div>`;
+    app.querySelectorAll(".crumb a[data-h]").forEach(a=>a.onclick=()=>go(a.dataset.h));
+    const host=app.querySelector("#exh");
+    ex.questions.forEach((item,qi)=>{ const d=div("tool","<b>"+(qi+1)+". "+item.q+"</b>");
+      item.options.forEach((opt,i)=>{ const btn=document.createElement("button");btn.className="opt";btn.textContent=opt;
+        btn.onclick=()=>{ d.querySelectorAll(".opt").forEach(o=>o.disabled=true); const good=i===item.answer; if(good)correct++; answered++;
+          btn.classList.add(good?"correct":"wrong"); if(!good)d.querySelectorAll(".opt")[item.answer].classList.add("correct");
+          d.appendChild(div("explain "+(good?"good":"bad"),item.explain));
+          if(answered===ex.questions.length){ const pct=Math.round(correct/ex.questions.length*100); const pass=pct>=ex.pass;
+            if(pass) S.finalPassed=true; save();
+            const bn=div("done-banner","<div class='big'>"+(pass?"🏆":"💪")+"</div><h3>"+correct+"/"+ex.questions.length+" ("+pct+"%) — "+(pass?"APROVADO!":"Não passou ainda")+"</h3><p class='lead'>"+(pass?"Parabéns! Seu certificado foi liberado no Meu painel.":"Você precisa de "+ex.pass+"%. Revise os módulos e tente de novo.")+"</p><div class='btnrow' style='justify-content:center'><button class='btn' id='topainel'>Ir ao Meu painel →</button></div>");
+            host.appendChild(bn); bn.querySelector("#topainel").onclick=()=>go("#/painel"); bn.scrollIntoView({behavior:"smooth"});
+          }
+        }; d.appendChild(btn);
+      }); host.appendChild(d);
+    });
+    footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")}]);
   }
 
   /* ---------- certificado (canvas → PNG) ---------- */

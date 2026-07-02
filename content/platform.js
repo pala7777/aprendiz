@@ -17,7 +17,7 @@ window.PLATFORM = {
     { id:"trail", ref:"COURSE_TRAIL", cat:"corrida", published:true,
       title:"Metodologia do Treino de Trail",
       sub:"Corrida de montanha de verdade — do plano ao cume.",
-      img:"assets/img/hero.jpg", level:"Do zero ao avançado", dur:"6 módulos · ~3 h",
+      img:"assets/img/hero.jpg", level:"Do zero ao avançado", dur:"7 módulos + prova · ~3,5 h",
       learn:["Carga interna × externa","Limiares VT1/VT2","Fartlek","Correr × caminhar","Descidas & excêntrico","Séries de subida","Respiração","Periodização"] },
 
     { id:"rua", cat:"corrida", published:false,
