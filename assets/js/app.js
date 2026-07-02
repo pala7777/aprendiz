@@ -69,13 +69,14 @@
     if(p[0]==="painel") return painel();
     if(p[0]==="curso"){ const c=courseOf(p[1]);
       if(!c) return catalog();
-      if(!c.published) return teaser(c);
-      if(p[2]==="modulo"){ const mod=contentOf(c).modules.find(m=>String(m.id)===p[3]); return mod?modulo(c,mod):curso(c); }
+      if(c.published && p[2]==="modulo"){ const mod=contentOf(c).modules.find(m=>String(m.id)===p[3]); return mod?modulo(c,mod):curso(c); }
       return curso(c);
     }
     catalog();
   }
   const div=(cls,html)=>{const d=document.createElement("div");d.className=cls;d.innerHTML=html;return d;};
+  const ltags=(arr,max)=>{ if(!arr)return ""; const a=arr.slice(0,max||arr.length), extra=arr.length-a.length;
+    return a.map((t,i)=>`<span class="ltag c${i%6}">${t}</span>`).join("")+(extra>0?`<span class="ltag more">+${extra}</span>`:""); };
 
   /* ---------- CATÁLOGO (home multi-curso) ---------- */
   function catalog(){
@@ -107,11 +108,11 @@
         const card=div("ccard"+(c.published?"":" soon"),`
           <div class="thumb img-duo"><img src="${c.img}" alt="">${c.published?'<span class="ribbon">Disponível</span>':'<span class="ribbon soon">Em breve</span>'}</div>
           <div class="body"><h3>${c.title}</h3><p>${c.sub}</p>
-            <div class="foot">
-              <span class="chip ${done?'done':''}">${c.published?(done?'concluído':c.dur):c.dur}</span>
-              <span class="go">${c.published?(done?'revisar':'começar'):'saber mais'} →</span>
-            </div></div>`);
-        card.onclick=()=>go("#/curso/"+c.id);
+            <div class="ctags">${ltags(c.learn,3)}</div>
+            <button class="cta ${c.published?'':'soon'}">${c.published?(done?'Revisar curso':'Começar curso'):'Saber mais'} →</button>
+          </div>`);
+        const open=()=>go("#/curso/"+c.id);
+        card.querySelector(".thumb").onclick=open; card.querySelector(".cta").onclick=open;
         grid.appendChild(card);
       });
     }
@@ -131,31 +132,49 @@
     app.querySelector("#back").onclick=()=>go("#/");
   }
 
-  /* ---------- visão do curso ---------- */
+  /* ---------- página do curso (publicado ou "em breve") ---------- */
   function curso(c){
     const co=contentOf(c);
-    if(!S.track) openTriage(false);
+    const title=co?co.title:c.title, sub=co?co.subtitle:c.sub;
+    if(c.published && !S.track) openTriage(false);
     app.innerHTML=`
-      <div class="img-duo art hero" style="height:230px"><img src="${c.img}" alt="">
-        <div class="on"><span class="kicker">${cname(c.cat)}</span><h1>${co.title}</h1><p>${co.subtitle}</p></div></div>
-      <div class="metaline"><span>${ICON.layers} <b>${c.dur}</b></span><span>${ICON.clock} <b>${c.level}</b></span>
-        <span class="stars">★★★★★ <b style="color:var(--tx)">${c.rating}</b></span></div>
-      <div class="eyebrow">Conteúdo do curso</div><h2 class="section">Sua trilha de aprendizagem</h2>
-      <div class="grid two" id="mods" style="margin-top:14px"></div>`;
-    const grid=app.querySelector("#mods");
-    co.modules.forEach(m=>{
-      const started=S.mod[m.id];
-      const card=div("ccard"+(m.locked?" locked":""),`
-        <div class="thumb img-duo"><img src="${m.img}" alt=""></div>
-        <div class="body"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-          <span class="modnum">${m.id}</span><h3 style="margin:0">${m.title}</h3></div>
-          <p>${m.summary}</p>
-          <div class="foot">${m.locked?'<span class="chip">em breve</span>':
-            `<span class="chip ${started?'done':''}">${started?'concluído':m.sections.length+' seções'}</span><span class="go">${started?'revisar':'começar'} →</span>`}</div></div>`);
-      if(!m.locked) card.onclick=()=>go("#/curso/"+c.id+"/modulo/"+m.id);
-      grid.appendChild(card);
-    });
-    footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")},{label:"Glossário do curso",ghost:true,on:()=>go("#/glossario")}]);
+      <div class="img-duo art hero" style="height:240px"><img src="${c.img}" alt="">
+        <div class="on"><span class="kicker">${cname(c.cat)}${c.published?"":" · em breve"}</span><h1>${title}</h1><p>${sub}</p></div></div>
+      <div class="metaline">
+        <span>${ICON.layers} <b>${c.dur}</b></span>
+        <span>${ICON.clock} <b>${c.level}</b></span>
+        ${c.published?'<span class="chip done">Disponível agora</span>':'<span class="chip">Em produção</span>'}
+      </div>
+      <div class="learn-box"><h3>🎯 O que você vai aprender</h3>
+        <p class="lead">Os conceitos-chave deste curso:</p>
+        <div class="learn-tags">${ltags(c.learn)}</div></div>
+      <div id="body"></div>`;
+    const body=app.querySelector("#body");
+    if(c.published && co){
+      body.innerHTML=`<div class="eyebrow">Conteúdo do curso</div><h2 class="section">Sua trilha de aprendizagem</h2><div class="grid two" id="mods" style="margin-top:14px"></div>`;
+      const grid=body.querySelector("#mods");
+      co.modules.forEach(m=>{
+        const started=S.mod[m.id];
+        const card=div("ccard"+(m.locked?" locked":""),`
+          <div class="thumb img-duo"><img src="${m.img}" alt=""></div>
+          <div class="body"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <span class="modnum">${m.id}</span><h3 style="margin:0">${m.title}</h3></div>
+            <p>${m.summary}</p>
+            <div class="foot">${m.locked?'<span class="chip">em breve</span>':
+              `<span class="chip ${started?'done':''}">${started?'concluído':m.sections.length+' seções'}</span><span class="go">${started?'revisar':'começar'} →</span>`}</div></div>`);
+        if(!m.locked) card.onclick=()=>go("#/curso/"+c.id+"/modulo/"+m.id);
+        grid.appendChild(card);
+      });
+      footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")},{label:"Glossário do curso",ghost:true,on:()=>go("#/glossario")}]);
+    } else {
+      body.innerHTML=`<div class="block"><h3>Este curso ainda está em produção.</h3>
+        <p class="lead">A plataforma cresce com o tempo. Enquanto isso, comece pelo curso já disponível — é gratuito e completo.</p>
+        <div class="btnrow"><button class="btn" id="gotrail">Ver o curso disponível →</button>
+        <button class="btn ghost" id="back">Voltar ao catálogo</button></div></div>`;
+      body.querySelector("#gotrail").onclick=()=>go("#/curso/trail");
+      body.querySelector("#back").onclick=()=>go("#/");
+      footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")}]);
+    }
   }
   const cname=id=>{const c=P.categories.find(x=>x.id===id);return c?c.name:"Curso";};
   function name(id){return cname(id);}
