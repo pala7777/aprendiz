@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Aprendiz — aprender fazendo</title>
+  <meta name="description" content="Plataforma de aprendizagem interativa. Curso #1: Metodologia do Treino de Trail.">
+  <meta name="theme-color" content="#0b0c12">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <!-- barra lateral de navegação -->
+  <aside class="sidebar">
+    <div class="mark" id="logo" title="Aprendiz">A</div>
+    <div id="nav"></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="row">
+        <div class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+          <span>Buscar cursos, temas…</span>
+        </div>
+        <div class="track-pill" id="trackpill">Trilha: <b>escolher</b></div>
+      </div>
+      <div class="progress"><i id="progressbar"></i></div>
+    </header>
+
+    <main class="wrap" id="app"></main>
+  </div>
+
+  <script src="content/trail.js"></script>
+  <script src="assets/js/tools.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
