@@ -332,3 +332,10 @@ h2.section{font-size:23px;margin:6px 0 4px}
   .outline{display:none}
   .aside-actions{flex-direction:row}
 }
+
+/* breadcrumb (voltar ao curso/catálogo) */
+.crumb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--tx-dim);margin-bottom:14px}
+.crumb a{color:var(--brand-2);cursor:pointer}
+.crumb a:hover{text-decoration:underline}
+.crumb span{opacity:.5}
+.crumb b{color:var(--tx)}

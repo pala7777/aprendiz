@@ -39,7 +39,13 @@ window.COURSE_TRAIL = {
     ["polarizar","Separar bem as intensidades: muito volume fácil + pouca intensidade forte, evitando a 'zona cinzenta' do meio."],
     ["tempo-limite","Tempo máximo que se sustenta uma dada intensidade. Base para dosar a duração das repetições."],
     ["débito cardíaco","Quantidade de sangue que o coração bombeia por minuto (volume por batida × frequência)."],
-    ["metaborreflexo","Reflexo em que a fadiga de um músculo (ex.: respiratório) faz o cérebro reduzir o fluxo de sangue para outros, limitando o esforço."]
+    ["metaborreflexo","Reflexo em que a fadiga de um músculo (ex.: respiratório) faz o cérebro reduzir o fluxo de sangue para outros, limitando o esforço."],
+    ["MLSS","Máximo estado estável de lactato — a maior intensidade em que a produção e a remoção de lactato se equilibram. Fica próxima do 2º limiar (VT2)."],
+    ["série repetida","Efeito 'repeated bout': após uma exposição a descidas, a musculatura adapta-se e sofre menos dano na próxima. É por isso que se treina descida de forma progressiva."],
+    ["velocidade de limiar","Ritmo/velocidade correspondente ao 2º limiar — referência para muitas prescrições de intensidade."],
+    ["Tim Noakes","👤 Médico e cientista do esporte sul-africano. Propôs o modelo do 'governador central': a fadiga não é só muscular — o cérebro regula (limita) o esforço de forma antecipada, como mecanismo de segurança. Explica por que a musculatura respiratória fatigada faz você desacelerar antes do 'fim' real."],
+    ["Véronique Billat","👤 Fisiologista francesa, referência mundial em corrida. Popularizou o treino na velocidade aeróbica máxima (vVO₂máx) e o conceito de 'tempo-limite' (tempo máximo sustentável numa intensidade) — a base para dosar a duração das repetições."],
+    ["Alberto Minetti","👤 Fisiologista italiano da locomoção. Mapeou o custo energético de correr/caminhar em diferentes inclinações — origem da 'tabela isocalórica' que converte ritmo do plano em velocidade equivalente na esteira inclinada."]
   ],
 
   modules: [
@@ -119,10 +125,242 @@ window.COURSE_TRAIL = {
         ]
       }
     },
-    { id:1, title:"Correr no plano",         img:"assets/img/m1.jpg", summary:"Contínuo uniforme, rodagem progressiva, fartlek e cross-training.", locked:true },
-    { id:2, title:"A montanha",              img:"assets/img/m2.jpg", summary:"Rodagem de montanha, correr × caminhar, descidas e o dano excêntrico.", locked:true },
-    { id:3, title:"Fracionado & intensidade",img:"assets/img/m3.jpg", summary:"Interval, repetições, séries de subida e o dosador de tempo-limite.", locked:true },
-    { id:4, title:"Respiração",              img:"assets/img/m4.jpg", summary:"Os 4 mecanismos e como treinar a musculatura respiratória.", locked:true },
-    { id:5, title:"Montando o plano",        img:"assets/img/m5.jpg", summary:"Periodização, sessão híbrida e sua semana de treino.", locked:true }
+    /* ===================== MÓDULO 1 ===================== */
+    {
+      id:1, title:"Correr no plano", img:"assets/img/m1.jpg",
+      summary:"Contínuo uniforme, rodagem progressiva, fartlek e cross-training.",
+      learn:["Contínuo uniforme","Rodagem progressiva","Fartlek","As 3 alavancas","Reserva articular","Cross-training"],
+      sections:[
+        { n:1, title:"Contínuo uniforme × variável", blocks:[
+          { type:"prose", html:
+            "<p>No plano, o treino contínuo se divide em dois:</p>"+
+            "<ul><li><b>Uniforme</b> — mantemos constante a <b>carga externa</b> (velocidade/potência) OU a <b>carga interna</b> (esforço/FC). Se priorizamos manter a FC estável, a velocidade vai caindo conforme a fadiga; se priorizamos a velocidade, a FC sobe.</li>"+
+            "<li><b>Variável</b> — variamos a intensidade de propósito, <i>sem parar</i>. Dois tipos: a <b>rodagem progressiva</b> (começa suave e termina forte, perto do 2º limiar) e o <b>fartlek</b>.</li></ul>"+
+            "<p>Por que treinar variação no plano? Porque é assim que ensaiamos as <b>transições de intensidade</b> que a montanha vai exigir o tempo todo.</p>" },
+          { type:"check", q:"Num contínuo uniforme por carga interna, o que acontece com a velocidade ao longo do treino?",
+            options:["Fica exatamente constante","Tende a cair, para manter o esforço/FC estável","Aumenta sempre"], answer:1,
+            explain:"Se o alvo é manter a carga interna constante, com a fadiga você desacelera um pouco — a velocidade cede para a FC não subir." }
+        ]},
+        { n:2, title:"Fartlek — o treino estrela fora da montanha", blocks:[
+          { type:"prose", html:
+            "<p>A ideia-chave (e contraintuitiva): no <b>fartlek</b>, as <b>recuperações são em ritmo de corrida contínua</b> — não caminhando nem parado. Isso o separa do fracionado e é o que simula as <b>descidas</b> do trail (velocidade que se mantém enquanto o esforço cai).</p>"+
+            "<p>Você progride o fartlek com <b>três alavancas</b>: <b>intensidade</b> (diferença de ritmo entre a parte rápida e a recuperação), <b>volume</b> (tempo total das partes rápidas) e <b>densidade</b> (a razão esforço:recuperação, de 1:4 para iniciantes até 6:1 para avançados).</p>"+
+            "<p>Regra de ouro: quanto <b>menor o tempo de esforço, maior a velocidade</b>. E o bom corredor <span data-term='polarizar'>polariza</span> bem — roda suave de verdade e acelera de verdade, sem cair na zona cinzenta.</p>" },
+          { type:"visual", component:"spectrum", caption:"O fartlek é o extremo de recuperação intensa deste espectro." },
+          { type:"callout", track:"atleta", tag:"Na prática", html:
+            "Um fartlek para começar: 10 × 1min30 forte / 1min em <b>ritmo de corrida</b> (não trote lento!). Evolua primeiro a densidade, depois a intensidade." },
+          { type:"check", q:"O que diferencia o fartlek de um treino intervalado?",
+            options:["No fartlek a recuperação é intensa (ritmo de corrida)","No fartlek você para completamente","Não há diferença"], answer:0,
+            explain:"A recuperação 'rápida' é a assinatura do fartlek — imita a descida do trail." }
+        ]},
+        { n:3, title:"Cross-training e a reserva articular", blocks:[
+          { type:"prose", html:
+            "<p>Trocar parte do volume de corrida por <b>bike, elíptico ou ski-roller</b> tem dois motivos fortes:</p>"+
+            "<ul><li><b>Poupar a reserva articular</b> — o 'orçamento' de impactos que suas articulações toleram ao longo da vida. Quanto menos você gasta por ciclo, mais longa a carreira. Por isso: não abusar do volume de corrida.</li>"+
+            "<li><b>Trabalhar leve sem estragar a técnica</b> — o treino fácil polarizado só funciona com um 1º limiar alto; quem tem limiar baixo precisa correr lento demais (técnica pendular ruim). Meios com menos massa muscular resolvem isso.</li></ul>"+
+            "<p>Detalhe fisiológico: a corrida tem uma das <b>piores relações carga interna/externa</b> (muita musculatura envolvida). A bike, sentado e mais localizada, tem relação bem melhor.</p>" },
+          { type:"check", q:"Por que usar bike/elíptico ajuda quem tem 1º limiar baixo?",
+            options:["Permite treinar leve sem correr lento demais e degradar a técnica","Porque queima mais caloria","Porque é sempre mais intenso"], answer:0,
+            explain:"Com menos massa muscular envolvida, dá pra atingir a carga interna baixa sem a técnica pendular ruim da corrida muito lenta." }
+        ]}
+      ],
+      quiz:{ title:"Teste do Módulo 1", questions:[
+        { q:"Rodagem progressiva é...", options:["Um treino fracionado com pausas","Um contínuo variável que sobe a intensidade gradualmente","Correr sempre no mesmo ritmo"], answer:1, explain:"Começa suave e termina forte, sem parar." },
+        { q:"No fartlek, a recuperação é feita...", options:["Parado","Caminhando","Em ritmo de corrida contínua"], answer:2, explain:"Recuperação intensa — imita as descidas." },
+        { q:"As três alavancas de progressão do fartlek são...", options:["Intensidade, volume e densidade","Força, mobilidade e cadência","Sono, dieta e hidratação"], answer:0, explain:"Intensidade (diferença de ritmo), volume (tempo forte) e densidade (razão esforço:recuperação)." },
+        { q:"A 'reserva articular' se refere a...", options:["Quanto glicogênio você tem","O total de impactos que a articulação tolera ao longo da vida","Sua flexibilidade"], answer:1, explain:"Poupá-la (menos volume de impacto) preserva longevidade esportiva." },
+        { q:"Comparada à bike, a corrida tem uma relação carga interna/externa...", options:["Melhor","Pior (mais custo para a mesma velocidade)","Idêntica"], answer:1, explain:"Muita massa muscular e ativação do tronco tornam a corrida mais 'cara' fisiologicamente." }
+      ]}
+    },
+
+    /* ===================== MÓDULO 2 ===================== */
+    {
+      id:2, title:"A montanha", img:"assets/img/m2.jpg",
+      summary:"Rodagem de montanha, correr × caminhar, descidas e o dano excêntrico.",
+      learn:["Rodagem de montanha","Correr × caminhar","11–13%","Sóleo","Dano excêntrico","Velocidade ascensional"],
+      sections:[
+        { n:1, title:"A rodagem de montanha", blocks:[
+          { type:"prose", html:
+            "<p>A rodagem na montanha é o <b>treino estrela do corredor de trail</b>. A orografia impõe variação de carga externa que você <b>não consegue eliminar</b> — então o objetivo passa a ser <b>manter a carga interna estável</b> enquanto o ritmo sobe e desce.</p>"+
+            "<p>Você ainda pode atuar sobre essa variabilidade: buscar a máxima intensidade sustentável, insistir em correr enquanto o coração permite, ou — de forma <b>proativa</b> — alternar correr e caminhar conforme a inclinação.</p>" },
+          { type:"visual", component:"decouple", caption:"Na montanha, carga interna e externa vivem descoladas." },
+          { type:"check", q:"Na rodagem de montanha, o que buscamos manter estável?",
+            options:["A velocidade","A carga interna (esforço)","O desnível por km"], answer:1,
+            explain:"A velocidade oscila com o terreno; o que se mantém estável é o esforço interno." }
+        ]},
+        { n:2, title:"Correr × caminhar nas subidas", blocks:[
+          { type:"prose", html:
+            "<p>Existe um ponto de inclinação — em torno de <b>11 a 13%</b> para a maioria dos corredores recreativos — a partir do qual <b>caminhar gasta menos energia que correr</b>. É <b>dinâmico</b>: quanto mais rápido/treinado o atleta, mais alto o ponto (elite: 15–17% ou mais).</p>"+
+            "<p>O bom corredor de montanha <b>antecipa</b> a caminhada (não espera 'estourar'). E cuidado com o <span data-term='sóleo'>sóleo</span>: caminhar em subida o ativa mais que correr — abusar sobrecarrega.</p>"+
+            "<p>Um estudo com 8 corredores de elite mostrou que <b>caminhar em subida é um padrão locomotor distinto</b> de correr no plano/descida — ou seja, precisa ser <b>treinado especificamente</b>. E melhor economia caminhando aparece com <b>menor cadência</b>. Indicadores no relógio: <span data-term='cadência'>cadência</span> abaixo de ~140 passos/min ou tempo de contato acima de ~400–500 ms = você está caminhando.</p>" },
+          { type:"tool", component:"correrCaminhar", caption:"Ajuste inclinação e nível e veja o ponto de troca." },
+          { type:"callout", track:"treinador", tag:"Para treinadores", html:
+            "Prescreva o padrão de caminhar em subida forte de forma explícita e verifique no arquivo (cadência/tempo de contato) se o atleta o executou — é habilidade específica, não decorre de ser bom no plano." },
+          { type:"check", q:"Por que treinar 'caminhar em subida' especificamente?",
+            options:["Porque é um padrão locomotor diferente de correr","Porque caminhar é sempre melhor","Não precisa treinar"], answer:0,
+            explain:"O estudo mostrou que a economia caminhando em subida não se correlaciona com a economia correndo — é habilidade à parte." }
+        ]},
+        { n:3, title:"Descidas, motricidade e o limitante nº1", blocks:[
+          { type:"prose", html:
+            "<p>O <b>dano muscular das descidas</b> — causado pela <span data-term='contração excêntrica'>contração excêntrica</span> — é o <b>principal limitante do rendimento</b> em montanha. A boa notícia: com exposição progressiva, a musculatura se adapta (efeito de <span data-term='série repetida'>série repetida</span>) e passa a sofrer menos dano. Pré-requisito: uma boa base de <b>força</b> antes.</p>"+
+            "<p>Também se treina aqui a <b>motricidade e a percepção na descida</b> (onde pisar, ler o terreno) — que gasta energia física <i>e</i> mental em quem não está acostumado.</p>"+
+            "<p>Para modelar a rodagem, vá além de km: use a <span data-term='velocidade ascensional'>velocidade ascensional</span> (~600 m/h já é estar muito bem treinado), o <b>perfil</b> (nº de subidas/descidas) e a <b>tecnicidade</b>.</p>" },
+          { type:"tool", component:"ascensional", caption:"Calcule sua velocidade ascensional." },
+          { type:"check", q:"Qual é o principal limitante do rendimento em provas de montanha?",
+            options:["A capacidade pulmonar","O dano muscular das descidas (excêntrico)","A cadência baixa"], answer:1,
+            explain:"O dano excêntrico das descidas é o fator que mais limita — por isso se treina força e exposição progressiva." }
+        ]}
+      ],
+      quiz:{ title:"Teste do Módulo 2", questions:[
+        { q:"O ponto aproximado em que caminhar vira mais econômico (recreativo) é...", options:["3–5%","11–13%","25%+"], answer:1, explain:"~11–13% para a maioria; sobe com o nível do atleta." },
+        { q:"Caminhar em subida sobrecarrega principalmente o...", options:["Sóleo","Bíceps","Trapézio"], answer:0, explain:"O sóleo é mais ativado ao caminhar em subida do que ao correr." },
+        { q:"A decisão de caminhar deve ser...", options:["Reativa (só quando estourar)","Proativa (antecipada)","Nunca"], answer:1, explain:"O corredor treinado antecipa; não espera as pulsações dispararem." },
+        { q:"O dano das descidas vem da contração...", options:["Concêntrica","Excêntrica","Isométrica"], answer:1, explain:"A excêntrica (músculo produz força alongando) é a que gera microlesão." },
+        { q:"~600 m/h de velocidade ascensional indica um atleta...", options:["Iniciante","Muito bem treinado","Lesionado"], answer:1, explain:"Num circuito, 600 m/h é referência de bom nível." }
+      ]}
+    },
+
+    /* ===================== MÓDULO 3 ===================== */
+    {
+      id:3, title:"Fracionado & intensidade", img:"assets/img/m3.jpg",
+      summary:"Interval, repetições, séries de subida e o dosador de tempo-limite.",
+      learn:["Espectro do fracionado","Séries de subida","Inclinação → músculo","Tempo-limite (Billat)","Perda de velocidade","Potência × capacidade"],
+      sections:[
+        { n:1, title:"O espectro: fartlek → interval → repetições", blocks:[
+          { type:"prose", html:
+            "<p>O fracionado é um espectro definido pela <b>intensidade da recuperação</b>:</p>"+
+            "<ul><li><b>Fartlek</b> — recuperação intensa (ritmo de corrida).</li>"+
+            "<li><b>Interval training</b> — recuperação curta e <b>incompleta</b> (30 s a 1min30): você <i>acumula fadiga</i> de propósito.</li>"+
+            "<li><b>Método de repetições</b> — recuperação <b>ampla</b>: cada repetição sai perto da velocidade máxima.</li></ul>"+
+            "<p>⚠️ A <b>FC engana</b> em esforços curtos (menos de 1 min) e sob fadiga — nesses casos, guie-se por velocidade/potência ou esforço percebido, não pela frequência cardíaca.</p>" },
+          { type:"visual", component:"spectrum", caption:"Deslize e veja como a recuperação define o método." },
+          { type:"check", q:"No interval training, a recuperação é...", options:["Ampla, para descansar total","Curta e incompleta, acumulando fadiga","Inexistente"], answer:1,
+            explain:"O objetivo é treinar sob fadiga crescente — recuperação incompleta." }
+        ]},
+        { n:2, title:"Séries de subida e inclinação → músculo", blocks:[
+          { type:"prose", html:
+            "<p>Nas <b>séries de subida</b>, recuperar <b>descendo em trote</b> transforma a recuperação num estímulo excêntrico controlado — mas com uma pausa curta embaixo, senão a fadiga acumula e o treino vira fartlek.</p>"+
+            "<p>A <b>inclinação seleciona o músculo</b> recrutado:</p>"+
+            "<ul><li>Suave → <b>extensores do tornozelo</b> (panturrilha).</li>"+
+            "<li>~10% → entram forte os <b>extensores de quadril</b> e o <b>quadríceps</b>.</li>"+
+            "<li>Forte → ainda mais quadril + <b>isquiotibiais</b>.</li></ul>"+
+            "<p>Acima de <b>20%</b> a subida vira contração praticamente só concêntrica. Conclusão prática: variar a inclinação = variar o estímulo, e a <b>força para trail deve priorizar o quadril</b>, não só a panturrilha.</p>" },
+          { type:"check", q:"Recuperar 'descendo em trote' nas séries serve para...",
+            options:["Expor a musculatura ao estímulo excêntrico das descidas","Correr mais rápido na subida","Economizar tempo"], answer:0,
+            explain:"A descida em trote adiciona o estímulo excêntrico — mas precisa de uma pausa para não virar fartlek." }
+        ]},
+        { n:3, title:"Dosar por tempo-limite e saber a hora de parar", blocks:[
+          { type:"prose", html:
+            "<p>A escola francesa de <span data-term='Véronique Billat'>Véronique Billat</span> nos dá um método transferível: cada intensidade tem um <span data-term='tempo-limite'>tempo-limite</span> (quanto se aguenta nela), e a duração da repetição é uma <b>fração</b> dele.</p>"+
+            "<ul><li><b>Potência aeróbia máxima (PAM)</b> — tempo-limite 6–9 min → repetições curtas (15–30 s) ou longas (2–4 min).</li>"+
+            "<li><b>2º limiar</b> — tempo-limite ~60 min → repetições de 15–20 min.</li></ul>"+
+            "<p>E há um critério moderno para <b>parar a sessão</b>: quando a velocidade cai <b>10–15%</b> em relação ao alvo, encerre — dali em diante você só acumula fadiga sem o estímulo que buscava.</p>"+
+            "<p>Para progredir: por <b>potência</b> (mesma distância, mais rápido) ou por <b>capacidade</b> (mesmo ritmo, distância maior).</p>" },
+          { type:"tool", component:"zonas", caption:"Ancore suas intensidades a partir do ritmo de limiar." },
+          { type:"check", q:"Segundo o modelo de tempo-limite, repetições na PAM devem durar...",
+            options:["30–60 min","15–30 s ou 2–4 min","Sempre 10 min exatos"], answer:1,
+            explain:"Na PAM (tempo-limite 6–9 min) usam-se repetições curtas ou de 2–4 min; não se passa de ~50–60% do tempo-limite." }
+        ]}
+      ],
+      quiz:{ title:"Teste do Módulo 3", questions:[
+        { q:"O que define fartlek, interval e repetições no espectro?", options:["A distância total","A intensidade da recuperação","A hora do dia"], answer:1, explain:"Da recuperação intensa (fartlek) à ampla (repetições)." },
+        { q:"A frequência cardíaca é POUCO confiável em...", options:["Esforços curtos (menos de 1 min) e sob fadiga","Rodagens longas fáceis","Repouso"], answer:0, explain:"Em tiros curtos e com fadiga, a FC não reflete a intensidade real." },
+        { q:"Numa subida de ~10%, além da panturrilha, quem entra forte?", options:["Quadril e quadríceps","Bíceps","Abdômen apenas"], answer:0, explain:"Extensores de quadril e quadríceps ganham protagonismo." },
+        { q:"O 'tempo-limite' é um conceito associado a...", options:["Alberto Minetti","Véronique Billat","Tim Noakes"], answer:1, explain:"Billat popularizou o tempo-limite para dosar repetições." },
+        { q:"Deve-se encerrar a série quando a velocidade cai...", options:["1–2%","10–15%","50%"], answer:1, explain:"Queda de 10–15% indica fadiga excessiva — para o estímulo pretendido, encerre." }
+      ]}
+    },
+
+    /* ===================== MÓDULO 4 ===================== */
+    {
+      id:4, title:"Respiração", img:"assets/img/m4.jpg",
+      summary:"Os 4 mecanismos e como treinar a musculatura respiratória.",
+      learn:["Débito cardíaco","Metaborreflexo","Governador central","Padrão ventilatório","Estabilização","PowerBreathe"],
+      sections:[
+        { n:1, title:"Por que a respiração limita o rendimento", blocks:[
+          { type:"prose", html:
+            "<p>A musculatura que move a caixa torácica é um <b>limitante treinável</b> — e muito subestimado. Dois dos mecanismos:</p>"+
+            "<ul><li><b>Competição pelo <span data-term='débito cardíaco'>débito cardíaco</span></b> — pulmões e pernas disputam o oxigênio bombeado. Músculos respiratórios eficientes 'roubam' menos O₂ das pernas.</li>"+
+            "<li><b>Metaborreflexo respiratório</b> — quando a musculatura respiratória fatiga, ela sinaliza ao cérebro, que reduz o fluxo de sangue para as pernas <i>de forma antecipada</i>, por segurança. É o modelo do <b>'governador central'</b> de <span data-term='Tim Noakes'>Tim Noakes</span>. Treinar a respiração empurra esse gatilho para mais tarde.</li></ul>" },
+          { type:"callout", track:"treinador", tag:"Conceito-chave", html:
+            "Não é só o músculo da perna que 'acaba' — é o cérebro que corta o esforço ao receber sinais de fadiga respiratória. Daí o ganho de treinar a inspiração." },
+          { type:"check", q:"O 'governador central' (Tim Noakes) diz que a fadiga é regulada...",
+            options:["Só pelos músculos das pernas","Pelo cérebro, de forma antecipada e protetora","Pela temperatura ambiente"], answer:1,
+            explain:"O cérebro limita o esforço como mecanismo de segurança, antes do 'fim' real do músculo." }
+        ]},
+        { n:2, title:"Padrão ventilatório e estabilização do tronco", blocks:[
+          { type:"prose", html:
+            "<p>Mais dois mecanismos:</p>"+
+            "<ul><li><b>Padrão ventilatório</b> — quem tem <b>volume corrente baixo</b> depende de respirar com alta frequência e fatiga antes. Musculatura forte = respiração mais ampla e profunda.</li>"+
+            "<li><b>Estabilização do tronco</b> — parte da musculatura inspiratória também estabiliza o tronco. Nas <b>descidas</b> há um conflito: alta demanda de respiração <i>e</i> de equilíbrio ao mesmo tempo. Respiração bem treinada melhora o equilíbrio e a economia (anti-rotação/anti-inclinação).</li></ul>" },
+          { type:"check", q:"Um corredor com volume corrente baixo tende a...",
+            options:["Respirar mais devagar e fundo","Depender de frequência respiratória alta e fatigar antes","Não se cansar nunca"], answer:1,
+            explain:"Volume corrente baixo → mais frequência → fadiga mais cedo." }
+        ]},
+        { n:3, title:"Como treinar a musculatura respiratória", blocks:[
+          { type:"prose", html:
+            "<p>Use dispositivos de <b>limiar</b> (ex.: <b>PowerBreathe</b>), <b>não</b> máscaras de restrição de fluxo (essas treinam frequência, não força).</p>"+
+            "<p>Referência: pressão inspiratória máxima (PImáx) ≈ <b>2 cmH₂O por kg</b>; treine a <b>60–80% da PImáx</b> — a mesma lógica de trabalhar a 60–80% do 1RM, mas para inspirar.</p>"+
+            "<p>Progressões: começar resistido em repouso (2×15 a 50%), depois integrar a <b>pranchas</b> (dupla função), ao <b>cardiovascular</b> (bike + dispositivo) e à <b>expansão restrita</b> da caixa torácica (posição aero das subidas de kilômetro vertical).</p>" },
+          { type:"callout", track:"atleta", tag:"Na prática", html:
+            "Baixo custo, alto retorno subutilizado: 60–80% da PImáx, integrando nas pranchas que você já faz. Ganho extra de estabilização de tronco nas descidas." },
+          { type:"check", q:"Qual dispositivo é recomendado para treinar a FORÇA respiratória?",
+            options:["Máscara de restrição de fluxo","Dispositivo de limiar (ex.: PowerBreathe)","Nenhum, é impossível treinar"], answer:1,
+            explain:"O dispositivo de limiar exige força para vencer a resistência; a máscara mexe na frequência, não na força." }
+        ]}
+      ],
+      quiz:{ title:"Teste do Módulo 4", questions:[
+        { q:"Na 'competição pelo débito cardíaco', músculos respiratórios eficientes...", options:["Roubam menos O₂ das pernas","Gastam mais O₂","Não influenciam nada"], answer:0, explain:"Sobra mais oxigênio para a locomoção." },
+        { q:"O metaborreflexo respiratório faz o cérebro...", options:["Aumentar o fluxo às pernas","Reduzir o fluxo às pernas, limitando o esforço","Elevar a temperatura"], answer:1, explain:"Vasoconstrição protetora que limita as pernas antecipadamente." },
+        { q:"O modelo do 'governador central' é de...", options:["Véronique Billat","Tim Noakes","Alberto Minetti"], answer:1, explain:"Tim Noakes propôs o governador central." },
+        { q:"Para treinar força respiratória, deve-se usar...", options:["Dispositivo de limiar (PowerBreathe)","Máscara de restrição","Corrida em jejum"], answer:0, explain:"Limiar treina força; máscara treina frequência." },
+        { q:"A intensidade recomendada é...", options:["10–20% da PImáx","60–80% da PImáx","100% sempre"], answer:1, explain:"Análogo a 60–80% do 1RM, mas para a inspiração." }
+      ]}
+    },
+
+    /* ===================== MÓDULO 5 ===================== */
+    {
+      id:5, title:"Montando o plano", img:"assets/img/m5.jpg",
+      summary:"Periodização, sessão híbrida e sua semana de treino.",
+      learn:["Periodização tradicional","Periodização invertida","Sessão híbrida","Durabilidade","≤2 montanha/semana","Progressão de desnível"],
+      sections:[
+        { n:1, title:"Periodização: tradicional × invertida", blocks:[
+          { type:"prose", html:
+            "<p>Toda periodização vai do <b>geral ao específico</b> — o que muda é a <i>definição</i> de específico.</p>"+
+            "<ul><li><b>Tradicional</b> (provas mais curtas): começa com volume alto e intensidade baixa → progride para menos volume e mais intensidade.</li>"+
+            "<li><b>Invertida</b> (longa distância / ultra): começa com <b>intensidade alta</b> (o mais distante do específico) e depois <b>soma volume</b> a intensidades moderadas.</li></ul>"+
+            "<p>Por quê? Porque o específico da ultra não é a intensidade — é <b>sustentar muito volume por muito tempo</b>. Então a intensidade alta é a parte 'geral', feita cedo.</p>" },
+          { type:"check", q:"Na periodização invertida (longa distância), começamos por...",
+            options:["Volume alto e intensidade baixa","Intensidade alta, somando volume depois","Só descanso"], answer:1,
+            explain:"O 'específico' da ultra é sustentar volume — então a intensidade vem primeiro, como parte geral." }
+        ]},
+        { n:2, title:"Sessão híbrida e durabilidade", blocks:[
+          { type:"prose", html:
+            "<p>Para a maioria dos corredores, o <b>tempo</b> é o limitante — então combinar conteúdos numa <b>sessão híbrida</b> rende mais (ex.: força complementar + esteira inclinada + respiração no mesmo dia).</p>"+
+            "<p>Um método poderoso é treinar a <b>durabilidade</b>: fazer um bloco no 2º limiar <b>depois</b> de pré-fadigar com séries de subida — aproveitando a fadiga muscular e a depleção de <span data-term='glicogênio'>glicogênio</span> para gerar uma adaptação potente em menos tempo.</p>" },
+          { type:"faca", html:"<b>Pense:</b> quais dois conteúdos do seu treino você poderia juntar numa sessão só sem perder qualidade? (ex.: técnica + força; Z2 + respiratório)." },
+          { type:"check", q:"Treinar 'durabilidade' significa...",
+            options:["Fazer intensidade já cansado/pré-fadigado, de propósito","Só treinar descansado","Evitar qualquer fadiga"], answer:0,
+            explain:"Um bloco de qualidade após pré-fadiga simula o fim da prova e gera adaptação forte." }
+        ]},
+        { n:3, title:"Montando a sua semana", blocks:[
+          { type:"prose", html:
+            "<p>Regras de bolso que fecham o curso:</p>"+
+            "<ul><li><b>No máximo 2 sessões de montanha por semana</b> — mais que isso costuma ser excessivo para a recuperação.</li>"+
+            "<li><b>O desnível aumenta progressivamente</b> ao longo do ciclo (dar tempo à musculatura tolerar as descidas).</li>"+
+            "<li><b>Equilíbrio entre engessar e dar liberdade</b> — a rodagem de montanha é o treino mais lúdico; não a sufoque com exigências demais.</li></ul>"+
+            "<p>Com os 6 módulos, você tem o 'armário de treino' completo: sabe <b>o que</b> cada sessão faz e <b>por quê</b> — que era a promessa lá do início.</p>" },
+          { type:"check", q:"Quantas sessões de montanha por semana costuma ser o teto saudável?",
+            options:["1","2","5"], answer:1, explain:"Até 2/semana; acima disso a recuperação costuma sofrer." }
+        ]}
+      ],
+      quiz:{ title:"Teste do Módulo 5", questions:[
+        { q:"Toda periodização vai de...", options:["Específico → geral","Geral → específico","Aleatório"], answer:1, explain:"O que muda é a definição de 'específico'." },
+        { q:"Na longa distância, o específico é...", options:["A intensidade máxima","Sustentar volume por muito tempo","O sprint final"], answer:1, explain:"Por isso a intensidade alta é feita cedo (periodização invertida)." },
+        { q:"Uma 'sessão híbrida' serve para...", options:["Aproveitar o tempo combinando conteúdos","Treinar só um estímulo","Descansar"], answer:0, explain:"Combina dois conteúdos numa sessão — útil quando o tempo é limitante." },
+        { q:"Durabilidade se treina fazendo qualidade...", options:["Totalmente descansado","Após pré-fadiga (ex.: pós séries de subida)","Sem nunca cansar"], answer:1, explain:"A pré-fadiga + depleção de glicogênio potencializa a adaptação." },
+        { q:"O teto de sessões de montanha por semana é...", options:["2","4","7"], answer:0, explain:"Até 2/semana para preservar a recuperação." }
+      ]}
+    }
   ]
 };

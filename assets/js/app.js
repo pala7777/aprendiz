@@ -56,8 +56,9 @@
   }
 
   const publishedCourses=()=>P.courses.filter(c=>c.published);
+  // curso concluído = TODOS os módulos visitados E com teste feito (não só o Módulo 0)
   function courseDone(c){ const co=contentOf(c); if(!co)return false;
-    return co.modules.filter(m=>!m.locked).every(m=>S.mod[m.id]); }
+    return co.modules.every(m=> !m.locked && S.mod[m.id] && (!m.quiz || S.quiz[m.id]!=null)); }
   function setBar(){ const co=C; const tot=co.modules.filter(m=>!m.locked).length||1;
     const d=co.modules.filter(m=>!m.locked&&S.mod[m.id]).length; bar.style.width=Math.round(d/tot*100)+"%"; }
 
@@ -141,6 +142,7 @@
     const title=co?co.title:c.title, sub=co?co.subtitle:c.sub;
     if(c.published && !S.track) openTriage(false);
     app.innerHTML=`
+      <div class="crumb"><a data-h="#/">Catálogo</a><span>›</span><b>${title}</b></div>
       <div class="img-duo art hero" style="height:240px"><img src="${c.img}" alt="">
         <div class="on"><span class="kicker">${cname(c.cat)}${c.published?"":" · em breve"}</span><h1>${title}</h1><p>${sub}</p></div></div>
       <div class="metaline">
@@ -152,6 +154,7 @@
         <p class="lead">Os conceitos-chave deste curso:</p>
         <div class="learn-tags">${ltags(c.learn)}</div></div>
       <div id="body"></div>`;
+    app.querySelectorAll(".crumb a[data-h]").forEach(a=>a.onclick=()=>go(a.dataset.h));
     const body=app.querySelector("#body");
     if(c.published && co){
       body.innerHTML=`<div class="eyebrow">Conteúdo do curso</div><h2 class="section">Sua trilha de aprendizagem</h2><div class="grid two" id="mods" style="margin-top:14px"></div>`;
@@ -186,7 +189,8 @@
   function modulo(c,mod){
     if(mod.locked) return curso(c);
     app.classList.add("wide");
-    app.innerHTML=`<div class="img-duo art" style="height:180px"><img src="${mod.img}" alt="">
+    app.innerHTML=`<div class="crumb"><a data-h="#/">Catálogo</a><span>›</span><a data-h="#/curso/${c.id}">${contentOf(c).title}</a><span>›</span><b>Módulo ${mod.id}</b></div>
+      <div class="img-duo art" style="height:180px"><img src="${mod.img}" alt="">
         <div class="on"><span class="kicker">Módulo ${mod.id}</span><h1 style="color:#fff;font-size:26px;margin:0">${mod.title}</h1></div></div>
       <p class="lead" style="margin-top:14px">${mod.summary}</p>
       <div class="lesson-grid">
@@ -194,6 +198,7 @@
         <aside class="lesson-aside"><div class="aside-inner" id="aside"></div></aside>
       </div>`;
     const main=app.querySelector("#lmain");
+    app.querySelectorAll(".crumb a[data-h]").forEach(a=>a.onclick=()=>go(a.dataset.h));
     const outline=[];
     mod.sections.forEach((sec,i)=>{ const w=document.createElement("section"); w.className="lesson-sec"; w.id="sec-"+i;
       w.innerHTML=`<h3><span class="n">${sec.n}</span>${sec.title}</h3>`;
@@ -209,11 +214,13 @@
       <div class="learn-tags">${ltags(mod.learn||[])}</div>
       <div class="outline">${outline.map(o=>`<a data-t="${o.id}"><span class="oi">${o.n}</span><span>${o.title}</span></a>`).join("")}</div>
       <div class="aside-actions">
+        <button class="btn ghost small" id="a-course">← Todos os módulos</button>
         <button class="btn small" id="a-flash">🧠 Revisar flashcards</button>
         <button class="btn ghost small" id="a-gloss">📖 Glossário</button>
       </div>`;
     aside.querySelectorAll(".outline a").forEach(a=>a.onclick=()=>{
       const t=document.getElementById(a.dataset.t); if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); });
+    aside.querySelector("#a-course").onclick=()=>go("#/curso/"+c.id);
     aside.querySelector("#a-flash").onclick=()=>go("#/revisar");
     aside.querySelector("#a-gloss").onclick=()=>go("#/glossario");
     // scroll-spy: destaca a seção visível no índice
