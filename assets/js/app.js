@@ -364,7 +364,7 @@
       app.querySelector("#fh").appendChild(div("lead","Você já desbloqueou <b>"+deck.length+"</b> de "+co.glossary.length+" termos."));
       app.querySelector("#fh").appendChild(FLASH.review(deck,()=>go("#/painel")));
     }
-    footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")}]);
+    footCustom([{label:"← Voltar ao curso",ghost:true,on:()=>go("#/curso/"+CUR().id)},{label:"Meu painel",ghost:true,on:()=>go("#/painel")}]);
   }
   /* seletor de curso (aparece só quando há mais de um publicado) */
   function courseSwitcher(host,after){
@@ -452,6 +452,7 @@
     const paint=f=>{gl.innerHTML="";co.glossary.filter(([t,d])=>!f||t.toLowerCase().includes(f)||d.toLowerCase().includes(f))
       .forEach(([t,d])=>gl.appendChild(div("gitem","<b>"+t+"</b><p>"+d+"</p>")));};
     paint(""); app.querySelector("#gs").oninput=e=>paint(e.target.value.toLowerCase().trim());
+    footCustom([{label:"← Voltar ao curso",ghost:true,on:()=>go("#/curso/"+CUR().id)},{label:"📚 Bibliografia",ghost:true,on:()=>go("#/bibliografia")}]);
   }
 
   /* ---------- BIBLIOGRAFIA (todas as fontes do curso) ---------- */
@@ -468,7 +469,7 @@
     if(!total){ host.appendChild(div("block","<p class='lead'>As fontes deste curso estão sendo adicionadas.</p>")); }
     all.forEach(m=>{ const b=div("block","<b style='font-size:15px'>Módulo "+m.id+" · "+m.title+"</b><div class='fontes' style='margin-top:8px'></div>");
       const fb=b.querySelector(".fontes"); (m.estudos||[]).forEach(e=>fb.appendChild(div("fonte-item",fonteLine(e)))); host.appendChild(b); });
-    footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")},{label:"Glossário",ghost:true,on:()=>go("#/glossario")}]);
+    footCustom([{label:"← Voltar ao curso",ghost:true,on:()=>go("#/curso/"+CUR().id)},{label:"Glossário",ghost:true,on:()=>go("#/glossario")}]);
   }
 
   /* ---------- FERRAMENTAS (analisador + calculadoras) ---------- */
@@ -535,6 +536,7 @@
     const ah=app.querySelector("#activity"); if(ah) ah.innerHTML=(S.activity&&S.activity.length)
       ? S.activity.slice(0,8).map(a=>`<div class="actrow"><span>${a.w}</span><span class="chip done">+${a.p}</span></div>`).join("")
       : "<div class='lead'>Comece um módulo para registrar atividade aqui.</div>";
+    footCustom([{label:"← Voltar ao curso",ghost:true,on:()=>go("#/curso/"+c.id)}]);
   }
 
   /* ---------- prova final ---------- */
