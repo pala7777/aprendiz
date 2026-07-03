@@ -6,7 +6,12 @@
   const app=document.getElementById("app"), bar=document.getElementById("progressbar");
   const nav=document.getElementById("nav"), trackPill=document.getElementById("trackpill");
   const courseOf=id=>P.courses.find(c=>c.id===id);
-  const contentOf=c=>c&&c.ref?window[c.ref]:null;
+  const COURSE_CACHE={};
+  const contentOf=c=>c&&c.published?(COURSE_CACHE[c.id]||null):null;
+  async function ensureCourse(cid){ if(COURSE_CACHE[cid])return COURSE_CACHE[cid];
+    const d=await IMP.course(cid); if(d)COURSE_CACHE[cid]=d; return d; }
+  let ME={authenticated:false};
+  async function refreshMe(){ IMP.clearCourseCache(); for(const k in COURSE_CACHE)delete COURSE_CACHE[k]; ME=await IMP.me(true); }
 
   const ICON={
     home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h14V9"/></svg>',
@@ -105,24 +110,31 @@
       cp.title="Progresso do curso — clique para ver os módulos"; cp.onclick=()=>go("#/curso/"+c.id); }
   }
 
-  function render(){
-    syncPill(); setBar(); markNav(); window.scrollTo(0,0); killFoot();
+  function loading(){ app.innerHTML=`<div class="block" style="text-align:center;padding:48px"><div class="lead">Carregando…</div></div>`; }
+  async function render(){
+    syncPill(); markNav(); window.scrollTo(0,0); killFoot();
     app.classList.remove("wide");
     const p=(location.hash||"#/").replace(/^#\//,"").split("/").filter(Boolean);
-    if(!p.length) return catalog();
-    if(p[0]==="ferramentas") return ferramentas();
-    if(p[0]==="glossario") return glossario();
-    if(p[0]==="revisar") return revisar();
-    if(p[0]==="prova") return prova();
-    if(p[0]==="perfil") return perfil();
-    if(p[0]==="trilha"){ const path=(P.paths||[]).find(x=>x.id===p[1]); return path?trilha(path):catalog(); }
-    if(p[0]==="painel") return painel();
-    if(p[0]==="curso"){ const c=courseOf(p[1]);
-      if(!c) return catalog();
-      if(c.published && p[2]==="modulo"){ const mod=contentOf(c).modules.find(m=>String(m.id)===p[3]); return mod?modulo(c,mod):curso(c); }
-      return curso(c);
+    if(!p.length){ setBar(); return catalog(); }
+    if(p[0]==="ferramentas"){ setBar(); return ferramentas(); }
+    if(p[0]==="entrar"){ setBar(); return entrar(p[1]); }
+    if(p[0]==="planos"){ setBar(); return planos(); }
+    if(p[0]==="perfil"){ setBar(); return perfil(); }
+    if(p[0]==="trilha"){ setBar(); const path=(P.paths||[]).find(x=>x.id===p[1]); return path?trilha(path):catalog(); }
+    if(["glossario","revisar","prova","painel"].indexOf(p[0])>=0){ loading(); await ensureCourse(CUR().id); setBar();
+      if(p[0]==="glossario") return glossario();
+      if(p[0]==="revisar") return revisar();
+      if(p[0]==="prova") return prova();
+      return painel();
     }
-    catalog();
+    if(p[0]==="curso"){ const c=courseOf(p[1]);
+      if(!c){ setBar(); return catalog(); }
+      if(c.published){ loading(); await ensureCourse(c.id); setBar(); const co=contentOf(c);
+        if(co && p[2]==="modulo"){ const mod=co.modules.find(m=>String(m.id)===p[3]); return mod?modulo(c,mod):curso(c); }
+      }
+      setBar(); return curso(c);
+    }
+    setBar(); catalog();
   }
   const div=(cls,html)=>{const d=document.createElement("div");d.className=cls;d.innerHTML=html;return d;};
   const ltags=(arr,max)=>{ if(!arr)return ""; const a=arr.slice(0,max||arr.length), extra=arr.length-a.length;
@@ -144,18 +156,16 @@
       <input class="gsearch" id="csearch" placeholder="Buscar curso…">
       <div class="chips" id="chips"></div>
       <div class="grid three" id="cat" style="margin-top:16px"></div>`;
-    // Continuar aprendendo
-    if(S.last && courseOf(S.last.c) && contentOf(courseOf(S.last.c))){
-      const c=courseOf(S.last.c), co=contentOf(c), m=co.modules.find(x=>x.id===S.last.m);
-      if(m && !m.locked){ const cont=div("block feature","");
-        cont.innerHTML=`<div class="eyebrow">Continuar aprendendo</div>
-          <div style="display:flex;gap:14px;align-items:center;margin-top:10px;flex-wrap:wrap">
-            <div class="img-duo" style="width:120px;height:70px;border-radius:12px;flex:none"><img src="${m.img}" alt=""></div>
-            <div style="flex:1;min-width:160px"><b style="font-size:16px">${m.title}</b><div class="lead" style="margin:2px 0 0">${co.title} · Módulo ${m.id}</div></div>
-            <button class="btn" id="contbtn">Retomar →</button></div>`;
-        app.querySelector("#continue").appendChild(cont);
-        cont.querySelector("#contbtn").onclick=()=>go("#/curso/"+c.id+"/modulo/"+m.id);
-      }
+    // Continuar aprendendo (usa dados salvos em S.last, sem depender do conteúdo carregado)
+    if(S.last && courseOf(S.last.c) && S.last.t){
+      const c=courseOf(S.last.c), cont=div("block feature","");
+      cont.innerHTML=`<div class="eyebrow">Continuar aprendendo</div>
+        <div style="display:flex;gap:14px;align-items:center;margin-top:10px;flex-wrap:wrap">
+          <div class="img-duo" style="width:120px;height:70px;border-radius:12px;flex:none"><img src="${S.last.img||''}" alt=""></div>
+          <div style="flex:1;min-width:160px"><b style="font-size:16px">${S.last.t}</b><div class="lead" style="margin:2px 0 0">${S.last.ct||c.title} · Módulo ${S.last.m}</div></div>
+          <button class="btn" id="contbtn">Retomar →</button></div>`;
+      app.querySelector("#continue").appendChild(cont);
+      cont.querySelector("#contbtn").onclick=()=>go("#/curso/"+c.id+"/modulo/"+S.last.m);
     }
     // Trilhas de aprendizagem
     if(P.paths&&P.paths.length){ const pr=div("","");
@@ -233,18 +243,22 @@
     app.querySelectorAll(".crumb a[data-h]").forEach(a=>a.onclick=()=>go(a.dataset.h));
     const body=app.querySelector("#body");
     if(c.published && co){
-      body.innerHTML=`<div class="eyebrow">Conteúdo do curso</div><h2 class="section">Sua trilha de aprendizagem</h2><div class="grid two" id="mods" style="margin-top:14px"></div>`;
+      const gate = co.locked ? `<div class="block feature" style="margin-bottom:16px"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px"><b style="font-size:16px">🔓 Módulo 1 é grátis</b><div class="lead" style="margin-top:2px">Assine o Instituto para desbloquear todos os módulos, a prova e o certificado — de todos os cursos.</div></div>
+        <button class="btn" id="assinar">Assinar →</button></div></div>` : "";
+      body.innerHTML=gate+`<div class="eyebrow">Conteúdo do curso</div><h2 class="section">Sua trilha de aprendizagem</h2><div class="grid two" id="mods" style="margin-top:14px"></div>`;
+      const ab=body.querySelector("#assinar"); if(ab) ab.onclick=()=>go("#/planos");
       const grid=body.querySelector("#mods");
       co.modules.forEach(m=>{
-        const started=S.mod[gk(c.id,m.id)];
-        const card=div("ccard"+(m.locked?" locked":""),`
-          <div class="thumb img-duo"><img src="${m.img}" alt=""></div>
+        const started=S.mod[gk(c.id,m.id)], locked=m.locked;
+        const card=div("ccard"+(locked?" locked":""),`
+          <div class="thumb img-duo"><img src="${m.img}" alt="">${locked?'<span class="ribbon soon">🔒</span>':''}</div>
           <div class="body"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
             <span class="modnum">${m.id}</span><h3 style="margin:0">${m.title}</h3></div>
             <p>${m.summary}</p>
-            <div class="foot">${m.locked?'<span class="chip">em breve</span>':
-              `<span class="chip ${started?'done':''}">${started?'concluído':m.sections.length+' seções'}</span><span class="go">${started?'revisar':'começar'} →</span>`}</div></div>`);
-        if(!m.locked) card.onclick=()=>go("#/curso/"+c.id+"/modulo/"+m.id);
+            <div class="foot">${locked?'<span class="chip">🔒 assinantes</span><span class="go">assinar →</span>':
+              `<span class="chip ${started?'done':''}">${started?'concluído':((m.sections?m.sections.length+' seções':'começar'))}</span><span class="go">${started?'revisar':'começar'} →</span>`}</div></div>`);
+        card.onclick=()=>go("#/curso/"+c.id+"/modulo/"+m.id);
         grid.appendChild(card);
       });
       footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")},{label:"Glossário do curso",ghost:true,on:()=>go("#/glossario")}]);
@@ -263,7 +277,7 @@
 
   /* ---------- MÓDULO (rolagem única) ---------- */
   function modulo(c,mod){
-    if(mod.locked) return curso(c);
+    if(mod.locked) return paywallModule(c,mod);
     S.course=c.id;
     app.classList.add("wide");
     app.innerHTML=`<div class="crumb"><a data-h="#/">Catálogo</a><span>›</span><a data-h="#/curso/${c.id}">${contentOf(c).title}</a><span>›</span><b>Módulo ${mod.id}</b></div>
@@ -314,7 +328,7 @@
     // desbloqueia os termos citados neste módulo → os flashcards acumulam conforme você avança
     const modText=JSON.stringify(mod).toLowerCase(); const co2=contentOf(c);
     co2.glossary.forEach(([term])=>{ const k=term.toLowerCase(); if(!S.seen[gk(c.id,k)] && modText.indexOf(k)>=0) S.seen[gk(c.id,k)]=1; });
-    S.last={c:c.id,m:mod.id};
+    S.last={c:c.id,m:mod.id,t:mod.title,img:mod.img,ct:(contentOf(c)||{}).title||c.title};
     if(!S.mod[gk(c.id,mod.id)]){ S.mod[gk(c.id,mod.id)]=true; award(20,"Concluiu o Módulo "+mod.id+": "+mod.title); }
     save(); setBar();
     footCustom([{label:"← Módulos",ghost:true,on:()=>go("#/curso/"+c.id)},
@@ -535,10 +549,90 @@
     footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")}]);
   }
 
+  /* ---------- paywall de módulo ---------- */
+  let loginReturn=null;
+  function paywallModule(c,mod){
+    app.innerHTML=`<div class="crumb"><a data-h="#/">Catálogo</a><span>›</span><a data-h="#/curso/${c.id}">${(contentOf(c)||{}).title||c.title}</a><span>›</span><b>Módulo ${mod.id}</b></div>
+      <div class="img-duo art" style="height:180px"><img src="${mod.img}" alt="">
+        <div class="on"><span class="kicker">Módulo ${mod.id} · 🔒 assinantes</span><h1 style="color:#fff;font-size:26px;margin:0">${mod.title}</h1></div></div>
+      <div class="block feature" style="margin-top:16px;text-align:center">
+        <div style="font-size:38px">🔒</div><h3 style="margin:6px 0">Conteúdo exclusivo para assinantes</h3>
+        <p class="lead">Assine o Instituto e desbloqueie <b>todos os módulos</b>, a prova final e o certificado — de todos os cursos.</p>
+        <div class="btnrow" style="justify-content:center"><button class="btn" id="assc">Ver planos →</button>
+        ${IMP.isLogged()?"":'<button class="btn ghost" id="lg">Já assino? Entrar</button>'}</div></div>`;
+    app.querySelectorAll(".crumb a[data-h]").forEach(a=>a.onclick=()=>go(a.dataset.h));
+    app.querySelector("#assc").onclick=()=>go("#/planos");
+    const lg=app.querySelector("#lg"); if(lg) lg.onclick=()=>{loginReturn="#/curso/"+c.id;go("#/entrar");};
+    footCustom([{label:"← Módulos",ghost:true,on:()=>go("#/curso/"+c.id)},{label:"Ver planos →",on:()=>go("#/planos")}]);
+  }
+
+  /* ---------- entrar (login por código / OTP) ---------- */
+  function entrar(){
+    let otpId=null;
+    app.innerHTML=`<div class="eyebrow">Acesso</div><h2 class="section">Entrar ou criar conta</h2>
+      <div class="block" style="max-width:440px;margin-top:12px">
+        <div id="s1"><p class="lead">Digite seu e-mail — enviaremos um <b>código</b> para entrar (ou criar sua conta na hora).</p>
+          <input class="gsearch" id="em" style="margin:0" placeholder="seu@email.com" type="email">
+          <div class="btnrow"><button class="btn" id="send">Enviar código</button></div>
+          <div class="explain bad" id="m1" style="display:none"></div></div>
+        <div id="s2" style="display:none"><p class="lead">Enviamos um código para <b id="eml"></b>. Verifique também o spam.</p>
+          <input class="gsearch" id="code" style="margin:0" placeholder="Código de 8 dígitos" inputmode="numeric" autocomplete="one-time-code">
+          <div class="btnrow"><button class="btn" id="ver">Entrar</button><button class="btn ghost" id="re">Reenviar</button></div>
+          <div class="explain bad" id="m2" style="display:none"></div></div>
+      </div>`;
+    const q=s=>app.querySelector(s);
+    async function send(){ const email=q("#em").value.trim().toLowerCase(); if(!email||email.indexOf("@")<0){q("#m1").style.display="block";q("#m1").textContent="Digite um e-mail válido.";return;}
+      q("#send").disabled=true; q("#send").textContent="Enviando…"; q("#m1").style.display="none";
+      const r=await IMP.requestCode(email); q("#send").disabled=false; q("#send").textContent="Enviar código";
+      if(r.ok){ otpId=r.otpId; q("#eml").textContent=email; q("#s1").style.display="none"; q("#s2").style.display="block"; q("#code").focus(); }
+      else { q("#m1").style.display="block"; q("#m1").textContent=r.message||"Erro ao enviar."; } }
+    q("#send").onclick=send; q("#em").onkeydown=e=>{if(e.key==="Enter")send();}; q("#re").onclick=send;
+    q("#ver").onclick=async()=>{ const code=q("#code").value.trim(); if(!code)return;
+      q("#ver").disabled=true; q("#ver").textContent="Entrando…"; q("#m2").style.display="none";
+      const r=await IMP.verifyCode(otpId,code); q("#ver").disabled=false; q("#ver").textContent="Entrar";
+      if(r.ok){ await refreshMe(); const rt=loginReturn||"#/"; loginReturn=null; go(rt); if((location.hash||"#/")===rt) render(); }
+      else { q("#m2").style.display="block"; q("#m2").textContent=r.message||"Código inválido."; } };
+    q("#code").onkeydown=e=>{if(e.key==="Enter")q("#ver").click();};
+    footCustom([{label:"← Voltar",ghost:true,on:()=>go(loginReturn||"#/")}]);
+  }
+
+  /* ---------- planos (assinatura) ---------- */
+  async function planos(){
+    loading();
+    const me=await IMP.me().catch(()=>({})); const plans=await IMP.plans().catch(()=>[]);
+    const sub=me&&me.subscription&&me.subscription.status==="active";
+    const fmt=n=>"R$ "+Number(n).toFixed(2).replace(".",",");
+    const cards=plans.map(p=>{ const pm=p.price/p.months;
+      const ribbon=p.slug==="anual"?'<span class="ribbon">melhor valor</span>':(p.slug==="trimestral"?'<span class="ribbon">popular</span>':"");
+      return `<div class="ccard"><div class="thumb img-duo" style="height:8px"></div><div class="body">${ribbon}
+        <h3 style="margin:0 0 2px">${p.title}</h3>
+        <div style="font-size:26px;font-weight:800;color:var(--brand)">${fmt(p.price)}</div>
+        <p style="margin:2px 0 12px">${p.months>1?("equivale a "+fmt(pm)+"/mês"):"por mês"}</p>
+        <button class="btn assinar" data-slug="${p.slug}" style="width:100%">Assinar</button></div></div>`;}).join("");
+    app.innerHTML=`<div class="eyebrow">Assinatura</div><h2 class="section">Escolha seu plano</h2>
+      <p class="lead">Um plano, acesso a <b>todos os cursos</b> do Instituto — módulos completos, provas e certificados.</p>
+      ${sub?'<div class="block feature" style="margin:12px 0"><b>✅ Você já é assinante!</b> <span class="lead">Acesso liberado.</span></div>':""}
+      <div class="grid three" style="margin-top:14px">${cards}</div>
+      <p class="lead" style="margin-top:16px">🔒 Pagamento seguro via Mercado Pago. Cancele quando quiser.</p>`;
+    app.querySelectorAll(".assinar").forEach(b=>b.onclick=async()=>{
+      if(!IMP.isLogged()){ loginReturn="#/planos"; return go("#/entrar"); }
+      b.disabled=true; b.textContent="Redirecionando…";
+      const r=await IMP.checkout(b.dataset.slug);
+      if(r.ok&&r.init_point){ location.href=r.init_point; }
+      else { b.disabled=false; b.textContent="Assinar"; const m=div("explain bad",r.message||"Erro ao iniciar assinatura."); b.parentNode.appendChild(m); } });
+    footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")}]);
+  }
+
   /* ---------- perfil ---------- */
   function perfil(){
     const done=modsDoneCount(), tot=modsTotal();
-    app.innerHTML=`<div class="eyebrow">Perfil</div><h2 class="section">Seu perfil</h2>
+    const logged=IMP.isLogged(), subActive=!!(ME&&ME.subscription&&ME.subscription.status==="active");
+    const acct=`<div class="block" style="margin-top:12px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b style="font-size:16px">Conta</b>
+        <span class="chip ${subActive?'done':''}" style="margin-left:auto">${subActive?'✅ Assinante ativo':(logged?'sem assinatura':'não conectado')}</span></div>
+      ${logged?`<p class="lead" style="margin-top:8px">Conectado como <b>${(ME&&ME.email)||IMP.email()||""}</b></p>`:'<p class="lead" style="margin-top:8px">Entre para acessar seus cursos em qualquer dispositivo.</p>'}
+      <div class="btnrow">${logged?'<button class="btn ghost" id="logout">Sair</button>':'<button class="btn" id="login">Entrar / criar conta</button>'}${subActive?"":'<button class="btn" id="subscribe">Assinar</button>'}</div></div>`;
+    app.innerHTML=`<div class="eyebrow">Perfil</div><h2 class="section">Seu perfil</h2>${acct}
       <div class="block" style="margin-top:12px">
         <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
           <div class="pavatar">${(S.name||"A").trim().charAt(0).toUpperCase()}</div>
@@ -555,6 +649,9 @@
     pt.innerHTML=((CO()||{}).tracks||[]).map(t=>`<button class="fchip${S.track===t.id?' on':''}" data-t="${t.id}">${t.id==='atleta'?'🏃':'🎓'} ${t.label}</button>`).join("");
     pt.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{S.track=b.dataset.t; pt.querySelectorAll(".fchip").forEach(x=>x.classList.toggle("on",x===b));});
     app.querySelector("#psave").onclick=()=>{S.name=app.querySelector("#pname").value.trim(); save(); syncPill(); perfil();};
+    const bl=app.querySelector("#login"); if(bl) bl.onclick=()=>{loginReturn="#/perfil";go("#/entrar");};
+    const bs=app.querySelector("#subscribe"); if(bs) bs.onclick=()=>go("#/planos");
+    const bo=app.querySelector("#logout"); if(bo) bo.onclick=async()=>{IMP.logout(); await refreshMe(); perfil();};
     footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")}]);
   }
 
@@ -586,5 +683,6 @@
     btns.forEach(b=>{const e=document.createElement("button");e.className="btn"+(b.ghost?" ghost":"");e.textContent=b.label;e.onclick=b.on;f.appendChild(e);});document.body.appendChild(f);}
   document.addEventListener("scroll",hideTip,{passive:true});
 
-  buildNav(); render();
+  buildNav();
+  IMP.me().then(m=>{ ME=m; }).catch(()=>{}).finally(()=>render());
 })();

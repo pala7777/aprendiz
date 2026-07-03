@@ -1,12 +1,11 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v15";
+const VERSION = "aprendiz-v16";
 const ASSETS = [
   "./",
   "index.html",
   "assets/css/styles.css",
   "content/platform.js",
-  "content/trail.js",
-  "content/forca.js",
+  "assets/js/imp.js",
   "assets/js/tools.js",
   "assets/js/analyzer.js",
   "assets/js/flashcards.js",
