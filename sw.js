@@ -1,5 +1,5 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v13";
+const VERSION = "aprendiz-v14";
 const ASSETS = [
   "./",
   "index.html",
@@ -14,6 +14,7 @@ const ASSETS = [
   "manifest.webmanifest",
   "assets/icons/icon-192.png",
   "assets/icons/icon-512.png",
+  "assets/img/logo-emblem.png",
   "assets/img/hero.jpg",
   "assets/img/m0.jpg","assets/img/m1.jpg","assets/img/m2.jpg",
   "assets/img/m3.jpg","assets/img/m4.jpg","assets/img/m5.jpg",
