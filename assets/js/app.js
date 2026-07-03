@@ -29,7 +29,7 @@
   const KEY="aprendiz.state.v2";
   const S=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}})();
   S.track=S.track||null; S.mod=S.mod||{}; S.quiz=S.quiz||{}; S.name=S.name||"";
-  S.seen=S.seen||{};
+  S.coach=!!S.coach; S.seen=S.seen||{};
   S.points=S.points||0; S.streak=S.streak||{days:0,best:0,last:""}; S.badges=S.badges||{}; S.activity=S.activity||[]; S.last=S.last||null;
   /* migração v2 (curso único) → chaves por curso "cursoId:chave" */
   if(!S.migrated){
@@ -84,19 +84,8 @@
     nav.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active", b.dataset.h===h || (b.dataset.h!=="#/"&&h.startsWith(b.dataset.h))));
     const np=document.getElementById("navperfil"); if(np){ np.classList.toggle("active",h.startsWith("#/perfil")); np.textContent=(S.name||"A").trim().charAt(0).toUpperCase()||"A"; } }
   document.getElementById("logo").onclick=()=>go("#/");
-  trackPill.onclick=()=>openTriage(true);
-  function syncPill(){ trackPill.innerHTML="Trilha: <b>"+trackName(S.track)+"</b>"; }
-
-  function openTriage(reopen){
-    const m=document.createElement("div"); m.className="modal";
-    m.innerHTML=`<div class="box"><h3>Como você quer aprender?</h3>
-      <p class="sub">Adapta a profundidade e os exemplos. Dá pra trocar quando quiser.</p>
-      ${((CO()||{}).tracks||[]).map(t=>`<div class="choice" data-t="${t.id}"><div class="ci">${ICON[t.icon]}</div><div><b>${t.label}</b><span>${t.desc}</span></div></div>`).join("")}
-      ${reopen?`<div class="btnrow"><button class="btn ghost close">Cancelar</button></div>`:""}</div>`;
-    document.body.appendChild(m);
-    m.querySelectorAll(".choice").forEach(c=>c.onclick=()=>{S.track=c.dataset.t;save();m.remove();syncPill();render();});
-    const cl=m.querySelector(".close"); if(cl)cl.onclick=()=>m.remove();
-  }
+  trackPill.onclick=()=>{ S.coach=!S.coach; save(); render(); };
+  function syncPill(){ trackPill.innerHTML="🎓 Modo treinador: <b>"+(S.coach?"ligado":"desligado")+"</b>"; trackPill.classList.toggle("on",!!S.coach); trackPill.title="Liga/desliga o 'Fundo técnico' — o aprofundamento para treinadores e estudantes."; }
 
   const publishedCourses=()=>P.courses.filter(c=>c.published);
   // curso concluído = TODOS os módulos visitados E com teste feito (não só o Módulo 0)
@@ -194,11 +183,13 @@
       grid.innerHTML="";
       list.forEach(c=>{
         const done=c.published&&courseDone(c);
+        const prog=c.published&&Object.keys(S.mod).some(k=>k.indexOf(c.id+":")===0);
+        const cta=c.published?(done?'Revisar curso':(prog?'Continuar curso':'Começar curso')):'Saber mais';
         const card=div("ccard"+(c.published?"":" soon"),`
           <div class="thumb img-duo"><img src="${c.img}" alt="">${c.published?'<span class="ribbon">Disponível</span>':'<span class="ribbon soon">Em breve</span>'}</div>
           <div class="body"><h3>${c.title}</h3><p>${c.sub}</p>
             <div class="ctags">${ltags(c.learn,3)}</div>
-            <button class="cta ${c.published?'':'soon'}">${c.published?(done?'Revisar curso':'Começar curso'):'Saber mais'} →</button>
+            <button class="cta ${c.published?'':'soon'}">${cta} →</button>
           </div>`);
         const open=()=>go("#/curso/"+c.id);
         card.querySelector(".thumb").onclick=open; card.querySelector(".cta").onclick=open;
@@ -226,7 +217,6 @@
     const co=contentOf(c);
     if(c.published && co){ S.course=c.id; save(); }
     const title=co?co.title:c.title, sub=co?co.subtitle:c.sub;
-    if(c.published && !S.track) openTriage(false);
     app.innerHTML=`
       <div class="crumb"><a data-h="#/">Catálogo</a><span>›</span><b>${title}</b></div>
       <div class="img-duo art hero" style="height:240px"><img src="${c.img}" alt="">
@@ -302,7 +292,7 @@
 
     /* painel lateral "Neste módulo" */
     const aside=app.querySelector("#aside");
-    aside.innerHTML=`<div class="aside-title">Neste módulo</div>
+    aside.innerHTML=`<div class="aside-title">Módulo ${mod.id} · neste módulo</div>
       <div class="learn-tags">${ltags(mod.learn||[])}</div>
       <div class="outline">${outline.map(o=>`<a data-t="${o.id}"><span class="oi">${o.n}</span><span>${o.title}</span></a>`).join("")}</div>
       <div class="aside-actions">
@@ -363,9 +353,14 @@
   function renderBlock(b){
     switch(b.type){
       case "prose": return div("prose", b.html);
-      case "callout":
-        if(b.track && S.track && b.track!==S.track) return document.createComment("h");
-        return div("callout "+(b.track==="atleta"?"athlete":"coach"),(b.tag?`<span class="tag">${b.tag}</span>`:"")+b.html);
+      case "callout": {
+        if(b.track==="treinador"){
+          const d=div("tech"+(S.coach?" open":""),"<button class='tech-head'><span class='tech-ico'>🔬</span> "+(b.tag||"Fundo técnico")+" <span class='tech-arw'>▾</span></button><div class='tech-body'>"+b.html+"</div>");
+          d.querySelector(".tech-head").onclick=()=>d.classList.toggle("open");
+          return d;
+        }
+        return div("callout athlete",(b.tag?`<span class="tag">${b.tag}</span>`:"")+b.html);
+      }
       case "faca": return div("faca","<span class='tag'>Faça você</span> "+b.html);
       case "img": { const f=document.createElement("figure"); f.className="diagram";
         f.innerHTML=`<img loading="lazy" src="${b.src}" alt="${b.alt||''}">`+(b.caption?`<figcaption>${b.caption}</figcaption>`:"");
@@ -640,14 +635,12 @@
             <input class="gsearch" id="pname" style="margin:0" placeholder="Seu nome" value="${S.name||""}">
             <div class="lead" style="margin-top:6px">${S.points||0} pontos · ${done}/${tot} módulos · streak ${S.streak.days||0} 🔥</div>
           </div></div>
-        <label style="display:block;margin-top:14px;color:var(--tx-dim);font-size:13px">Trilha de estudo</label>
-        <div class="chips" id="ptrack"></div>
         <div class="btnrow"><button class="btn" id="psave">Salvar</button></div></div>
-      <div class="block"><b style="font-size:16px">Seus interesses</b>
-        <div class="learn-tags" style="margin-top:8px">${["Trail Running","Fisiologia","Força","Recuperação","Nutrição"].map((t,i)=>`<span class="ltag c${i%6}">${t}</span>`).join("")}</div></div>`;
-    const pt=app.querySelector("#ptrack");
-    pt.innerHTML=((CO()||{}).tracks||[]).map(t=>`<button class="fchip${S.track===t.id?' on':''}" data-t="${t.id}">${t.id==='atleta'?'🏃':'🎓'} ${t.label}</button>`).join("");
-    pt.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{S.track=b.dataset.t; pt.querySelectorAll(".fchip").forEach(x=>x.classList.toggle("on",x===b));});
+      <div class="block"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <b style="font-size:16px">🎓 Modo treinador</b>
+        <button class="fchip ${S.coach?'on':''}" id="coachtoggle" style="margin-left:auto">${S.coach?'Ligado':'Desligado'}</button></div>
+        <p class="lead" style="margin-top:8px">Liga o <b>Fundo técnico</b>: mostra o aprofundamento (mecanismos, evidências e detalhes) para treinadores e estudantes. Desligado, você vê só o essencial.</p></div>`;
+    app.querySelector("#coachtoggle").onclick=()=>{S.coach=!S.coach; save(); perfil();};
     app.querySelector("#psave").onclick=()=>{S.name=app.querySelector("#pname").value.trim(); save(); syncPill(); perfil();};
     const bl=app.querySelector("#login"); if(bl) bl.onclick=()=>{loginReturn="#/perfil";go("#/entrar");};
     const bs=app.querySelector("#subscribe"); if(bs) bs.onclick=()=>go("#/planos");

@@ -139,6 +139,16 @@ h2.section{font-size:23px;margin:6px 0 4px}
   color:var(--brand-2);margin-right:6px}
 .callout.athlete{border-color:var(--z-hard)}.callout.athlete .tag{color:var(--z-hard)}
 .callout.coach{border-color:var(--brand-2)}
+/* Fundo técnico (Modo treinador) — expansível */
+.tech{border:1px solid var(--line);border-radius:12px;margin:14px 0;overflow:hidden;background:rgba(124,92,255,.05)}
+.tech-head{width:100%;text-align:left;cursor:pointer;background:none;border:0;color:var(--brand-2);
+  font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;padding:11px 14px;display:flex;align-items:center;gap:6px}
+.tech-head .tech-ico{font-size:13px}
+.tech-head .tech-arw{margin-left:auto;transition:transform .2s;color:var(--tx-dim)}
+.tech.open .tech-head .tech-arw{transform:rotate(180deg)}
+.tech-body{display:none;padding:0 15px 14px;font-size:14.5px;color:var(--tx-dim);border-top:1px solid var(--line)}
+.tech.open .tech-body{display:block;padding-top:12px}
+.track-pill.on{color:var(--brand-2);border-color:var(--brand);background:rgba(124,92,255,.12)}
 .faca{border:1px dashed rgba(124,92,255,.6);border-radius:12px;padding:15px;margin:14px 0;
   background:rgba(124,92,255,.06)}
 .faca .tag{color:var(--brand-2);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
