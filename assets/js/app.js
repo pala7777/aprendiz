@@ -439,18 +439,19 @@
   }
 
   /* ---------- BIBLIOGRAFIA (todas as fontes do curso) ---------- */
-  function bibliografia(){
-    const co=CO(); const all=[]; (co.modules||[]).forEach((m,i)=>{ const es=collectEstudos(m); if(es.length) all.push([m,es]); });
-    const total=all.reduce((n,[,es])=>n+es.length,0);
+  async function bibliografia(){
+    loading();
+    const c=CUR(), co=CO(); const data=await IMP.sources(c.id).catch(()=>({modules:[]}));
+    const all=data.modules||[]; const total=all.reduce((n,m)=>n+(m.estudos||[]).length,0);
     app.innerHTML=`<div class="eyebrow">Referências</div><h2 class="section">📚 Bibliografia</h2>
       <div id="cswitch"></div>
-      <p class="lead">Todos os estudos e revisões citados em <b>${co.title}</b> (${total} fontes). Nada aqui é "achismo" — cada afirmação tem base científica.</p>
+      <p class="lead">Todos os estudos e revisões citados em <b>${(data.title||co&&co.title)||"este curso"}</b> (${total} fontes). Nada aqui é "achismo" — cada afirmação tem base científica.</p>
       <div id="bib"></div>`;
     courseSwitcher(app.querySelector("#cswitch"),()=>bibliografia());
     const host=app.querySelector("#bib");
     if(!total){ host.appendChild(div("block","<p class='lead'>As fontes deste curso estão sendo adicionadas.</p>")); }
-    all.forEach(([m,es])=>{ const b=div("block","<b style='font-size:15px'>Módulo "+m.id+" · "+m.title+"</b><div class='fontes' style='margin-top:8px'></div>");
-      const fb=b.querySelector(".fontes"); es.forEach(e=>fb.appendChild(div("fonte-item",fonteLine(e)))); host.appendChild(b); });
+    all.forEach(m=>{ const b=div("block","<b style='font-size:15px'>Módulo "+m.id+" · "+m.title+"</b><div class='fontes' style='margin-top:8px'></div>");
+      const fb=b.querySelector(".fontes"); (m.estudos||[]).forEach(e=>fb.appendChild(div("fonte-item",fonteLine(e)))); host.appendChild(b); });
     footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")},{label:"Glossário",ghost:true,on:()=>go("#/glossario")}]);
   }
 

@@ -68,6 +68,7 @@ window.IMP = (function () {
     // planos + assinatura
     async catalog() { const r = await call("GET", "/api/imp/catalog", null, false); return r.data; },
     async plans() { const r = await call("GET", "/api/imp/plans", null, false); return (r.data && r.data.plans) || []; },
+    async sources(slug) { const r = await call("GET", "/api/imp/sources/" + slug, null, false); return r.ok ? r.data : { modules: [] }; },
     async checkout(plan) {
       const r = await call("POST", "/api/imp/checkout", { plan });
       return r.ok ? { ok: true, init_point: r.data.init_point } : { ok: false, message: (r.data && r.data.message) || "Erro ao iniciar a assinatura." };
