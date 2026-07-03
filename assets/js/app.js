@@ -110,10 +110,11 @@
     if(p[0]==="planos"){ setBar(); return planos(); }
     if(p[0]==="perfil"){ setBar(); return perfil(); }
     if(p[0]==="trilha"){ setBar(); const path=(P.paths||[]).find(x=>x.id===p[1]); return path?trilha(path):catalog(); }
-    if(["glossario","revisar","prova","painel"].indexOf(p[0])>=0){ loading(); await ensureCourse(CUR().id); setBar();
+    if(["glossario","revisar","prova","painel","bibliografia"].indexOf(p[0])>=0){ loading(); await ensureCourse(CUR().id); setBar();
       if(p[0]==="glossario") return glossario();
       if(p[0]==="revisar") return revisar();
       if(p[0]==="prova") return prova();
+      if(p[0]==="bibliografia") return bibliografia();
       return painel();
     }
     if(p[0]==="curso"){ const c=courseOf(p[1]);
@@ -251,7 +252,7 @@
         card.onclick=()=>go("#/curso/"+c.id+"/modulo/"+m.id);
         grid.appendChild(card);
       });
-      footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")},{label:"Glossário do curso",ghost:true,on:()=>go("#/glossario")}]);
+      footCustom([{label:"← Catálogo",ghost:true,on:()=>go("#/")},{label:"📚 Bibliografia",ghost:true,on:()=>go("#/bibliografia")},{label:"Glossário do curso",ghost:true,on:()=>go("#/glossario")}]);
     } else {
       body.innerHTML=`<div class="block"><h3>Este curso ainda está em produção.</h3>
         <p class="lead">A plataforma cresce com o tempo. Enquanto isso, comece pelo curso já disponível — é gratuito e completo.</p>
@@ -288,6 +289,11 @@
       outline.push({id:"sec-"+i, n:sec.n, title:sec.title}); });
     if(mod.quiz){ const qs=document.createElement("section"); qs.className="lesson-sec"; qs.id="sec-quiz"; main.appendChild(qs); renderQuiz(c,mod,qs);
       outline.push({id:"sec-quiz", n:"✓", title:mod.quiz.title}); }
+    const estudos=collectEstudos(mod);
+    if(estudos.length){ const fs=document.createElement("section"); fs.className="lesson-sec"; fs.id="sec-fontes";
+      fs.innerHTML="<h3><span class='n'>📚</span>Fontes deste módulo</h3><div class='sec-body'><p class='lead' style='margin-top:0'>A ciência por trás do que você acabou de ver:</p><div class='fontes'></div></div>";
+      const fb=fs.querySelector(".fontes"); estudos.forEach(e=>fb.appendChild(div("fonte-item",fonteLine(e))));
+      main.appendChild(fs); outline.push({id:"sec-fontes", n:"📚", title:"Fontes deste módulo"}); }
     attachGlossary(main);
 
     /* painel lateral "Neste módulo" */
@@ -299,12 +305,14 @@
         <button class="btn ghost small" id="a-course">← Todos os módulos</button>
         <button class="btn small" id="a-flash">🧠 Revisar flashcards</button>
         <button class="btn ghost small" id="a-gloss">📖 Glossário</button>
+        <button class="btn ghost small" id="a-bib">📚 Bibliografia</button>
       </div>`;
     aside.querySelectorAll(".outline a").forEach(a=>a.onclick=()=>{
       const t=document.getElementById(a.dataset.t); if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); });
     aside.querySelector("#a-course").onclick=()=>go("#/curso/"+c.id);
     aside.querySelector("#a-flash").onclick=()=>go("#/revisar");
     aside.querySelector("#a-gloss").onclick=()=>go("#/glossario");
+    aside.querySelector("#a-bib").onclick=()=>go("#/bibliografia");
     // scroll-spy: destaca a seção visível no índice
     const links=aside.querySelectorAll(".outline a");
     const setActive=id=>links.forEach(l=>l.classList.toggle("active",l.dataset.t===id));
@@ -362,6 +370,7 @@
         return div("callout athlete",(b.tag?`<span class="tag">${b.tag}</span>`:"")+b.html);
       }
       case "faca": return div("faca","<span class='tag'>Faça você</span> "+b.html);
+      case "estudo": return estudoBlock(b);
       case "img": { const f=document.createElement("figure"); f.className="diagram";
         f.innerHTML=`<img loading="lazy" src="${b.src}" alt="${b.alt||''}">`+(b.caption?`<figcaption>${b.caption}</figcaption>`:"");
         return f; }
@@ -371,6 +380,22 @@
       default: return div("prose", b.html||"");
     }
   }
+  function estudoBlock(b){
+    const cite=(b.autores||"")+(b.ano?" · "+b.ano:"");
+    const meta=[b.revista,b.tipo,(b.amostra&&b.amostra!=="—"?"n="+b.amostra:"")].filter(Boolean).join(" · ");
+    const d=div("estudo",
+      "<button class='est-head'><span class='est-ico'>📄</span><span class='est-lbl'>O estudo</span><span class='est-cite'>"+cite+"</span><span class='est-arw'>▾</span></button>"+
+      "<div class='est-body'>"+
+        (b.titulo?"<div class='est-t'>"+b.titulo+"</div>":"")+
+        (meta?"<div class='est-meta'>"+meta+"</div>":"")+
+        (b.achado?"<p class='est-ach'>"+b.achado+"</p>":"")+
+        (b.link?"<a href='"+b.link+"' target='_blank' rel='noopener' class='est-link'>Ver estudo ↗</a>":"")+
+      "</div>");
+    d.querySelector(".est-head").onclick=()=>d.classList.toggle("open");
+    return d;
+  }
+  function collectEstudos(mod){ const out=[]; (mod.sections||[]).forEach(s=>(s.blocks||[]).forEach(bl=>{if(bl.type==="estudo")out.push(bl);})); return out; }
+  function fonteLine(e){ return "<b>"+(e.autores||"")+(e.ano?" ("+e.ano+")":"")+"</b>. "+(e.titulo||"")+(e.revista?". <i>"+e.revista+"</i>":"")+(e.link?" · <a href='"+e.link+"' target='_blank' rel='noopener'>ver ↗</a>":""); }
   function checkBlock(b){ const d=div("check-block","<div class='qhead'><span class='qi'>?</span>Checagem rápida</div><p class='qtext'>"+b.q+"</p>");
     b.options.forEach((opt,i)=>{const btn=document.createElement("button");btn.className="opt";btn.textContent=opt;
       btn.onclick=()=>{d.querySelectorAll(".opt").forEach(o=>o.disabled=true);const good=i===b.answer;
@@ -411,6 +436,22 @@
     const paint=f=>{gl.innerHTML="";co.glossary.filter(([t,d])=>!f||t.toLowerCase().includes(f)||d.toLowerCase().includes(f))
       .forEach(([t,d])=>gl.appendChild(div("gitem","<b>"+t+"</b><p>"+d+"</p>")));};
     paint(""); app.querySelector("#gs").oninput=e=>paint(e.target.value.toLowerCase().trim());
+  }
+
+  /* ---------- BIBLIOGRAFIA (todas as fontes do curso) ---------- */
+  function bibliografia(){
+    const co=CO(); const all=[]; (co.modules||[]).forEach((m,i)=>{ const es=collectEstudos(m); if(es.length) all.push([m,es]); });
+    const total=all.reduce((n,[,es])=>n+es.length,0);
+    app.innerHTML=`<div class="eyebrow">Referências</div><h2 class="section">📚 Bibliografia</h2>
+      <div id="cswitch"></div>
+      <p class="lead">Todos os estudos e revisões citados em <b>${co.title}</b> (${total} fontes). Nada aqui é "achismo" — cada afirmação tem base científica.</p>
+      <div id="bib"></div>`;
+    courseSwitcher(app.querySelector("#cswitch"),()=>bibliografia());
+    const host=app.querySelector("#bib");
+    if(!total){ host.appendChild(div("block","<p class='lead'>As fontes deste curso estão sendo adicionadas.</p>")); }
+    all.forEach(([m,es])=>{ const b=div("block","<b style='font-size:15px'>Módulo "+m.id+" · "+m.title+"</b><div class='fontes' style='margin-top:8px'></div>");
+      const fb=b.querySelector(".fontes"); es.forEach(e=>fb.appendChild(div("fonte-item",fonteLine(e)))); host.appendChild(b); });
+    footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")},{label:"Glossário",ghost:true,on:()=>go("#/glossario")}]);
   }
 
   /* ---------- FERRAMENTAS (analisador + calculadoras) ---------- */

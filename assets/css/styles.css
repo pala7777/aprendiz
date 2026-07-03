@@ -149,6 +149,25 @@ h2.section{font-size:23px;margin:6px 0 4px}
 .tech-body{display:none;padding:0 15px 14px;font-size:14.5px;color:var(--tx-dim);border-top:1px solid var(--line)}
 .tech.open .tech-body{display:block;padding-top:12px}
 .track-pill.on{color:var(--brand-2);border-color:var(--brand);background:rgba(124,92,255,.12)}
+/* Bloco "O estudo" — discreto, fechado por padrão */
+.estudo{margin:10px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg-2)}
+.est-head{width:100%;display:flex;align-items:center;gap:7px;cursor:pointer;background:none;border:0;
+  padding:8px 12px;color:var(--tx-dim);font-size:12.5px;text-align:left}
+.est-head .est-ico{opacity:.8}
+.est-head .est-lbl{font-weight:700;color:var(--tx)}
+.est-head .est-cite{color:var(--tx-dim);font-style:italic}
+.est-head .est-arw{margin-left:auto;transition:transform .2s}
+.estudo.open .est-head .est-arw{transform:rotate(180deg)}
+.est-body{display:none;padding:0 13px 12px;border-top:1px solid var(--line)}
+.estudo.open .est-body{display:block;padding-top:10px}
+.est-t{font-weight:700;font-size:14px;margin-bottom:3px}
+.est-meta{font-size:12px;color:var(--tx-dim);margin-bottom:7px}
+.est-ach{font-size:14px;margin:0 0 8px}
+.est-link{font-size:13px;font-weight:700;color:var(--brand-2);text-decoration:none}
+.fonte-item{font-size:13.5px;color:var(--tx-dim);padding:8px 0;border-bottom:1px solid var(--line);line-height:1.5}
+.fonte-item:last-child{border-bottom:0}
+.fonte-item a{color:var(--brand-2);text-decoration:none;font-weight:700}
+.fonte-item i{color:var(--tx)}
 .faca{border:1px dashed rgba(124,92,255,.6);border-radius:12px;padding:15px;margin:14px 0;
   background:rgba(124,92,255,.06)}
 .faca .tag{color:var(--brand-2);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
