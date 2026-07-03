@@ -207,7 +207,7 @@
           <div class="thumb img-duo"><img src="${c.img}" alt="">${c.published?'<span class="ribbon">Disponível</span>':'<span class="ribbon soon">Em breve</span>'}</div>
           <div class="body"><h3>${c.title}</h3><p>${c.sub}</p>
             <div class="ctags">${ltags(c.learn,3)}</div>
-            <button class="cta ${c.published?'':'soon'}">${cta} →</button>
+            <button class="cta ${c.published?'':'soon'}${(prog&&!done)?' cont':''}${done?' rev':''}">${cta} →</button>
           </div>`);
         const open=()=>go("#/curso/"+c.id);
         card.querySelector(".thumb").onclick=open; card.querySelector(".cta").onclick=open;
