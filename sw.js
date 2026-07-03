@@ -1,5 +1,5 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v20";
+const VERSION = "aprendiz-v21";
 const ASSETS = [
   "./",
   "index.html",

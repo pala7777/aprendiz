@@ -14,7 +14,7 @@
   --ok:#34d399; --err:#fb7185;
   --radius:18px; --radius-sm:12px;
   --shadow:0 16px 40px rgba(0,0,0,.45);
-  --sidebar:76px; --maxw:900px;
+  --sidebar:76px; --maxw:1360px;
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 *{box-sizing:border-box}
@@ -90,7 +90,10 @@ h1,h2,h3,h4{line-height:1.2;letter-spacing:-.01em}
 
 /* ============ cards ============ */
 .grid{display:grid;gap:16px;margin-top:16px}
-@media(min-width:640px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:1fr 1fr 1fr}}
+@media(min-width:640px){
+  .grid.two{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .grid.three{grid-template-columns:repeat(auto-fit,minmax(255px,1fr))}
+}
 .ccard{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
   cursor:pointer;transition:transform .16s,border-color .16s,box-shadow .16s;display:flex;flex-direction:column}
 .ccard:hover{transform:translateY(-3px);border-color:rgba(124,92,255,.5);box-shadow:var(--shadow)}
@@ -149,6 +152,12 @@ h2.section{font-size:23px;margin:6px 0 4px}
 .tech-body{display:none;padding:0 15px 14px;font-size:14.5px;color:var(--tx-dim);border-top:1px solid var(--line)}
 .tech.open .tech-body{display:block;padding-top:12px}
 .track-pill.on{color:var(--brand-2);border-color:var(--brand);background:rgba(124,92,255,.12)}
+.acctpill{font-size:12.5px;color:var(--tx-dim);background:var(--bg-3);border:1px solid var(--line);
+  border-radius:20px;padding:7px 15px;cursor:pointer;white-space:nowrap;transition:.15s;font-weight:600}
+.acctpill:hover{border-color:var(--brand);color:var(--tx)}
+.acctpill.logged{color:var(--tx)}
+.acctpill .acct-nm{text-transform:capitalize}
+.acctpill .sub-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3cc878;margin-right:6px;vertical-align:middle}
 /* Bloco "O estudo" — discreto, fechado por padrão */
 .estudo{margin:10px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg-2)}
 .est-head{width:100%;display:flex;align-items:center;gap:7px;cursor:pointer;background:none;border:0;

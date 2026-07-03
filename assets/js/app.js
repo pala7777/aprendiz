@@ -86,6 +86,22 @@
   document.getElementById("logo").onclick=()=>go("#/");
   trackPill.onclick=()=>{ S.coach=!S.coach; save(); render(); };
   function syncPill(){ trackPill.innerHTML="🎓 Modo treinador: <b>"+(S.coach?"ligado":"desligado")+"</b>"; trackPill.classList.toggle("on",!!S.coach); trackPill.title="Liga/desliga o 'Fundo técnico' — o aprofundamento para treinadores e estudantes."; }
+  function renderAcct(){ const el=document.getElementById("acctpill"); if(!el)return;
+    if(IMP.isLogged()){ const sub=!!(ME&&ME.subscription&&ME.subscription.status==="active");
+      const nm=(ME&&ME.email?ME.email.split("@")[0]:"conta");
+      el.className="acctpill logged"; el.innerHTML=(sub?"<span class='sub-dot'></span>":"")+"<span class='acct-nm'>"+nm+"</span>";
+      el.title=sub?"Assinante ativo":"Minha conta"; el.onclick=()=>go("#/perfil");
+    } else { el.className="acctpill"; el.innerHTML="Entrar"; el.title="Entrar ou criar conta";
+      el.onclick=()=>{ loginReturn=location.hash||"#/"; go("#/entrar"); }; } }
+  function updateTopbar(p){
+    const inCourse = p[0]==="curso" || ["painel","glossario","revisar","prova","bibliografia"].indexOf(p[0])>=0;
+    const inModule = p[0]==="curso" && p[2]==="modulo";
+    const cp=document.getElementById("cprog"), tp=document.getElementById("topprogress");
+    if(cp) cp.style.display = inCourse ? "" : "none";
+    if(tp) tp.style.display = inCourse ? "" : "none";
+    trackPill.style.display = inModule ? "" : "none";
+    renderAcct();
+  }
 
   const publishedCourses=()=>P.courses.filter(c=>c.published);
   // curso concluído = TODOS os módulos visitados E com teste feito (não só o Módulo 0)
@@ -104,6 +120,7 @@
     syncPill(); markNav(); window.scrollTo(0,0); killFoot();
     app.classList.remove("wide");
     const p=(location.hash||"#/").replace(/^#\//,"").split("/").filter(Boolean);
+    updateTopbar(p);
     if(!p.length){ setBar(); return catalog(); }
     if(p[0]==="ferramentas"){ setBar(); return ferramentas(); }
     if(p[0]==="entrar"){ setBar(); return entrar(p[1]); }
@@ -685,7 +702,7 @@
     app.querySelector("#psave").onclick=()=>{S.name=app.querySelector("#pname").value.trim(); save(); syncPill(); perfil();};
     const bl=app.querySelector("#login"); if(bl) bl.onclick=()=>{loginReturn="#/perfil";go("#/entrar");};
     const bs=app.querySelector("#subscribe"); if(bs) bs.onclick=()=>go("#/planos");
-    const bo=app.querySelector("#logout"); if(bo) bo.onclick=async()=>{IMP.logout(); await refreshMe(); perfil();};
+    const bo=app.querySelector("#logout"); if(bo) bo.onclick=async()=>{IMP.logout(); await refreshMe(); renderAcct(); perfil();};
     footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")}]);
   }
 
