@@ -323,9 +323,8 @@
     }
     setActive(outline[0]&&outline[0].id);
 
-    // desbloqueia os termos citados neste módulo → os flashcards acumulam conforme você avança
-    const modText=JSON.stringify(mod).toLowerCase(); const co2=contentOf(c);
-    co2.glossary.forEach(([term])=>{ const k=term.toLowerCase(); if(!S.seen[gk(c.id,k)] && modText.indexOf(k)>=0) S.seen[gk(c.id,k)]=1; });
+    // flashcards são OPT-IN: o aluno adiciona clicando nos termos sublinhados (não acumula sozinho)
+    if(!S.hintFlash){ const h=div("flash-hint","💡 <b>Dica:</b> toque nos <span class='term'>termos sublinhados</span> do texto para adicioná-los aos seus flashcards e memorizar depois."); main.insertBefore(h,main.firstChild); S.hintFlash=1; }
     S.last={c:c.id,m:mod.id,t:mod.title,img:mod.img,ct:(contentOf(c)||{}).title||c.title};
     if(!S.mod[gk(c.id,mod.id)]){ S.mod[gk(c.id,mod.id)]=true; award(20,"Concluiu o Módulo "+mod.id+": "+mod.title); }
     save(); setBar();
@@ -338,11 +337,11 @@
   function revisar(){
     const c=CUR(), co=CO(); const deck=unlockedGlossary(c);
     app.innerHTML=`<div class="eyebrow">Memorização</div><h2 class="section">🧠 Revisar flashcards</h2>
-      <p class="lead">Repetição espaçada do glossário de <b>${co.title}</b> — os cartões vão sendo <b>desbloqueados conforme você avança</b> no curso.</p>
+      <p class="lead">Repetição espaçada do glossário de <b>${co.title}</b> — você monta seu baralho <b>tocando nos termos sublinhados</b> do texto.</p>
       <div id="cswitch"></div><div id="fh"></div>`;
     courseSwitcher(app.querySelector("#cswitch"),()=>revisar());
     if(!deck.length){
-      app.querySelector("#fh").appendChild(div("block","<h3>Nenhum cartão ainda 🔒</h3><p class='lead'>Abra os módulos do curso para desbloquear os termos. Cada módulo que você estuda adiciona novos cartões aqui.</p><div class='btnrow'><button class='btn' id='goc'>Ir para o curso →</button></div>"));
+      app.querySelector("#fh").appendChild(div("block","<h3>Seu baralho está vazio 🃏</h3><p class='lead'>Ao ler os módulos, toque nos <span class='term'>termos sublinhados</span> e clique em <b>➕ Adicionar aos flashcards</b> para memorizar o que quiser.</p><div class='btnrow'><button class='btn' id='goc'>Ir para o curso →</button></div>"));
       app.querySelector("#goc").onclick=()=>go("#/curso/"+c.id);
     } else {
       app.querySelector("#fh").appendChild(div("lead","Você já desbloqueou <b>"+deck.length+"</b> de "+co.glossary.length+" termos."));
@@ -691,16 +690,26 @@
   }
 
   /* ---------- tooltips do glossário ---------- */
-  let tipEl=null;
-  function showTip(t,text){hideTip();tipEl=document.createElement("div");tipEl.className="tip";
-    tipEl.innerHTML="<b>"+t.dataset.term+"</b><br>"+text;document.body.appendChild(tipEl);
-    const r=t.getBoundingClientRect();const tw=Math.min(280,innerWidth-24);tipEl.style.width=tw+"px";
+  let tipEl=null, tipHideT=null;
+  const tipHold=()=>clearTimeout(tipHideT);
+  const tipLater=()=>{clearTimeout(tipHideT);tipHideT=setTimeout(hideTip,260);};
+  function showTip(t,text){ hideTip();
+    const term=t.dataset.term, key=gk(CUR().id,term.toLowerCase()), added=!!S.seen[key];
+    tipEl=document.createElement("div");tipEl.className="tip";
+    tipEl.innerHTML="<b>"+term+"</b><br>"+text+"<button class='tip-add"+(added?" on":"")+"'>"+(added?"✓ nos flashcards":"➕ Adicionar aos flashcards")+"</button>";
+    document.body.appendChild(tipEl);
+    tipEl.addEventListener("mouseenter",tipHold); tipEl.addEventListener("mouseleave",tipLater);
+    tipEl.querySelector(".tip-add").onclick=ev=>{ev.stopPropagation();
+      if(S.seen[key])delete S.seen[key]; else { S.seen[key]=1; checkBadges(); }
+      save(); showTip(t,text);};
+    const r=t.getBoundingClientRect();const tw=Math.min(300,innerWidth-24);tipEl.style.width=tw+"px";
     tipEl.style.left=Math.min(Math.max(8,r.left),innerWidth-tw-8)+"px";
     let top=r.top-tipEl.offsetHeight-8; if(top<8)top=r.bottom+8; tipEl.style.top=top+"px";}
-  function hideTip(){if(tipEl){tipEl.remove();tipEl=null;}}
+  function hideTip(){clearTimeout(tipHideT);if(tipEl){tipEl.remove();tipEl=null;}}
   function bindTip(elm,def){elm.dataset.term=elm.dataset.term||elm.textContent;
-    elm.addEventListener("mouseenter",()=>showTip(elm,def));elm.addEventListener("mouseleave",hideTip);
-    elm.addEventListener("click",e=>{e.stopPropagation();tipEl?hideTip():showTip(elm,def);});}
+    elm.addEventListener("mouseenter",()=>{tipHold();showTip(elm,def);});
+    elm.addEventListener("mouseleave",tipLater);
+    elm.addEventListener("click",e=>{e.stopPropagation();tipHold();tipEl?hideTip():showTip(elm,def);});}
   function attachGlossary(root){ const co=CO(); if(!co)return; const g={}; co.glossary.forEach(([t,d])=>g[t.toLowerCase()]=d);
     root.querySelectorAll("[data-term]").forEach(s=>{const k=s.dataset.term.toLowerCase();if(g[k]){s.classList.add("term");bindTip(s,g[k]);}});
     root.querySelectorAll(".prose").forEach(scope=>co.glossary.forEach(([term])=>wrapFirst(scope,term,g[term.toLowerCase()])));
@@ -717,6 +726,7 @@
   function footCustom(btns){killFoot();const f=document.createElement("div");f.id="footnav";f.className="footnav";
     btns.forEach(b=>{const e=document.createElement("button");e.className="btn"+(b.ghost?" ghost":"");e.textContent=b.label;e.onclick=b.on;f.appendChild(e);});document.body.appendChild(f);}
   document.addEventListener("scroll",hideTip,{passive:true});
+  document.addEventListener("click",()=>hideTip());
 
   buildNav();
   IMP.me().then(m=>{ ME=m; }).catch(()=>{}).finally(()=>render());

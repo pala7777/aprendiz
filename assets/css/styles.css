@@ -168,6 +168,13 @@ h2.section{font-size:23px;margin:6px 0 4px}
 .fonte-item:last-child{border-bottom:0}
 .fonte-item a{color:var(--brand-2);text-decoration:none;font-weight:700}
 .fonte-item i{color:var(--tx)}
+/* flashcards opt-in */
+.tip-add{display:block;width:100%;margin-top:9px;padding:7px 10px;border:1px solid var(--brand);border-radius:8px;
+  background:rgba(124,92,255,.14);color:var(--brand-2);font-weight:700;font-size:12.5px;cursor:pointer}
+.tip-add.on{background:rgba(60,200,120,.15);border-color:#3cc878;color:#3cc878}
+.flash-hint{background:rgba(124,92,255,.08);border:1px dashed rgba(124,92,255,.5);border-radius:12px;
+  padding:11px 14px;margin:0 0 16px;font-size:13.5px;color:var(--tx-dim)}
+.flash-hint .term{cursor:default}
 .faca{border:1px dashed rgba(124,92,255,.6);border-radius:12px;padding:15px;margin:14px 0;
   background:rgba(124,92,255,.06)}
 .faca .tag{color:var(--brand-2);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
