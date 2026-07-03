@@ -3,8 +3,8 @@
    Só "trail" tem conteúdo (published). Os demais são vitrine.
    ============================================================ */
 window.PLATFORM = {
-  brand: "Escola da Resistência e Treinamento",
-  tagline: "A ciência do treino — aprendida fazendo.",
+  brand: "Instituto de Movimento e Performance",
+  tagline: "Formação esportiva para atletas, treinadores e apaixonados por performance.",
   paths: [
     { id:"trail-completo", icon:"⛰️", name:"Trail Running Completo",
       desc:"Do primeiro trail ao ultra: metodologia, força e nutrição.", courses:["trail","forca-endurance","nutricao"] },

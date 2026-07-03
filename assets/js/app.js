@@ -133,7 +133,7 @@
     app.innerHTML=`
       <div class="img-duo art" style="height:190px">
         <img src="assets/img/hero.jpg" alt="">
-        <div class="on"><span class="kicker">Escola da Resistência e Treinamento</span>
+        <div class="on"><span class="kicker">Instituto de Movimento e Performance</span>
           <h1 style="color:#fff;font-size:26px;margin:0">Aprenda fazendo</h1>
           <p style="color:#e9e6ff;margin:6px 0 0">Cursos práticos onde você calcula, monta e testa — não só lê.</p></div>
       </div>
@@ -502,7 +502,7 @@
     x.strokeStyle="#7c5cff"; x.lineWidth=10; x.strokeRect(40,40,1320,910);
     x.strokeStyle="#a78bfa"; x.lineWidth=2; x.strokeRect(60,60,1280,870);
     x.textAlign="center"; x.fillStyle="#a78bfa"; x.font="bold 30px Georgia";
-    x.fillText("ESCOLA DA RESISTÊNCIA E TREINAMENTO", 700, 170);
+    x.fillText("INSTITUTO DE MOVIMENTO E PERFORMANCE", 700, 170);
     x.fillStyle="#eef0f6"; x.font="26px Georgia"; x.fillText("Certificado de Conclusão", 700, 250);
     x.fillStyle="#9aa3bd"; x.font="22px Georgia"; x.fillText("Certificamos que", 700, 380);
     x.fillStyle="#fff"; x.font="bold 60px Georgia"; x.fillText(name, 700, 460);
@@ -512,9 +512,9 @@
     x.fillStyle="#9aa3bd"; x.font="20px Georgia"; x.fillText(d, 700, 720);
     // pico (logo)
     x.fillStyle="#7c5cff"; x.beginPath(); x.moveTo(700,780); x.lineTo(650,860); x.lineTo(750,860); x.closePath(); x.fill();
-    x.fillStyle="#fff"; x.font="16px Georgia"; x.fillText("escola da resistência e treinamento — aprender fazendo", 700, 910);
+    x.fillStyle="#fff"; x.font="16px Georgia"; x.fillText("instituto de movimento e performance — aprender fazendo", 700, 910);
     const a=document.createElement("a"); a.href=c.toDataURL("image/png");
-    a.download="certificado-resistencia.png"; a.click();
+    a.download="certificado-imp.png"; a.click();
   }
 
   /* ---------- trilha de aprendizagem ---------- */

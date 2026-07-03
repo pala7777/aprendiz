@@ -1,7 +1,7 @@
 {
-  "name": "Escola da Resistência e Treinamento",
-  "short_name": "Resistência",
-  "description": "A ciência do treino de resistência e força, na prática. Cursos interativos onde você calcula, monta e testa — não só lê.",
+  "name": "Instituto de Movimento e Performance",
+  "short_name": "IMP",
+  "description": "Formação esportiva para atletas, treinadores e apaixonados por performance. Cursos interativos onde você calcula, monta e testa — não só lê.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
