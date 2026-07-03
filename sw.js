@@ -1,11 +1,12 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v11";
+const VERSION = "aprendiz-v12";
 const ASSETS = [
   "./",
   "index.html",
   "assets/css/styles.css",
   "content/platform.js",
   "content/trail.js",
+  "content/forca.js",
   "assets/js/tools.js",
   "assets/js/analyzer.js",
   "assets/js/flashcards.js",
@@ -19,7 +20,13 @@ const ASSETS = [
   "assets/img/diagrams/musculo-inclinacao.jpg","assets/img/diagrams/modalidades.jpg",
   "assets/img/diagrams/respiracao.jpg","assets/img/diagrams/periodizacao.jpg",
   "assets/img/diagrams/correr-caminhar.jpg","assets/img/diagrams/excentrico.jpg",
-  "assets/img/diagrams/dominios.jpg","assets/img/diagrams/fartlek.jpg","assets/img/diagrams/espectro.jpg"
+  "assets/img/diagrams/dominios.jpg","assets/img/diagrams/fartlek.jpg","assets/img/diagrams/espectro.jpg",
+  "assets/img/diagrams/f-quatro.jpg","assets/img/diagrams/f-penacao.jpg","assets/img/diagrams/f-fibras.jpg",
+  "assets/img/diagrams/f-caibras.jpg","assets/img/diagrams/f-periodizacao.jpg","assets/img/diagrams/f-concorrencia.jpg",
+  "assets/img/diagrams/f-carater.jpg","assets/img/diagrams/f-sessao.jpg","assets/img/diagrams/f-progressao.jpg",
+  "assets/img/covers/ccover-forca.jpg",
+  "assets/img/covers/fcover-1.jpg","assets/img/covers/fcover-2.jpg","assets/img/covers/fcover-3.jpg",
+  "assets/img/covers/fcover-4.jpg","assets/img/covers/fcover-5.jpg","assets/img/covers/fcover-6.jpg","assets/img/covers/fcover-7.jpg"
 ];
 
 self.addEventListener("install", (e) => {

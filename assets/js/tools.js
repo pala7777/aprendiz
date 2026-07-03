@@ -153,6 +153,63 @@ window.TOOLS = (function(){
     return withCaption(wrap,caption);
   }
 
+  /* ---------- FORÇA: fase de Suchomel a partir do 1RM / peso ---------- */
+  function forcaRM(caption){
+    const wrap = el(`<div class="tool">
+      <label>Sua carga máxima (1RM) no agachamento — kg</label><input type="number" class="rm" value="80" min="1">
+      <label>Seu peso corporal — kg</label><input type="number" class="bw" value="70" min="1">
+      <div class="btnrow"><button class="btn calc">Ver minha fase</button></div>
+      <div class="out hide"><div class="pill-result r"></div><div class="explain e"></div></div>
+    </div>`);
+    const out=wrap.querySelector(".out");
+    wrap.querySelector(".calc").addEventListener("click",()=>{
+      const rm=+wrap.querySelector(".rm").value, bw=+wrap.querySelector(".bw").value;
+      if(!rm||!bw){return;}
+      const ratio=rm/bw, pct=Math.round(ratio*100);
+      let fase, cor, dica;
+      if(ratio<1.0){ fase="Déficit de força"; cor="var(--z-sev)";
+        dica="A força ainda não se traduz totalmente em corrida. Priorize construir base com cargas altas (fase estrutural)."; }
+      else if(ratio<1.75){ fase="Fase associativa (zona de ouro)"; cor="var(--z-mod)";
+        dica="Cada ganho de força se transfere direto para o rendimento. Siga desenvolvendo a força máxima — é onde você mais lucra."; }
+      else if(ratio<2.0){ fase="Transição → reserva de força"; cor="var(--z-hard)";
+        dica="Você está esgotando a fase associativa. Hora de migrar para o trabalho específico: cargas menores movidas rápido, mais estabilização, execução próxima do gesto de corrida."; }
+      else { fase="Reserva de força"; cor="var(--brand)";
+        dica="Ganhar mais força rende pouco para a corrida agora. Invista no específico e na velocidade — não em subir o agachamento."; }
+      wrap.querySelector(".r").innerHTML="1RM = "+pct+"% do peso · <span style='color:"+cor+"'>"+fase+"</span>";
+      wrap.querySelector(".e").textContent=dica+" (Referência: reserva de força ≈ 2× o peso corporal.)";
+      out.classList.remove("hide");
+    });
+    return withCaption(wrap,caption);
+  }
+
+  /* ---------- FORÇA: caráter do esforço (perda de velocidade) ---------- */
+  function velLoss(caption){
+    const wrap = el(`<div class="tool">
+      <label>Perda de velocidade na série: <b class="vl">20%</b></label>
+      <input type="range" min="5" max="50" step="5" value="20">
+      <div class="bars">
+        <div class="barwrap"><div class="bar int" style="background:var(--z-mod)"></div><small>Adaptação<br>neural (quero)</small></div>
+        <div class="barwrap"><div class="bar ext" style="background:var(--z-sev)"></div><small>Fadiga &<br>dano (evito)</small></div>
+      </div>
+      <div class="terrainlbl"></div>
+    </div>`);
+    const rng=wrap.querySelector("input"), neural=wrap.querySelector(".int"), fad=wrap.querySelector(".ext"), lbl=wrap.querySelector(".terrainlbl"), vl=wrap.querySelector(".vl");
+    function upd(){
+      const v=+rng.value; vl.textContent=v+"%";
+      // neural cai conforme a perda sobe; fadiga cresce
+      const neuralPct=Math.max(8,100-(v-5)*2.2), fadPct=Math.min(100,10+(v-5)*2.4);
+      neural.style.height=neuralPct+"%"; fad.style.height=fadPct+"%";
+      let msg;
+      if(v<=15) msg="✅ Ideal para o corredor: máxima transferência para a corrida, mínima fadiga residual. Sobram repetições 'no tanque'.";
+      else if(v<=25) msg="👍 Zona segura e produtiva. Bom caráter do esforço para o treino concorrente.";
+      else if(v<=35) msg="⚠️ Começa a pesar: mais fadiga metabólica, transferência caindo.";
+      else msg="❌ Perto da falha muscular: muito estresse residual, DOMS e hipertrofia que o corredor não quer.";
+      lbl.textContent=msg;
+    }
+    rng.addEventListener("input",upd); upd();
+    return withCaption(wrap,caption);
+  }
+
   function withCaption(node,caption){
     if(!caption) return node;
     const f=document.createElement("div"); f.appendChild(node);
@@ -160,5 +217,5 @@ window.TOOLS = (function(){
     f.appendChild(c); return f;
   }
 
-  return { decouple, domains, spectrum, zonas, correrCaminhar, ascensional };
+  return { decouple, domains, spectrum, zonas, correrCaminhar, ascensional, forcaRM, velLoss };
 })();

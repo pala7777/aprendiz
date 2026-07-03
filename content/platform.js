@@ -34,11 +34,11 @@ window.PLATFORM = {
       img:"assets/img/covers/ccover-rua.jpg", level:"Iniciante+", dur:"em breve",
       learn:["Ritmo de prova","Zonas de treino","Progressão de volume","Tapering","Longão","Tiros"] },
 
-    { id:"forca-endurance", cat:"forca", published:false,
+    { id:"forca-endurance", ref:"COURSE_FORCA", cat:"forca", published:true,
       title:"Força para Esportes de Resistência",
-      sub:"Como a força certa te deixa mais rápido e sem lesão.",
-      img:"assets/img/covers/ccover-forca.jpg", level:"Todos os níveis", dur:"em breve",
-      learn:["Força específica","Pliometria","Prevenção de lesão","Core","Economia de corrida"] },
+      sub:"Como a força certa te deixa mais rápido, mais durável e sem lesão.",
+      img:"assets/img/covers/ccover-forca.jpg", level:"Do zero ao avançado", dur:"7 módulos + prova · ~3,5 h",
+      learn:["Por que treinar força","Economia de corrida","Durabilidade & fadiga","Cãibras","Periodização","Treino concorrente","Caráter do esforço","Desenho da sessão"] },
 
     { id:"longevidade", cat:"forca", published:false,
       title:"Treinar para Envelhecer Forte",

@@ -2,7 +2,7 @@
    APRENDIZ — núcleo v3 (multi-curso + painel + PWA)
    ============================================================ */
 (function(){
-  const P=window.PLATFORM, C=window.COURSE_TRAIL;
+  const P=window.PLATFORM;
   const app=document.getElementById("app"), bar=document.getElementById("progressbar");
   const nav=document.getElementById("nav"), trackPill=document.getElementById("trackpill");
   const courseOf=id=>P.courses.find(c=>c.id===id);
@@ -24,11 +24,27 @@
   const KEY="aprendiz.state.v2";
   const S=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}})();
   S.track=S.track||null; S.mod=S.mod||{}; S.quiz=S.quiz||{}; S.name=S.name||"";
-  S.seen=S.seen||{}; S.finalPassed=S.finalPassed||false;
+  S.seen=S.seen||{};
   S.points=S.points||0; S.streak=S.streak||{days:0,best:0,last:""}; S.badges=S.badges||{}; S.activity=S.activity||[]; S.last=S.last||null;
-  const unlockedGlossary=()=>C.glossary.filter(([t])=>S.seen[t.toLowerCase()]);
-  const modsDoneCount=()=>C.modules.filter(m=>!m.locked&&S.mod[m.id]).length;
-  const modsTotal=()=>C.modules.filter(m=>!m.locked).length;
+  /* migração v2 (curso único) → chaves por curso "cursoId:chave" */
+  if(!S.migrated){
+    const nm={},nq={},ns={};
+    for(const k in S.mod)  nm[/:/.test(k)?k:("trail:"+k)]=S.mod[k];
+    for(const k in S.quiz) nq[/:/.test(k)?k:("trail:"+k)]=S.quiz[k];
+    for(const k in S.seen) ns[/:/.test(k)?k:("trail:"+k)]=S.seen[k];
+    S.mod=nm; S.quiz=nq; S.seen=ns;
+    S.finalPassed=(S.finalPassed===true)?{trail:true}:{};
+    S.migrated=1;
+  }
+  if(typeof S.finalPassed!=="object"||!S.finalPassed) S.finalPassed={};
+  S.course=S.course||"trail";
+  /* curso "atual" (para gerenciar glossário/flashcards/painel/prova dos itens laterais) */
+  function CUR(){ let c=courseOf(S.course); if(!c||!c.published||!contentOf(c)) c=publishedCourses()[0]; return c; }
+  function CO(){ const c=CUR(); return c?contentOf(c):null; }
+  const gk=(cid,x)=>cid+":"+x;
+  const unlockedGlossary=(c)=>{ c=c||CUR(); const co=c&&contentOf(c); return co?co.glossary.filter(([t])=>S.seen[gk(c.id,t.toLowerCase())]):[]; };
+  const modsDoneCount=(c)=>{ c=c||CUR(); const co=c&&contentOf(c); return co?co.modules.filter(m=>!m.locked&&S.mod[gk(c.id,m.id)]).length:0; };
+  const modsTotal=(c)=>{ c=c||CUR(); const co=c&&contentOf(c); return co?co.modules.filter(m=>!m.locked).length:0; };
   const today=()=>new Date().toISOString().slice(0,10);
   function touchStreak(){ const t=today(),s=S.streak; if(s.last===t)return;
     const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
@@ -37,7 +53,7 @@
     {id:"primeiro",icon:"🎯",name:"Primeiro passo",desc:"Abrir o primeiro módulo",cond:()=>Object.keys(S.mod).length>=1},
     {id:"metade",icon:"⛰️",name:"Meio caminho",desc:"Concluir 4 módulos",cond:()=>modsDoneCount()>=4},
     {id:"mestre",icon:"🏔️",name:"Mestre do curso",desc:"Concluir todos os módulos",cond:()=>modsDoneCount()>=modsTotal()},
-    {id:"aprovado",icon:"🏆",name:"Aprovado na prova",desc:"Passar na prova final",cond:()=>S.finalPassed},
+    {id:"aprovado",icon:"🏆",name:"Aprovado na prova",desc:"Passar na prova final",cond:()=>!!S.finalPassed[CUR().id]},
     {id:"memoria",icon:"🧠",name:"Boa memória",desc:"Dominar 10 termos",cond:()=>FLASH.stats(unlockedGlossary()).mastered>=10},
     {id:"constante",icon:"🔥",name:"Constância",desc:"3 dias seguidos",cond:()=>(S.streak.days||0)>=3}
   ];
@@ -49,8 +65,7 @@
   const go=h=>location.hash=h;
   window.addEventListener("hashchange",render);
 
-  /* glossário → tooltip */
-  const G={}; C.glossary.forEach(([t,d])=>G[t.toLowerCase()]=d);
+  /* glossário → tooltip (mapa reconstruído por curso dentro de attachGlossary) */
   window.__attachGlossary=root=>attachGlossary(root);
 
   function buildNav(){
@@ -71,7 +86,7 @@
     const m=document.createElement("div"); m.className="modal";
     m.innerHTML=`<div class="box"><h3>Como você quer aprender?</h3>
       <p class="sub">Adapta a profundidade e os exemplos. Dá pra trocar quando quiser.</p>
-      ${C.tracks.map(t=>`<div class="choice" data-t="${t.id}"><div class="ci">${ICON[t.icon]}</div><div><b>${t.label}</b><span>${t.desc}</span></div></div>`).join("")}
+      ${((CO()||{}).tracks||[]).map(t=>`<div class="choice" data-t="${t.id}"><div class="ci">${ICON[t.icon]}</div><div><b>${t.label}</b><span>${t.desc}</span></div></div>`).join("")}
       ${reopen?`<div class="btnrow"><button class="btn ghost close">Cancelar</button></div>`:""}</div>`;
     document.body.appendChild(m);
     m.querySelectorAll(".choice").forEach(c=>c.onclick=()=>{S.track=c.dataset.t;save();m.remove();syncPill();render();});
@@ -81,13 +96,13 @@
   const publishedCourses=()=>P.courses.filter(c=>c.published);
   // curso concluído = TODOS os módulos visitados E com teste feito (não só o Módulo 0)
   function courseDone(c){ const co=contentOf(c); if(!co)return false;
-    return co.modules.every(m=> !m.locked && S.mod[m.id] && (!m.quiz || S.quiz[m.id]!=null)); }
-  function setBar(){ const tot=C.modules.filter(m=>!m.locked).length||1;
-    const d=C.modules.filter(m=>!m.locked&&S.mod[m.id]).length; const pct=Math.round(d/tot*100);
+    return co.modules.every(m=> !m.locked && S.mod[gk(c.id,m.id)] && (!m.quiz || S.quiz[gk(c.id,m.id)]!=null)); }
+  function setBar(){ const c=CUR(); const tot=modsTotal(c)||1;
+    const d=modsDoneCount(c); const pct=Math.round(d/tot*100);
     bar.style.width=pct+"%";
     const cp=document.getElementById("cprog");
     if(cp){ cp.innerHTML=`<span class="cbar"><i style="width:${pct}%"></i></span><b>${d}/${tot}</b> módulos`;
-      cp.title="Progresso do curso — clique para ver os módulos"; cp.onclick=()=>go("#/curso/trail"); }
+      cp.title="Progresso do curso — clique para ver os módulos"; cp.onclick=()=>go("#/curso/"+c.id); }
   }
 
   function render(){
@@ -164,7 +179,8 @@
     const grid=app.querySelector("#cat");
     function paint(){
       const list=P.courses.filter(c=>(cat==="todos"||c.cat===cat)&&(!q||(c.title+c.sub).toLowerCase().includes(q)));
-      app.querySelector("#ccount").textContent=list.length+" curso"+(list.length!=1?"s":"")+" · 1 disponível agora";
+      const np=publishedCourses().length;
+      app.querySelector("#ccount").textContent=list.length+" curso"+(list.length!=1?"s":"")+" · "+np+" dispon"+(np!=1?"íveis":"ível")+" agora";
       grid.innerHTML="";
       list.forEach(c=>{
         const done=c.published&&courseDone(c);
@@ -198,6 +214,7 @@
   /* ---------- página do curso (publicado ou "em breve") ---------- */
   function curso(c){
     const co=contentOf(c);
+    if(c.published && co){ S.course=c.id; save(); }
     const title=co?co.title:c.title, sub=co?co.subtitle:c.sub;
     if(c.published && !S.track) openTriage(false);
     app.innerHTML=`
@@ -219,7 +236,7 @@
       body.innerHTML=`<div class="eyebrow">Conteúdo do curso</div><h2 class="section">Sua trilha de aprendizagem</h2><div class="grid two" id="mods" style="margin-top:14px"></div>`;
       const grid=body.querySelector("#mods");
       co.modules.forEach(m=>{
-        const started=S.mod[m.id];
+        const started=S.mod[gk(c.id,m.id)];
         const card=div("ccard"+(m.locked?" locked":""),`
           <div class="thumb img-duo"><img src="${m.img}" alt=""></div>
           <div class="body"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
@@ -247,6 +264,7 @@
   /* ---------- MÓDULO (rolagem única) ---------- */
   function modulo(c,mod){
     if(mod.locked) return curso(c);
+    S.course=c.id;
     app.classList.add("wide");
     app.innerHTML=`<div class="crumb"><a data-h="#/">Catálogo</a><span>›</span><a data-h="#/curso/${c.id}">${contentOf(c).title}</a><span>›</span><b>Módulo ${mod.id}</b></div>
       <div class="img-duo art" style="height:180px"><img src="${mod.img}" alt="">
@@ -264,7 +282,7 @@
       const body=w.querySelector(".sec-body");
       sec.blocks.forEach(b=>body.appendChild(renderBlock(b))); main.appendChild(w);
       outline.push({id:"sec-"+i, n:sec.n, title:sec.title}); });
-    if(mod.quiz){ const qs=document.createElement("section"); qs.className="lesson-sec"; qs.id="sec-quiz"; main.appendChild(qs); renderQuiz(mod,qs);
+    if(mod.quiz){ const qs=document.createElement("section"); qs.className="lesson-sec"; qs.id="sec-quiz"; main.appendChild(qs); renderQuiz(c,mod,qs);
       outline.push({id:"sec-quiz", n:"✓", title:mod.quiz.title}); }
     attachGlossary(main);
 
@@ -294,10 +312,10 @@
     setActive(outline[0]&&outline[0].id);
 
     // desbloqueia os termos citados neste módulo → os flashcards acumulam conforme você avança
-    const modText=JSON.stringify(mod).toLowerCase();
-    C.glossary.forEach(([term])=>{ const k=term.toLowerCase(); if(!S.seen[k] && modText.indexOf(k)>=0) S.seen[k]=1; });
+    const modText=JSON.stringify(mod).toLowerCase(); const co2=contentOf(c);
+    co2.glossary.forEach(([term])=>{ const k=term.toLowerCase(); if(!S.seen[gk(c.id,k)] && modText.indexOf(k)>=0) S.seen[gk(c.id,k)]=1; });
     S.last={c:c.id,m:mod.id};
-    if(!S.mod[mod.id]){ S.mod[mod.id]=true; award(20,"Concluiu o Módulo "+mod.id+": "+mod.title); }
+    if(!S.mod[gk(c.id,mod.id)]){ S.mod[gk(c.id,mod.id)]=true; award(20,"Concluiu o Módulo "+mod.id+": "+mod.title); }
     save(); setBar();
     footCustom([{label:"← Módulos",ghost:true,on:()=>go("#/curso/"+c.id)},
       {label:"Próximo módulo →",on:()=>{const nx=contentOf(c).modules.find(m=>m.id===mod.id+1);
@@ -306,17 +324,26 @@
 
   /* ---------- revisar flashcards (rota direta) ---------- */
   function revisar(){
-    const deck=unlockedGlossary();
+    const c=CUR(), co=CO(); const deck=unlockedGlossary(c);
     app.innerHTML=`<div class="eyebrow">Memorização</div><h2 class="section">🧠 Revisar flashcards</h2>
-      <p class="lead">Repetição espaçada do glossário — os cartões vão sendo <b>desbloqueados conforme você avança</b> no curso.</p><div id="fh"></div>`;
+      <p class="lead">Repetição espaçada do glossário de <b>${co.title}</b> — os cartões vão sendo <b>desbloqueados conforme você avança</b> no curso.</p>
+      <div id="cswitch"></div><div id="fh"></div>`;
+    courseSwitcher(app.querySelector("#cswitch"),()=>revisar());
     if(!deck.length){
       app.querySelector("#fh").appendChild(div("block","<h3>Nenhum cartão ainda 🔒</h3><p class='lead'>Abra os módulos do curso para desbloquear os termos. Cada módulo que você estuda adiciona novos cartões aqui.</p><div class='btnrow'><button class='btn' id='goc'>Ir para o curso →</button></div>"));
-      app.querySelector("#goc").onclick=()=>go("#/curso/trail");
+      app.querySelector("#goc").onclick=()=>go("#/curso/"+c.id);
     } else {
-      app.querySelector("#fh").appendChild(div("lead","Você já desbloqueou <b>"+deck.length+"</b> de "+C.glossary.length+" termos."));
+      app.querySelector("#fh").appendChild(div("lead","Você já desbloqueou <b>"+deck.length+"</b> de "+co.glossary.length+" termos."));
       app.querySelector("#fh").appendChild(FLASH.review(deck,()=>go("#/painel")));
     }
     footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")}]);
+  }
+  /* seletor de curso (aparece só quando há mais de um publicado) */
+  function courseSwitcher(host,after){
+    if(!host) return; const pub=publishedCourses(); if(pub.length<2) return;
+    host.className="chips"; host.style.margin="0 0 12px";
+    host.innerHTML=pub.map(c=>`<button class="fchip${c.id===CUR().id?' on':''}" data-c="${c.id}">${c.title}</button>`).join("");
+    host.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{ S.course=b.dataset.c; save(); after&&after(); });
   }
 
   function renderBlock(b){
@@ -341,15 +368,15 @@
         btn.classList.add(good?"correct":"wrong"); if(!good)d.querySelectorAll(".opt")[b.answer].classList.add("correct");
         d.appendChild(div("explain "+(good?"good":"bad"),(good?"Correto! ":"Quase. ")+b.explain));}; d.appendChild(btn);});
     return d; }
-  function classifyBlock(b){ const d=div("tool","");
-    b.items.forEach(it=>{const row=div("classify-item","<div class='q'>"+it.text+"</div>");const ch=document.createElement("div");ch.className="choices";
-      [["continuo","Contínuo"],["fracionado","Fracionado"]].forEach(([val,lbl])=>{const btn=document.createElement("button");btn.textContent=lbl;
+  function classifyBlock(b){ const d=div("tool",""); const labels=b.labels||[["continuo","Contínuo"],["fracionado","Fracionado"]];
+    b.items.forEach(it=>{const row=div("classify-item","<div class='q'>"+it.text+"</div>");const ch=document.createElement("div");ch.className="choices"; const btns={};
+      labels.forEach(([val,lbl])=>{const btn=document.createElement("button");btn.textContent=lbl; btns[val]=btn;
         btn.onclick=()=>{if(row.dataset.done)return;row.dataset.done=1;const good=val===it.answer;
           btn.innerHTML=lbl+(good?" <span class='tag-ok'>✓</span>":" <span class='tag-bad'>✗</span>");
-          if(!good)ch.querySelectorAll("button").forEach(x=>{if(x.textContent.replace(/[^A-Za-zçã]/g,"").startsWith(it.answer==="continuo"?"Cont":"Frac"))x.innerHTML+=" <span class='tag-ok'>✓</span>";});};
+          if(!good&&btns[it.answer])btns[it.answer].innerHTML=btns[it.answer].textContent+" <span class='tag-ok'>✓</span>";};
         ch.appendChild(btn);}); row.appendChild(ch); d.appendChild(row);}); return d; }
 
-  function renderQuiz(mod,host){ const q=mod.quiz; let answered=0,correct=0;
+  function renderQuiz(c,mod,host){ const q=mod.quiz; let answered=0,correct=0;
     host.classList.add("quiz-sec");
     host.innerHTML=`<h3><span class="n">✓</span>${q.title}</h3><div class="sec-body"><p class="lead" style="margin-top:0">${q.questions.length} questões · feedback na hora.</p></div>`;
     const qhost=host.querySelector(".sec-body");
@@ -358,18 +385,21 @@
         btn.onclick=()=>{d.querySelectorAll(".opt").forEach(o=>o.disabled=true);const good=i===item.answer;if(good)correct++;answered++;
           btn.classList.add(good?"correct":"wrong");if(!good)d.querySelectorAll(".opt")[item.answer].classList.add("correct");
           d.appendChild(div("explain "+(good?"good":"bad"),item.explain));
-          if(answered===q.questions.length){const pct=Math.round(correct/q.questions.length*100); const firstQ=S.quiz[mod.id]==null; S.quiz[mod.id]=pct; if(firstQ)award(15,"Teste do Módulo "+mod.id+": "+pct+"%"); save();
+          if(answered===q.questions.length){const pct=Math.round(correct/q.questions.length*100); const firstQ=S.quiz[gk(c.id,mod.id)]==null; S.quiz[gk(c.id,mod.id)]=pct; if(firstQ)award(15,"Teste do Módulo "+mod.id+": "+pct+"%"); save();
             const bn=div("done-banner","<div class='big'>"+(pct>=80?"🎉":"💪")+"</div><h3>Você acertou "+correct+"/"+q.questions.length+" ("+pct+"%)</h3><p class='lead'>"+(pct>=80?"Módulo dominado!":"Bom começo — revise os pontos em vermelho.")+"</p>");
             qhost.appendChild(bn);bn.scrollIntoView({behavior:"smooth"});}}; d.appendChild(btn);}); qhost.appendChild(d);});
   }
 
   /* ---------- GLOSSÁRIO ---------- */
   function glossario(){
+    const co=CO();
     app.innerHTML=`<div class="eyebrow">Referência</div><h2 class="section">Glossário</h2>
-      <p class="lead">Os termos do curso em linguagem simples. No conteúdo eles aparecem <span class="term">sublinhados</span>.</p>
+      <p class="lead">Os termos de <b>${co.title}</b> em linguagem simples. No conteúdo eles aparecem <span class="term">sublinhados</span>.</p>
+      <div id="cswitch"></div>
       <input class="gsearch" id="gs" placeholder="Buscar termo…"><div class="gloss" id="gl"></div>`;
+    courseSwitcher(app.querySelector("#cswitch"),()=>glossario());
     const gl=app.querySelector("#gl");
-    const paint=f=>{gl.innerHTML="";C.glossary.filter(([t,d])=>!f||t.toLowerCase().includes(f)||d.toLowerCase().includes(f))
+    const paint=f=>{gl.innerHTML="";co.glossary.filter(([t,d])=>!f||t.toLowerCase().includes(f)||d.toLowerCase().includes(f))
       .forEach(([t,d])=>gl.appendChild(div("gitem","<b>"+t+"</b><p>"+d+"</p>")));};
     paint(""); app.querySelector("#gs").oninput=e=>paint(e.target.value.toLowerCase().trim());
   }
@@ -386,16 +416,20 @@
 
   /* ---------- PAINEL (progresso + flashcards + certificado) ---------- */
   function painel(){
-    const deck=unlockedGlossary(); const fs=FLASH.stats(deck);
-    const modsTot=C.modules.filter(m=>!m.locked).length, modsDone=C.modules.filter(m=>!m.locked&&S.mod[m.id]).length;
+    const c=CUR(), co=CO(); const fp=!!S.finalPassed[c.id];
+    const deck=unlockedGlossary(c); const fs=FLASH.stats(deck);
+    const modsTot=modsTotal(c), modsDone=modsDoneCount(c);
     const allModsDone=modsDone===modsTot;
-    const bestQuiz=Object.values(S.quiz).length?Math.max(...Object.values(S.quiz)):null;
-    const cert=courseDone(courseOf("trail")) && S.finalPassed;
+    const myQuiz=Object.keys(S.quiz).filter(k=>k.indexOf(c.id+":")===0).map(k=>S.quiz[k]);
+    const bestQuiz=myQuiz.length?Math.max(...myQuiz):null;
+    const cert=courseDone(c) && fp;
     app.innerHTML=`<div class="eyebrow">Meu painel</div><h2 class="section">Seu progresso</h2>
+      <div id="cswitch"></div>
+      <p class="lead" style="margin:-4px 0 0">Curso: <b>${co.title}</b></p>
       <div class="astats" style="margin-top:12px">
         <div class="astat"><div class="v">${modsDone}/${modsTot}</div><div class="l">módulos concluídos</div></div>
-        <div class="astat"><div class="v">${S.finalPassed?"✓":(bestQuiz!=null?bestQuiz+"%":"—")}</div><div class="l">${S.finalPassed?"prova final":"melhor teste"}</div></div>
-        <div class="astat"><div class="v">${fs.mastered}/${C.glossary.length}</div><div class="l">termos dominados</div></div>
+        <div class="astat"><div class="v">${fp?"✓":(bestQuiz!=null?bestQuiz+"%":"—")}</div><div class="l">${fp?"prova final":"melhor teste"}</div></div>
+        <div class="astat"><div class="v">${fs.mastered}/${co.glossary.length}</div><div class="l">termos dominados</div></div>
         <div class="astat"><div class="v">${fs.due}</div><div class="l">cartões p/ revisar</div></div>
         <div class="astat"><div class="v">${S.points||0}</div><div class="l">pontos</div></div>
         <div class="astat"><div class="v">${S.streak.days||0} 🔥</div><div class="l">dias seguidos</div></div>
@@ -408,26 +442,27 @@
       <div class="block" style="margin-top:16px"><b style="font-size:16px">🕑 Atividade recente</b><div id="activity" style="margin-top:10px"></div></div>
 
       <div class="block" style="margin-top:16px"><div style="display:flex;align-items:center;gap:10px">
-        <b style="font-size:16px">🧠 Revisar flashcards</b><span class="chip" style="margin-left:auto">${deck.length}/${C.glossary.length} desbloqueados</span></div>
+        <b style="font-size:16px">🧠 Revisar flashcards</b><span class="chip" style="margin-left:auto">${deck.length}/${co.glossary.length} desbloqueados</span></div>
         <p class="lead">${deck.length?"Repetição espaçada — "+fs.due+" cartão(ões) para revisar hoje.":"Abra os módulos do curso para desbloquear cartões."}</p>
         <div class="btnrow"><button class="btn" id="startflash" ${deck.length?"":"disabled"}>Revisar agora</button></div>
         <div id="flashhost"></div></div>
 
       <div class="block" style="margin-top:16px"><div style="display:flex;align-items:center;gap:10px">
-        <b style="font-size:16px">🏁 Prova final</b><span class="chip ${S.finalPassed?'done':''}" style="margin-left:auto">${S.finalPassed?"aprovado ✓":(allModsDone?"liberada":"conclua os módulos")}</span></div>
-        <p class="lead">${C.finalExam.questions.length} questões cobrindo o curso inteiro. Aprovação: ${C.finalExam.pass}%.</p>
-        <div class="btnrow"><button class="btn" id="startexam" ${allModsDone?"":"disabled"}>${S.finalPassed?"Refazer prova":"Fazer a prova"}</button></div></div>
+        <b style="font-size:16px">🏁 Prova final</b><span class="chip ${fp?'done':''}" style="margin-left:auto">${fp?"aprovado ✓":(allModsDone?"liberada":"conclua os módulos")}</span></div>
+        <p class="lead">${co.finalExam.questions.length} questões cobrindo o curso inteiro. Aprovação: ${co.finalExam.pass}%.</p>
+        <div class="btnrow"><button class="btn" id="startexam" ${allModsDone?"":"disabled"}>${fp?"Refazer prova":"Fazer a prova"}</button></div></div>
 
       <div class="block" style="margin-top:16px"><b style="font-size:16px">🎓 Certificado</b>
-        <p class="lead">${cert?"Você concluiu TODOS os módulos e passou na prova final! Gere seu certificado.":"Libere concluindo os 7 módulos e sendo aprovado na prova final."}</p>
+        <p class="lead">${cert?"Você concluiu TODOS os módulos e passou na prova final! Gere seu certificado.":"Libere concluindo os "+modsTot+" módulos e sendo aprovado na prova final."}</p>
         <div class="btnrow ${cert?"":"hide"}" id="certrow">
           <input class="gsearch" style="max-width:280px;margin:0" id="cname" placeholder="Seu nome completo" value="${S.name||""}">
           <button class="btn" id="gencert">Gerar certificado</button></div></div>`;
+    courseSwitcher(app.querySelector("#cswitch"),()=>painel());
     const sf=app.querySelector("#startflash"); if(sf&&!sf.disabled) sf.onclick=()=>{const host=app.querySelector("#flashhost");
       host.innerHTML=""; host.appendChild(FLASH.review(deck,()=>painel())); host.scrollIntoView({behavior:"smooth"});};
     const se=app.querySelector("#startexam"); if(se&&!se.disabled) se.onclick=()=>go("#/prova");
     const gc=app.querySelector("#gencert"); if(gc) gc.onclick=()=>{const nm=app.querySelector("#cname").value.trim()||"Aluno(a)";
-      S.name=nm;save();makeCertificate(nm);};
+      S.name=nm;save();makeCertificate(nm,co.title);};
     const bh=app.querySelector("#badges"); if(bh) bh.innerHTML=BADGES.map(b=>
       `<div class="badge ${S.badges[b.id]?'on':''}" title="${b.desc}"><div class="bi">${b.icon}</div><div class="bn">${b.name}</div></div>`).join("");
     const ah=app.querySelector("#activity"); if(ah) ah.innerHTML=(S.activity&&S.activity.length)
@@ -437,7 +472,7 @@
 
   /* ---------- prova final ---------- */
   function prova(){
-    const ex=C.finalExam; let answered=0,correct=0;
+    const curC=CUR(); const ex=CO().finalExam; let answered=0,correct=0;
     app.innerHTML=`<div class="crumb"><a data-h="#/painel">Meu painel</a><span>›</span><b>Prova final</b></div>
       <div class="eyebrow">Avaliação</div><h2 class="section">🏁 ${ex.title}</h2>
       <p class="lead">${ex.questions.length} questões · aprovação ${ex.pass}% · feedback na hora.</p><div id="exh"></div>`;
@@ -449,7 +484,7 @@
           btn.classList.add(good?"correct":"wrong"); if(!good)d.querySelectorAll(".opt")[item.answer].classList.add("correct");
           d.appendChild(div("explain "+(good?"good":"bad"),item.explain));
           if(answered===ex.questions.length){ const pct=Math.round(correct/ex.questions.length*100); const pass=pct>=ex.pass;
-            const firstPass=!S.finalPassed; if(pass){ S.finalPassed=true; if(firstPass)award(100,"Passou na prova final ("+pct+"%)"); } save();
+            const firstPass=!S.finalPassed[curC.id]; if(pass){ S.finalPassed[curC.id]=true; if(firstPass)award(100,"Passou na prova final ("+pct+"%)"); } save();
             const bn=div("done-banner","<div class='big'>"+(pass?"🏆":"💪")+"</div><h3>"+correct+"/"+ex.questions.length+" ("+pct+"%) — "+(pass?"APROVADO!":"Não passou ainda")+"</h3><p class='lead'>"+(pass?"Parabéns! Seu certificado foi liberado no Meu painel.":"Você precisa de "+ex.pass+"%. Revise os módulos e tente de novo.")+"</p><div class='btnrow' style='justify-content:center'><button class='btn' id='topainel'>Ir ao Meu painel →</button></div>");
             host.appendChild(bn); bn.querySelector("#topainel").onclick=()=>go("#/painel"); bn.scrollIntoView({behavior:"smooth"});
           }
@@ -460,7 +495,7 @@
   }
 
   /* ---------- certificado (canvas → PNG) ---------- */
-  function makeCertificate(name){
+  function makeCertificate(name,courseTitle){
     const c=document.createElement("canvas"); c.width=1400; c.height=990; const x=c.getContext("2d");
     const g=x.createLinearGradient(0,0,1400,990); g.addColorStop(0,"#12131d"); g.addColorStop(1,"#1b1330");
     x.fillStyle=g; x.fillRect(0,0,1400,990);
@@ -472,7 +507,7 @@
     x.fillStyle="#9aa3bd"; x.font="22px Georgia"; x.fillText("Certificamos que", 700, 380);
     x.fillStyle="#fff"; x.font="bold 60px Georgia"; x.fillText(name, 700, 460);
     x.fillStyle="#9aa3bd"; x.font="22px Georgia"; x.fillText("concluiu o conteúdo do curso", 700, 540);
-    x.fillStyle="#eef0f6"; x.font="bold 34px Georgia"; x.fillText("Metodologia do Treino de Trail", 700, 600);
+    x.fillStyle="#eef0f6"; x.font="bold 34px Georgia"; x.fillText(courseTitle||"Metodologia do Treino de Trail", 700, 600);
     const dt=new Date(); const d=dt.toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
     x.fillStyle="#9aa3bd"; x.font="20px Georgia"; x.fillText(d, 700, 720);
     // pico (logo)
@@ -517,7 +552,7 @@
       <div class="block"><b style="font-size:16px">Seus interesses</b>
         <div class="learn-tags" style="margin-top:8px">${["Trail Running","Fisiologia","Força","Recuperação","Nutrição"].map((t,i)=>`<span class="ltag c${i%6}">${t}</span>`).join("")}</div></div>`;
     const pt=app.querySelector("#ptrack");
-    pt.innerHTML=C.tracks.map(t=>`<button class="fchip${S.track===t.id?' on':''}" data-t="${t.id}">${t.id==='atleta'?'🏃':'🎓'} ${t.label}</button>`).join("");
+    pt.innerHTML=((CO()||{}).tracks||[]).map(t=>`<button class="fchip${S.track===t.id?' on':''}" data-t="${t.id}">${t.id==='atleta'?'🏃':'🎓'} ${t.label}</button>`).join("");
     pt.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{S.track=b.dataset.t; pt.querySelectorAll(".fchip").forEach(x=>x.classList.toggle("on",x===b));});
     app.querySelector("#psave").onclick=()=>{S.name=app.querySelector("#pname").value.trim(); save(); syncPill(); perfil();};
     footCustom([{label:"← Meu painel",ghost:true,on:()=>go("#/painel")}]);
@@ -534,9 +569,9 @@
   function bindTip(elm,def){elm.dataset.term=elm.dataset.term||elm.textContent;
     elm.addEventListener("mouseenter",()=>showTip(elm,def));elm.addEventListener("mouseleave",hideTip);
     elm.addEventListener("click",e=>{e.stopPropagation();tipEl?hideTip():showTip(elm,def);});}
-  function attachGlossary(root){
-    root.querySelectorAll("[data-term]").forEach(s=>{const k=s.dataset.term.toLowerCase();if(G[k]){s.classList.add("term");bindTip(s,G[k]);}});
-    root.querySelectorAll(".prose").forEach(scope=>C.glossary.forEach(([term])=>wrapFirst(scope,term,G[term.toLowerCase()])));
+  function attachGlossary(root){ const co=CO(); if(!co)return; const g={}; co.glossary.forEach(([t,d])=>g[t.toLowerCase()]=d);
+    root.querySelectorAll("[data-term]").forEach(s=>{const k=s.dataset.term.toLowerCase();if(g[k]){s.classList.add("term");bindTip(s,g[k]);}});
+    root.querySelectorAll(".prose").forEach(scope=>co.glossary.forEach(([term])=>wrapFirst(scope,term,g[term.toLowerCase()])));
   }
   function wrapFirst(scope,term,def){ if(!def)return;
     const rx=new RegExp("\\b("+term.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")\\b","i");
