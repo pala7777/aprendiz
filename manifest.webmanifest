@@ -1,7 +1,7 @@
 {
-  "name": "Aprendiz — aprender fazendo",
-  "short_name": "Aprendiz",
-  "description": "Plataforma de aprendizagem interativa. Cursos práticos onde você aprende fazendo.",
+  "name": "Escola da Resistência e Treinamento",
+  "short_name": "Resistência",
+  "description": "A ciência do treino de resistência e força, na prática. Cursos interativos onde você calcula, monta e testa — não só lê.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
