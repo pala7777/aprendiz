@@ -181,4 +181,64 @@
     requestAnimationFrame(() => requestAnimationFrame(build));
     return cap(wrap, caption);
   };
+
+  /* ---------- DESCOLAMENTO DAS CARGAS (Chart.js) — interna × externa ---------- */
+  T.decouple = function (caption) {
+    const wrap = el(`<div class="tool ix">
+      <label>Condição do dia: <b class="dv">fresco e descansado</b></label>
+      <input type="range" min="0" max="100" value="10" class="ix-cond">
+      <div style="position:relative;height:240px;margin-top:10px"><canvas class="ix-canvas"></canvas></div>
+      <div class="ix-note ix-dnote">A <b>carga externa</b> (o ritmo/watts que você segura) fica constante — mas a <b>carga interna</b> (sua FC) sobe sozinha conforme cansaço, calor e desidratação apertam. Esse descolamento é a fadiga aparecendo.</div>
+    </div>`);
+    const canvas = wrap.querySelector(".ix-canvas");
+    const cond = wrap.querySelector(".ix-cond");
+    const dv = wrap.querySelector(".dv");
+    const dnote = wrap.querySelector(".ix-dnote");
+    const mins = Array.from({ length: 13 }, (_, k) => k * 5);         // 0..60 min
+    let chart = null;
+    function condLabel(c) {
+      if (c < 25) return "fresco e descansado";
+      if (c < 55) return "aquecendo / leve fadiga";
+      if (c < 80) return "calor + fadiga";
+      return "muito calor, desidratado, exausto";
+    }
+    function build() {
+      const c = +cond.value;
+      dv.textContent = condLabel(c);
+      const ext = mins.map(() => 75);                                  // % — ritmo/potência constante
+      const drift = c / 100;                                           // 0..1
+      const intr = mins.map(m => {
+        const base = 75;
+        const rise = (m / 60) * (6 + drift * 34);                      // deriva cardíaca cresce no tempo e com a condição
+        return Math.min(100, +(base + rise).toFixed(1));
+      });
+      const gap = (intr[12] - ext[12]).toFixed(0);
+      dnote.innerHTML = "No fim de 1h, a FC subiu <b>" + gap + " pontos</b> para segurar o <b>mesmo</b> ritmo — "
+        + (gap < 8 ? "descolamento pequeno: você estava fresco." : gap < 20 ? "descolamento moderado: fadiga chegando." : "descolamento grande: o corpo está pagando caro pelo mesmo esforço.");
+      if (chart) { chart.data.datasets[0].data = ext; chart.data.datasets[1].data = intr; chart.update(); return; }
+      chart = new Chart(canvas.getContext("2d"), {
+        type: "line",
+        data: {
+          labels: mins.map(m => m + "'"),
+          datasets: [
+            { label: "Carga externa (ritmo/watts)", data: ext, borderColor: "#22c55e", backgroundColor: "transparent", borderWidth: 3, tension: .2, pointRadius: 0 },
+            { label: "Carga interna (FC)", data: intr, borderColor: "#ef4444", backgroundColor: "rgba(239,68,68,.08)", borderWidth: 3, tension: .3, pointRadius: 0, fill: true }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { intersect: false, mode: "index" },
+          plugins: { legend: { labels: { color: "#cfd3e0", usePointStyle: true, boxWidth: 8 } },
+            tooltip: { callbacks: { label: (x) => x.dataset.label + ": " + x.raw + "%" } } },
+          scales: {
+            x: { ticks: { color: "#9aa3bd" }, grid: { color: "rgba(255,255,255,.05)" }, title: { display: true, text: "tempo de esforço", color: "#9aa3bd" } },
+            y: { min: 60, max: 100, ticks: { color: "#9aa3bd", callback: v => v + "%" }, grid: { color: "rgba(255,255,255,.06)" }, title: { display: true, text: "% do máximo", color: "#9aa3bd" } }
+          }
+        }
+      });
+    }
+    cond.addEventListener("input", build);
+    requestAnimationFrame(() => requestAnimationFrame(build));
+    return cap(wrap, caption);
+  };
 })();

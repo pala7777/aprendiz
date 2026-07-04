@@ -1,5 +1,5 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v25";
+const VERSION = "aprendiz-v26";
 const ASSETS = [
   "./",
   "index.html",
@@ -29,7 +29,13 @@ const ASSETS = [
   "assets/img/diagrams/f-carater.jpg","assets/img/diagrams/f-sessao.jpg","assets/img/diagrams/f-progressao.jpg",
   "assets/img/covers/ccover-forca.jpg",
   "assets/img/covers/fcover-1.jpg","assets/img/covers/fcover-2.jpg","assets/img/covers/fcover-3.jpg",
-  "assets/img/covers/fcover-4.jpg","assets/img/covers/fcover-5.jpg","assets/img/covers/fcover-6.jpg","assets/img/covers/fcover-7.jpg"
+  "assets/img/covers/fcover-4.jpg","assets/img/covers/fcover-5.jpg","assets/img/covers/fcover-6.jpg","assets/img/covers/fcover-7.jpg",
+  "assets/img/covers/ccover-fisiologia.jpg",
+  "assets/img/covers/mcover-1.jpg","assets/img/covers/mcover-2.jpg","assets/img/covers/mcover-3.jpg",
+  "assets/img/covers/mcover-4.jpg","assets/img/covers/mcover-5.jpg","assets/img/covers/mcover-6.jpg","assets/img/covers/mcover-7.jpg",
+  "assets/img/diagrams/fis-energia.jpg","assets/img/diagrams/fis-crossover.jpg","assets/img/diagrams/fis-limiares.jpg",
+  "assets/img/diagrams/fis-vo2.jpg","assets/img/diagrams/fis-pilares.jpg","assets/img/diagrams/fis-coracao.jpg",
+  "assets/img/diagrams/fis-adaptacoes.jpg","assets/img/diagrams/fis-polarizado.jpg","assets/img/diagrams/fis-fadiga.jpg"
 ];
 
 self.addEventListener("install", (e) => {

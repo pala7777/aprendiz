@@ -46,11 +46,11 @@ window.PLATFORM = {
       img:"assets/img/covers/ccover-longevidade.jpg", level:"40+", dur:"em breve",
       learn:["Massa muscular","Potência","Mobilidade","VO₂máx 40+","Recuperação"] },
 
-    { id:"fisiologia", cat:"metodologia", published:false,
+    { id:"fisiologia", cat:"metodologia", published:true,
       title:"Fisiologia do Exercício na Prática",
-      sub:"Limiares, VO₂máx e zonas — sem enrolação acadêmica.",
-      img:"assets/img/covers/ccover-fisiologia.jpg", level:"Intermediário", dur:"em breve",
-      learn:["VO₂máx","Limiares","Lactato","Zonas","Débito cardíaco"] },
+      sub:"Energia, limiares, VO₂máx, fadiga e adaptações — com interatividade.",
+      img:"assets/img/covers/ccover-fisiologia.jpg", level:"Intermediário", dur:"7 módulos + prova · ~3,5 h",
+      learn:["Sistemas de energia","Limiares & zonas","VO₂máx & economia","Fadiga & pacing","Polarizado 80/20"] },
 
     { id:"periodizacao", cat:"metodologia", published:false,
       title:"Periodização do Treino",
