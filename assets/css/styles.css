@@ -184,6 +184,19 @@ h2.section{font-size:23px;margin:6px 0 4px}
 .flash-hint{background:rgba(124,92,255,.08);border:1px dashed rgba(124,92,255,.5);border-radius:12px;
   padding:11px 14px;margin:0 0 16px;font-size:13.5px;color:var(--tx-dim)}
 .flash-hint .term{cursor:default}
+/* Interativos v2 (Chart.js / p5.js) */
+.ix .p5host{margin:10px 0}
+.ix .p5host canvas,.ix .ix-canvas{max-width:100%;height:auto;display:block;border-radius:12px}
+.ix .ix-note{font-size:13px;color:var(--tx-dim);margin-top:8px}
+.ix .ix-btns{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.ix .ix-btns button{padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:var(--bg-3);
+  color:var(--tx-dim);font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.ix .ix-btns button.on{border-color:var(--brand);color:#fff;background:rgba(124,92,255,.18)}
+.ix .ix-run{margin-top:6px}
+.ix .ix-card{margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--bg-3);border:1px solid var(--line);font-size:14px}
+.ix .ix-card.good{border-color:#3cc878;background:rgba(60,200,120,.1)}
+.ix .ix-card.bad{border-color:#e0645a;background:rgba(224,100,90,.1)}
+.ix input[type=number].ix-fc{width:120px}
 .faca{border:1px dashed rgba(124,92,255,.6);border-radius:12px;padding:15px;margin:14px 0;
   background:rgba(124,92,255,.06)}
 .faca .tag{color:var(--brand-2);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.4px}

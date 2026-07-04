@@ -1,5 +1,5 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v24";
+const VERSION = "aprendiz-v25";
 const ASSETS = [
   "./",
   "index.html",
@@ -7,6 +7,9 @@ const ASSETS = [
   "content/platform.js",
   "assets/js/imp.js",
   "assets/js/tools.js",
+  "assets/vendor/chart.umd.min.js",
+  "assets/vendor/p5.min.js",
+  "assets/js/interactives.js",
   "assets/js/analyzer.js",
   "assets/js/flashcards.js",
   "assets/js/app.js",
