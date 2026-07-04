@@ -197,6 +197,11 @@ h2.section{font-size:23px;margin:6px 0 4px}
 .ix .ix-card.good{border-color:#3cc878;background:rgba(60,200,120,.1)}
 .ix .ix-card.bad{border-color:#e0645a;background:rgba(224,100,90,.1)}
 .ix input[type=number].ix-fc{width:120px}
+.ix .fuel-bar{position:relative;height:16px;border-radius:10px;background:var(--bg-3);border:1px solid var(--line);margin:12px 0 4px;overflow:hidden}
+.ix .fuel-fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:10px;transition:width .18s ease,background .18s ease}
+.ix .fuel-mark{position:absolute;top:-3px;bottom:-3px;width:2px;background:rgba(255,255,255,.28)}
+.ix .fuel-mark.m30{left:33.3%}.ix .fuel-mark.m60{left:66.6%}
+.ix .fuel-card{margin-top:12px}
 .faca{border:1px dashed rgba(124,92,255,.6);border-radius:12px;padding:15px;margin:14px 0;
   background:rgba(124,92,255,.06)}
 .faca .tag{color:var(--brand-2);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.4px}

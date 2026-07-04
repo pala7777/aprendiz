@@ -1,5 +1,5 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v26";
+const VERSION = "aprendiz-v27";
 const ASSETS = [
   "./",
   "index.html",
@@ -35,7 +35,11 @@ const ASSETS = [
   "assets/img/covers/mcover-4.jpg","assets/img/covers/mcover-5.jpg","assets/img/covers/mcover-6.jpg","assets/img/covers/mcover-7.jpg",
   "assets/img/diagrams/fis-energia.jpg","assets/img/diagrams/fis-crossover.jpg","assets/img/diagrams/fis-limiares.jpg",
   "assets/img/diagrams/fis-vo2.jpg","assets/img/diagrams/fis-pilares.jpg","assets/img/diagrams/fis-coracao.jpg",
-  "assets/img/diagrams/fis-adaptacoes.jpg","assets/img/diagrams/fis-polarizado.jpg","assets/img/diagrams/fis-fadiga.jpg"
+  "assets/img/diagrams/fis-adaptacoes.jpg","assets/img/diagrams/fis-polarizado.jpg","assets/img/diagrams/fis-fadiga.jpg",
+  "assets/img/covers/ccover-nutricao.jpg",
+  "assets/img/diagrams/nut-macros.jpg","assets/img/diagrams/nut-tanque.jpg","assets/img/diagrams/nut-timing.jpg",
+  "assets/img/diagrams/nut-prova.jpg","assets/img/diagrams/nut-intestino.jpg","assets/img/diagrams/nut-hidratacao.jpg",
+  "assets/img/diagrams/nut-recuperacao.jpg","assets/img/diagrams/nut-composicao.jpg","assets/img/diagrams/nut-suplementos.jpg"
 ];
 
 self.addEventListener("install", (e) => {

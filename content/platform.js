@@ -58,11 +58,11 @@ window.PLATFORM = {
       img:"assets/img/covers/ccover-periodizacao.jpg", level:"Treinadores", dur:"em breve",
       learn:["Macro/meso/micro","Picos de forma","Carga & recuperação","Blocos","Polarização"] },
 
-    { id:"nutricao", cat:"nutricao", published:false,
+    { id:"nutricao", cat:"nutricao", published:true,
       title:"Nutrição para Resistência",
-      sub:"Combustível, hidratação e estratégia de prova.",
-      img:"assets/img/covers/ccover-nutricao.jpg", level:"Todos os níveis", dur:"em breve",
-      learn:["Carboidrato","Hidratação","Estratégia de prova","Gel & comida real","Composição corporal"] },
+      sub:"Combustível, hidratação, estratégia de prova e recuperação — sem dieta da moda.",
+      img:"assets/img/covers/ccover-nutricao.jpg", level:"Todos os níveis", dur:"7 módulos + prova · ~3,5 h",
+      learn:["Carbo por hora","Carga & periodização","Hidratação & sódio","Recuperação","Suplementos que funcionam"] },
 
     { id:"ciclismo", cat:"ciclismo", published:false,
       title:"Ciclismo: Potência e Periodização",

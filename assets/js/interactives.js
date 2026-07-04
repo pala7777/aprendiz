@@ -241,4 +241,42 @@
     requestAnimationFrame(() => requestAnimationFrame(build));
     return cap(wrap, caption);
   };
+
+  /* ---------- CALCULADORA DE COMBUSTÍVEL (DOM) — carbo/hora por duração ---------- */
+  T.fuelCalc = function (caption) {
+    const wrap = el(`<div class="tool ix">
+      <label>Duração prevista da prova: <b class="fv">2 h 00</b></label>
+      <input type="range" min="30" max="720" step="15" value="120" class="ix-dur">
+      <div class="fuel-bar"><i class="fuel-fill"></i><span class="fuel-mark m30"></span><span class="fuel-mark m60"></span></div>
+      <div class="ix-card fuel-card"></div>
+      <div class="ix-note">Recomendação baseada no consenso atual de nutrição esportiva. Acima de ~60 g/h é preciso <b>treinar o intestino</b> e misturar fontes (glicose + frutose).</div>
+    </div>`);
+    const dur = wrap.querySelector(".ix-dur");
+    const fv = wrap.querySelector(".fv");
+    const fill = wrap.querySelector(".fuel-fill");
+    const card = wrap.querySelector(".fuel-card");
+    function rec(mins) {
+      if (mins < 60) return [0, 0, "Água é suficiente. Abaixo de 1 h, seus estoques de glicogênio dão conta — não precisa de carboidrato durante."];
+      if (mins < 150) return [30, 60, "Faixa clássica: um gel ou bebida esportiva a cada 30–45 min já resolve. Uma fonte de carboidrato basta."];
+      if (mins < 180) return [60, 70, "Você entra na zona alta: misture fontes (glicose + frutose) para absorver mais e evitar enjoo."];
+      return [70, 90, "Prova longa: mire o topo (até 90 g/h), mas só se tiver TREINADO o intestino. Sem treino, o estômago trava."];
+    }
+    function build() {
+      const mins = +dur.value;
+      const h = Math.floor(mins / 60), m = mins % 60;
+      fv.textContent = h + " h " + (m < 10 ? "0" : "") + m;
+      const [lo, hi, note] = rec(mins);
+      const mid = (lo + hi) / 2;
+      fill.style.width = Math.min(100, mid / 90 * 100) + "%";
+      fill.style.background = mid === 0 ? "#3b82f6" : mid <= 55 ? "#22c55e" : mid <= 68 ? "#eab308" : "#f97316";
+      const totLo = Math.round(lo * mins / 60), totHi = Math.round(hi * mins / 60);
+      const gh = lo === hi ? (lo + " g/h") : (lo + "–" + hi + " g de carboidrato por hora");
+      card.innerHTML = "<div style='font-size:22px;font-weight:800;margin-bottom:4px'>" + (lo === 0 ? "0 g/h — só água" : "🎯 " + gh) + "</div>"
+        + (lo === 0 ? "" : "<div style='color:var(--muted,#9aa3bd);margin-bottom:8px'>Total na prova: ~<b>" + totLo + "–" + totHi + " g</b> de carboidrato (≈ " + Math.round(totLo / 25) + "–" + Math.round(totHi / 25) + " géis)</div>")
+        + "<div>" + note + "</div>";
+    }
+    dur.addEventListener("input", build);
+    build();
+    return cap(wrap, caption);
+  };
 })();
