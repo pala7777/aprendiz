@@ -1,5 +1,5 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v28";
+const VERSION = "aprendiz-v29";
 const ASSETS = [
   "./",
   "index.html",
@@ -43,7 +43,11 @@ const ASSETS = [
   "assets/img/covers/ccover-rua.jpg",
   "assets/img/diagrams/rua-provas.jpg","assets/img/diagrams/rua-vam.jpg","assets/img/diagrams/rua-zonas.jpg",
   "assets/img/diagrams/rua-metodos.jpg","assets/img/diagrams/rua-progressao.jpg","assets/img/diagrams/rua-combustivel.jpg",
-  "assets/img/diagrams/rua-muro.jpg","assets/img/diagrams/rua-forca.jpg","assets/img/diagrams/rua-testes.jpg"
+  "assets/img/diagrams/rua-muro.jpg","assets/img/diagrams/rua-forca.jpg","assets/img/diagrams/rua-testes.jpg",
+  "assets/img/covers/ccover-lesoes.jpg",
+  "assets/img/diagrams/les-porque.jpg","assets/img/diagrams/les-carga.jpg","assets/img/diagrams/les-biomecanica.jpg",
+  "assets/img/diagrams/les-forca.jpg","assets/img/diagrams/les-tecnica.jpg","assets/img/diagrams/les-osso.jpg",
+  "assets/img/diagrams/les-mulher.jpg","assets/img/diagrams/les-dor.jpg","assets/img/diagrams/les-voltar.jpg"
 ];
 
 self.addEventListener("install", (e) => {

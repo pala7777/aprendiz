@@ -52,6 +52,12 @@ window.PLATFORM = {
       img:"assets/img/covers/ccover-fisiologia.jpg", level:"Intermediário", dur:"7 módulos + prova · ~3,5 h",
       learn:["Sistemas de energia","Limiares & zonas","VO₂máx & economia","Fadiga & pacing","Polarizado 80/20"] },
 
+    { id:"lesoes", cat:"metodologia", published:true,
+      title:"Prevenção de Lesões na Corrida",
+      sub:"Por que corredores se lesionam e como não entrar na estatística — carga, força, biomecânica e volta segura.",
+      img:"assets/img/covers/ccover-lesoes.jpg", level:"Todos os níveis", dur:"7 módulos + prova · ~3,5 h",
+      learn:["Gestão de carga","Biomecânica de risco","Força que blinda","Osso & energia","Dor & volta segura"] },
+
     { id:"periodizacao", cat:"metodologia", published:false,
       title:"Periodização do Treino",
       sub:"Montar temporadas que levam ao pico na hora certa.",
