@@ -709,10 +709,10 @@
   }
 
   /* ---------- tooltips do glossário ---------- */
-  let tipEl=null, tipHideT=null;
+  let tipEl=null, tipHideT=null, tipSticky=false;
   const tipHold=()=>clearTimeout(tipHideT);
-  const tipLater=()=>{clearTimeout(tipHideT);tipHideT=setTimeout(hideTip,260);};
-  function showTip(t,text){ hideTip();
+  const tipLater=()=>{if(tipSticky)return;clearTimeout(tipHideT);tipHideT=setTimeout(hideTip,340);};
+  function showTip(t,text,sticky){ hideTip(); tipSticky=!!sticky;
     const term=t.dataset.term, key=gk(CUR().id,term.toLowerCase()), added=!!S.seen[key];
     tipEl=document.createElement("div");tipEl.className="tip";
     tipEl.innerHTML="<b>"+term+"</b><br>"+text+"<button class='tip-add"+(added?" on":"")+"'>"+(added?"✓ nos flashcards":"➕ Adicionar aos flashcards")+"</button>";
@@ -720,15 +720,15 @@
     tipEl.addEventListener("mouseenter",tipHold); tipEl.addEventListener("mouseleave",tipLater);
     tipEl.querySelector(".tip-add").onclick=ev=>{ev.stopPropagation();
       if(S.seen[key])delete S.seen[key]; else { S.seen[key]=1; checkBadges(); }
-      save(); showTip(t,text);};
+      save(); showTip(t,text,true);};
     const r=t.getBoundingClientRect();const tw=Math.min(300,innerWidth-24);tipEl.style.width=tw+"px";
     tipEl.style.left=Math.min(Math.max(8,r.left),innerWidth-tw-8)+"px";
     let top=r.top-tipEl.offsetHeight-8; if(top<8)top=r.bottom+8; tipEl.style.top=top+"px";}
-  function hideTip(){clearTimeout(tipHideT);if(tipEl){tipEl.remove();tipEl=null;}}
+  function hideTip(){clearTimeout(tipHideT);tipSticky=false;if(tipEl){tipEl.remove();tipEl=null;}}
   function bindTip(elm,def){elm.dataset.term=elm.dataset.term||elm.textContent;
-    elm.addEventListener("mouseenter",()=>{tipHold();showTip(elm,def);});
+    elm.addEventListener("mouseenter",()=>{tipHold();if(!tipSticky)showTip(elm,def,false);});
     elm.addEventListener("mouseleave",tipLater);
-    elm.addEventListener("click",e=>{e.stopPropagation();tipHold();tipEl?hideTip():showTip(elm,def);});}
+    elm.addEventListener("click",e=>{e.stopPropagation();tipHold();showTip(elm,def,true);});}
   function attachGlossary(root){ const co=CO(); if(!co)return; const g={}; co.glossary.forEach(([t,d])=>g[t.toLowerCase()]=d);
     root.querySelectorAll("[data-term]").forEach(s=>{const k=s.dataset.term.toLowerCase();if(g[k]){s.classList.add("term");bindTip(s,g[k]);}});
     root.querySelectorAll(".prose").forEach(scope=>co.glossary.forEach(([term])=>wrapFirst(scope,term,g[term.toLowerCase()])));
