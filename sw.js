@@ -1,5 +1,5 @@
 /* Service Worker — Aprendiz (offline-first app shell) */
-const VERSION = "aprendiz-v27";
+const VERSION = "aprendiz-v28";
 const ASSETS = [
   "./",
   "index.html",
@@ -39,7 +39,11 @@ const ASSETS = [
   "assets/img/covers/ccover-nutricao.jpg",
   "assets/img/diagrams/nut-macros.jpg","assets/img/diagrams/nut-tanque.jpg","assets/img/diagrams/nut-timing.jpg",
   "assets/img/diagrams/nut-prova.jpg","assets/img/diagrams/nut-intestino.jpg","assets/img/diagrams/nut-hidratacao.jpg",
-  "assets/img/diagrams/nut-recuperacao.jpg","assets/img/diagrams/nut-composicao.jpg","assets/img/diagrams/nut-suplementos.jpg"
+  "assets/img/diagrams/nut-recuperacao.jpg","assets/img/diagrams/nut-composicao.jpg","assets/img/diagrams/nut-suplementos.jpg",
+  "assets/img/covers/ccover-rua.jpg",
+  "assets/img/diagrams/rua-provas.jpg","assets/img/diagrams/rua-vam.jpg","assets/img/diagrams/rua-zonas.jpg",
+  "assets/img/diagrams/rua-metodos.jpg","assets/img/diagrams/rua-progressao.jpg","assets/img/diagrams/rua-combustivel.jpg",
+  "assets/img/diagrams/rua-muro.jpg","assets/img/diagrams/rua-forca.jpg","assets/img/diagrams/rua-testes.jpg"
 ];
 
 self.addEventListener("install", (e) => {

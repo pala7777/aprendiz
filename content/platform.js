@@ -28,11 +28,11 @@ window.PLATFORM = {
       img:"assets/img/covers/ccover-trail.jpg", level:"Do zero ao avançado", dur:"7 módulos + prova · ~3,5 h",
       learn:["Carga interna × externa","Limiares VT1/VT2","Fartlek","Correr × caminhar","Descidas & excêntrico","Séries de subida","Respiração","Periodização"] },
 
-    { id:"rua", cat:"corrida", published:false,
+    { id:"rua", cat:"corrida", published:true,
       title:"Corrida de Rua: do 5 km à Maratona",
-      sub:"Planejamento, ritmo e progressão para provas de asfalto.",
-      img:"assets/img/covers/ccover-rua.jpg", level:"Iniciante+", dur:"em breve",
-      learn:["Ritmo de prova","Zonas de treino","Progressão de volume","Tapering","Longão","Tiros"] },
+      sub:"VAM, zonas, métodos e a maratona por dentro — metodologia de treinadores de elite.",
+      img:"assets/img/covers/ccover-rua.jpg", level:"Iniciante+ ao avançado", dur:"7 módulos + prova · ~3,5 h",
+      learn:["VAM & zonas","Meia × maratona","Métodos de treino","Periodização","A maratona por dentro","Força & taper"] },
 
     { id:"forca-endurance", ref:"COURSE_FORCA", cat:"forca", published:true,
       title:"Força para Esportes de Resistência",
